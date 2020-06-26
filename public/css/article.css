@@ -1,0 +1,55 @@
+/* Stylesheet for all Articles */
+
+/* Parent Container */
+.article-content {
+
+}
+
+.article-content h4 {
+    font-family: "Encode Sans", sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    line-height: 1em;
+}
+.single-spotlight .article-content h4, .single-styled_shoot h4 {
+    color: var(--red-color);
+}
+.single-post .article-content h4 {
+
+}
+/* Individual Row */
+.article-content-row {
+    display: flex;
+    flex-direction: row;
+    padding-bottom: 20px;
+}
+
+/* One Column Row */
+.article-one-column {
+    width: 100%;
+}
+
+/* Two Columns Row */
+.article-two-columns {
+    width: 49%;
+}
+.article-two-columns.last {
+    margin-left: 2%;
+}
+
+/* Three Columns Row */
+.article-three-columns {
+    width: 32%;
+}
+.article-three-columns.last {
+    margin-left: 2%;
+}
+
+/* Gray Bottom Border */
+.article-image-block, .article-video-block.embed-container {
+    border-bottom: var(--light-gray-color) solid 2px;
+    margin-bottom: 5px;
+}
+.article-video-block.embed-container div {
+    margin-bottom: 5px;
+}

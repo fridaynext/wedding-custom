@@ -1,0 +1,6 @@
+/* Friday Next CSS Additions to Vendor List Page */
+div.wf-column {
+	float:left;
+	width: 25%;
+	min-width: 200px;
+}
