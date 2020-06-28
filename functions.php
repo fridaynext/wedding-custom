@@ -8,7 +8,8 @@ define('FRIDAY_NEXT_EXTRAS_VERSION', '1.1.9');
 
 /********************* ACF JSON *********************/
 add_filter('acf/settings/save_json', 'my_acf_json_save_point');
-function my_acf_json_save_point( $path ) {
+function my_acf_json_save_point($path)
+{
 
     // update path
     $path = plugins_url('private/acf/', __FILE__);
@@ -17,8 +18,10 @@ function my_acf_json_save_point( $path ) {
     return $path;
 
 }
+
 add_filter('acf/settings/load_json', 'my_acf_json_load_point');
-function my_acf_json_load_point( $paths ) {
+function my_acf_json_load_point($paths)
+{
     // remove original path (optional)
     unset($paths[0]);
 
@@ -29,11 +32,21 @@ function my_acf_json_load_point( $paths ) {
     return $paths;
 }
 
+/* Remove admin bar for editors */
+add_action('after_setup_theme', 'remove_admin_bar');
+function remove_admin_bar()
+{
+    if (!current_user_can('administrator') && !is_admin()) {
+        show_admin_bar(false);
+    }
+}
+
 add_action('wp_print_styles', 'fn_enqueue_styles');
 add_action('wp_enqueue_scripts', 'fn_enqueue_scripts');
 
 // read in csv, and import into WP database
-function import_vendors_func() {
+function import_vendors_func()
+{
 //    $row = 1;
 //    // 9 total fields
 //    $html = '';
@@ -93,6 +106,7 @@ function import_vendors_func() {
 //        update_field('website', $website, $vendor->ID);
 //    }
 }
+
 add_shortcode('import_vendors', 'import_vendors_func');
 
 /**
@@ -101,10 +115,10 @@ add_shortcode('import_vendors', 'import_vendors_func');
  * This replaces the WordPress `wp_ob_end_flush_all()` function
  * with a replacement that doesn't cause PHP notices.
  */
-remove_action( 'shutdown', 'wp_ob_end_flush_all', 1 );
-add_action( 'shutdown', function() {
-    while ( @ob_end_flush() );
-} );
+remove_action('shutdown', 'wp_ob_end_flush_all', 1);
+add_action('shutdown', function () {
+    while (@ob_end_flush()) ;
+});
 
 /* Adding Google Maps API Key for ACF Form Fields */
 function my_acf_init()
@@ -161,9 +175,9 @@ function fn_enqueue_scripts()
 
     // For jQuery Tables on Admin pages
     //   TODO: Do a check for what page we're on, and only enqueue these if we're in the admin section!!!
-    wp_register_script('datatables_script', '//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js', array(), null,true);
+    wp_register_script('datatables_script', '//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js', array(), null, true);
     wp_register_script('datatables_buttons_script', '//cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js', array(), null, true);
-    wp_localize_script( 'datatables_script', 'datatablesajax', array('url' => admin_url('admin-ajax.php?action=article_datatables')) );
+    wp_localize_script('datatables_script', 'datatablesajax', array('url' => admin_url('admin-ajax.php?action=article_datatables')));
     wp_enqueue_script('datatables_script');
     wp_enqueue_script('datatables_buttons_script');
 
@@ -175,6 +189,7 @@ function fn_enqueue_scripts()
     }
 
     wp_register_script('fn_scripts', plugins_url('public/js/scripts.js', __FILE__), array('jquery', 'facebook_share', 'pinterest_share', 'jquery-ui-core', 'datatables_script', 'datatables_buttons_script'), FRIDAY_NEXT_EXTRAS_VERSION, true);
+    wp_localize_script('fn_scripts', 'fnajax', array('ajax_url' => admin_url('admin-ajax.php')));
     wp_enqueue_script('fn_scripts');
 }
 
@@ -186,17 +201,18 @@ function acf_reqs()
 }
 
 // Login Redirect
-function my_login_redirect( $redirect_to, $request, $user ) {
+function my_login_redirect($redirect_to, $request, $user)
+{
     //is there a user to check?
-    if ( isset( $user->roles ) && is_array( $user->roles ) ) {
+    if (isset($user->roles) && is_array($user->roles)) {
         //check for admins
-        if ( in_array( 'administrator', $user->roles ) ) {
+        if (in_array('administrator', $user->roles)) {
             // redirect them to the default place
             return $redirect_to;
-        } elseif ( in_array('editor', $user->roles ) ) {
+        } elseif (in_array('editor', $user->roles)) {
             // Redirect editors to the saw-admin section!
             return get_page_link(6433);
-        } elseif ( in_array('vendor', $user->roles ) ) {
+        } elseif (in_array('vendor', $user->roles)) {
             // Redirect vendors to the vendor admin section!
             // TODO: RETURN VENDORS TO THEIR VENDOR ADMIN PAGE!!!!!
             return home_url();
@@ -209,7 +225,7 @@ function my_login_redirect( $redirect_to, $request, $user ) {
     }
 }
 
-add_filter( 'login_redirect', 'my_login_redirect', 10, 3 );
+add_filter('login_redirect', 'my_login_redirect', 10, 3);
 
 // Custom Login Logo
 function saw_login_logo()
@@ -472,21 +488,23 @@ add_shortcode('photographer', 'photographer_func');
 
 /************************* AJAX FOR DATATABLES *********************************/
 // Add Post title to custom meta
-add_action( 'transition_post_status', 'duplicate_title', 10, 3 );
-function duplicate_title( $new, $old, $post ) {
-    if ( $post->post_type == 'post' || $post->post_type == 'spotlight' || $post->post_type == 'styled_shoot' || $post->post_type == 'wedding_story') {
-        update_post_meta( $post->ID, 'd_title', $post->post_title );
+add_action('transition_post_status', 'duplicate_title', 10, 3);
+function duplicate_title($new, $old, $post)
+{
+    if ($post->post_type == 'post' || $post->post_type == 'spotlight' || $post->post_type == 'styled_shoot' || $post->post_type == 'wedding_story') {
+        update_post_meta($post->ID, 'd_title', $post->post_title);
     }
 }
 
-add_action( 'wp_ajax_article_datatables', 'my_ajax_getpostsfordatatables' );
-add_action( 'wp_ajax_nopriv_article_datatables', 'my_ajax_getpostsfordatatables' );
+add_action('wp_ajax_article_datatables', 'my_ajax_getpostsfordatatables');
+add_action('wp_ajax_nopriv_article_datatables', 'my_ajax_getpostsfordatatables');
 
-function my_ajax_getpostsfordatatables() {
+function my_ajax_getpostsfordatatables()
+{
 
     header("Content-Type: application/json");
 
-    $request= $_GET;
+    $request = $_GET;
 
     $columns = array(
         0 => 'featuredImage',
@@ -499,7 +517,7 @@ function my_ajax_getpostsfordatatables() {
     );
 
     $args = array(
-        'post_type' => array('spotlight', 'styled_shoot', 'wedding_story'),
+        'post_type' => array('spotlight', 'styled_shoot', 'wedding_story', 'post'),
         'posts_per_page' => $request['length'],
         'offset' => $request['start'],
         'order' => $request['order'][0]['dir']
@@ -515,18 +533,24 @@ function my_ajax_getpostsfordatatables() {
     }
 
     //$request['search']['value'] <= Value from search
-    if( !empty($request['search']['value']) ) { // When datatables search is used
+    if (!empty($request['search']['value'])) { // When datatables search is used
         $args['s'] = $request['search']['value'];
     }
 
     $article_query = new WP_Query($args);
     $totalData = $article_query->found_posts;
 
-    if ( $article_query->have_posts() ) {
+    if ($article_query->have_posts()) {
         $data = array();
-        while ( $article_query->have_posts() ) {
+        while ($article_query->have_posts()) {
 
             $article_query->the_post();
+            $active_class = 'deactivate-post';
+            $active_text = 'Deactivate';
+            if (!get_field('is_active')) {
+                $active_class = 'activate-post';
+                $active_text = 'Activate';
+            }
 
             $thumbnail = get_field('featured_image_thumbnail');
             $image = '<img src="' . esc_url($thumbnail['url']) . '" alt="' . esc_url($thumbnail['alt']) . '" width=90 height=90 />';
@@ -536,14 +560,14 @@ function my_ajax_getpostsfordatatables() {
             $nestedData[] = '<a href="' . get_the_permalink() . '" alt="' . get_the_title() . '" target="_blank">' . get_the_title() . '</a>';
             $nestedData[] = get_field('author');
             $nestedData[] = get_the_date("m/d/Y") . '<br>' . get_the_date("g:i A");
-            $nestedData[] = (get_field('is_active') ? "Yes" : "No" );
+            $nestedData[] = (get_field('is_active') ? "Yes" : "No");
             $nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
 					            <i class="fas fa-chevron-down"></i>
 						</button>
 					    <ul class="vmenu-dropdown">
 					    	<li><a href="/saw-admin/edit-article?a_id=' . get_the_ID() . '">Edit</a></li>
-							<li><a href="#">Deactivate</a></li>
+							<li><a href="#" class="' . $active_class . '" id="' . get_the_ID() . '">' . $active_text . '</a></li>
 							<li><a href="' . get_delete_post_link() . '" alt="Delete this Article">Delete</a></li>
 					    </ul>
 					</div>';
@@ -569,65 +593,173 @@ function my_ajax_getpostsfordatatables() {
         echo json_encode($json_data);
     }
     wp_die();
-
-    // OLD
-//    global $wpdb;
-//    $posts_per_page = 30;
-//    $page = 1;
-//
-//    $args = array(
-//        'post_type' => array('spotlight', 'styled_shoot', 'wedding_story'),
-//        'post_per_page' => $posts_per_page,
-//        'paged' => $page
-//    );
-//
-//    // query the data
-//    $articles = new WP_Query($args);
-//
-//    // create an empty array and fill it with articles
-//    $article_json = array();
-//    while($articles->have_posts()) : the_post();
-//        $row = array(
-//            'featuredImage' => get_field('featured_image_thumbnail'),
-//            'type' => get_post_type(),
-//            'title' => get_the_title(),
-//            'author' => get_field('author'),
-//            'postDate' => get_the_date("m/d/Y") . '<br>' . get_the_date("g:i A"),
-//            'isActive' => (get_field('is_active') ? "Yes" : "No" ),
-//            'action' => '<div class="vmenu-container">
-//						<button class="vmenu-button" type="button">
-//					            <i class="fas fa-chevron-down"></i>
-//						</button>
-//					    <ul class="vmenu-dropdown">
-//					    	<li><a href="/saw-admin/edit-article?a_id=' . get_the_ID() . '">Edit</a></li>
-//							<li><a href="#">Deactivate</a></li>
-//							<li><a href="' . get_delete_post_link() . '" alt="Delete this Article">Delete</a></li>
-//					    </ul>
-//					</div>'
-//        );
-//        print_r($row);
-//        $article_json[] = $row;
-//    endwhile;
-//
-//    //return the result to the ajax request and die
-//    echo json_encode(array('data' => $article_json));
-//    wp_reset_postdata();
-//    die($article_json);
 }
 
+add_action('wp_ajax_vendor_datatables', 'render_vendors');
+add_action('wp_ajax_nopriv_vendor_datatables', 'render_vendors');
+
+function render_vendors()
+{
+
+    header("Content-Type: application/json");
+
+    $request = $_GET;
+
+    $columns = array(
+        0 => 'companyName',
+        1 => 'categories',
+        2 => 'url_slug',
+        3 => 'group',
+        4 => 'premium',
+        5 => 'isActive',
+        6 => 'action'
+    );
+
+    $args = array(
+        'post_type' => 'vendor_profile',
+        'posts_per_page' => $request['length'],
+        'offset' => $request['start'],
+        'order' => $request['order'][0]['dir']
+    );
+
+    if ($request['order'][0]['column'] == 1 || $request['order'][0]['column'] == 3 || $request['order'][0]['column'] == 5) {
+        $args['orderby'] = $columns[$request['order'][0]['column']];
+    } elseif ($request['order'][0]['column'] == 4) {
+        $args['orderby'] = 'date';
+    } else {
+        $args['orderby'] = 'title';
+    }
+
+    //$request['search']['value'] <= Value from search
+    if (!empty($request['search']['value'])) { // When datatables search is used
+        $args['s'] = $request['search']['value'];
+    }
+
+    $vendor_query = new WP_Query($args);
+    $totalData = $vendor_query->found_posts;
+
+    if ($vendor_query->have_posts()) {
+        $data = array();
+        while ($vendor_query->have_posts()) {
+
+            $vendor_query->the_post();
+            $active_class = 'deactivate-post';
+            $active_text = 'Deactivate';
+            if (!get_field('is_active')) {
+                $active_class = 'activate-post';
+                $active_text = 'Activate';
+            }
+
+            $nestedData = array();
+            $nestedData[] = '<a href="' . get_the_permalink() . '" alt="' . get_the_title() . '" target="_blank">' . get_the_title() . '</a>';
+            $nestedData[] = ''; // TODO: get all categories
+            $nestedData[] = get_post_field('post_name');
+            $nestedData[] = get_field('group'); // TODO: filter out individual taxonomy
+            $nestedData[] = ''; // TODO: premium level for each category
+            $nestedData[] = (get_field('is_active') ? "Yes" : "No");
+            $nestedData[] = '<div class="vmenu-container">
+						<button class="vmenu-button" type="button">
+					            <i class="fas fa-chevron-down"></i>
+						</button>
+					    <ul class="vmenu-dropdown">
+					    	<li><a href="/saw-admin/edit-advertiser?ven_id=' . get_the_ID() . '">Edit</a></li>
+							<li><a href="#" class="' . $active_class . '" id="' . get_the_ID() . '">' . $active_text . '</a></li>
+							<li><a href="' . get_delete_post_link() . '" alt="Delete this Vendor">Delete</a></li>
+					    </ul>
+					</div>';
+
+            $data[] = $nestedData;
+        }
+
+        wp_reset_query();
+
+        $json_data = array(
+            "draw" => intval($request['draw']),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalData),
+            "data" => $data
+        );
+
+        echo json_encode($json_data);
+
+    } else {
+        $json_data = array(
+            "data" => array()
+        );
+        echo json_encode($json_data);
+    }
+    wp_die();
+}
+
+add_action('wp_ajax_deactivate_post', 'my_ajax_deactivate_post');
+function my_ajax_deactivate_post()
+{
+    $post_id = intval($_POST['article_id']);
+
+    // this isn't a post. let's check to see if it's a category
+    if (get_term($post_id, 'category')) {
+        // it's a category
+        if (get_term_meta($post_id, 'is_active', true)) {
+            // it's active
+            update_term_meta($post_id, 'is_active', false);
+            $resp = array(
+                'title' => 'Activation Status',
+                'content' => 'Category was deactivated!',
+                'post_type' => 'category'
+            );
+            wp_send_json($resp);
+            wp_die();
+        }
+    } else {
+        // change the 'isActive' custom field to 'No' (aka false)
+        if (get_field('is_active', $post_id)) {
+            update_field('is_active', false, $post_id);
+        }
+        $resp = array(
+            'title' => 'Activation Status',
+            'content' => 'Post was deactivated!',
+            'post_type' => get_post_type($post_id)
+        );
+        wp_send_json($resp);
+        wp_die();
+    }
+}
+
+add_action('wp_ajax_activate_post', 'my_ajax_activate_post');
+function my_ajax_activate_post()
+{
+    $post_id = intval($_POST['article_id']);
+
+    // Let's check to see if it's a category
+    if (get_term($post_id, 'category')) {
+        // it's a category
+        if (!get_term_meta($post_id, 'is_active', true)) {
+            // it's not active
+            update_term_meta($post_id, 'is_active', true);
+            $resp = array(
+                'title' => 'Activation Status',
+                'content' => 'Category was Activated!',
+                'post_type' => 'category'
+            );
+            wp_send_json($resp);
+            wp_die();
+        }
+    } else {
+        // change the 'isActive' custom field to 'Yes' (aka true)
+        update_field('is_active', true, $post_id);
+        $resp = array(
+            'title' => 'Activation Status',
+            'content' => 'Post was deactivated!',
+            'post_type' => get_post_type($post_id)
+        );
+        wp_send_json($resp);
+        wp_die();
+    }
+}
 
 /* Vendors Table Shortcode */
 function vendor_table_func($atts)
 {
-
-    // grab all vendors to display on the table
-    $args = array(
-        'post_type' => 'vendor_profile',
-        'posts_per_page' => -1
-    );
-    $vendors = get_posts($args);
-
-
     $vtable = '<table id="vendor_table" class="dataTable compact display" data-page-length="30">
 	    <thead>
 	        <tr>
@@ -640,40 +772,6 @@ function vendor_table_func($atts)
 				<th>Action</th>
 	        </tr>
 	    </thead>
-	    <tbody>';
-
-    foreach ($vendors as $vendor) {
-        $vid = $vendor->ID;
-        $vtable .= '<tr>';
-        $vtable .= '<td><a href="' . get_permalink($vid) . '" target="_blank">' . get_the_title($vid) . '</a></td>';
-        $categories = get_the_category($vid);
-        $carray = [];
-        foreach ($categories as $category) {
-            $carray[] = $category->name;
-        }
-        $cstring = join(", ", $carray);
-        $vtable .= '<td>' . $cstring . '</td>';
-        $vtable .= '<td>' . $vendor->post_name . '</td>';
-        $vtable .= '<td>Group 1, Group 2</td>';
-        $vtable .= '<td>5</td>';
-        $vtable .= '<td>Yes</td>';
-        $vtable .= '<td>
-					<div class="vmenu-container">
-						<button class="vmenu-button" type="button">
-					            <i class="fas fa-chevron-down"></i>
-						</button>
-					    <ul class="vmenu-dropdown">
-					    	<li><a href="/saw-admin/edit-advertiser?ven_id=' . $vendor->ID . '">Edit</a></li>
-					        <li><a href="#">Auto-login</a></li>
-							<li><a href="#">Deactivate</a></li>
-							<li><a href="' . get_delete_post_link($vendor->ID) . '" alt="Delete this Advertiser">Delete</a></li>
-					    </ul>
-					</div>
-				</td>';
-        $vtable .= '</tr>';
-    }
-
-    $vtable .= '</tbody>
 	</table>';
 
     return $vtable;
@@ -702,12 +800,7 @@ add_shortcode('articles_table', 'article_table_func');
 
 function category_table_func($atts)
 {
-
-    // grab all categories to display on the table
-    $categories = get_categories();
-
-
-    $table = '<table id="category_table" class="dataTable compact display" data-page-length="30">
+    $table = '<table id="category_table" class="dataTable compact display responsive" data-page-length="30">
 	    <thead>
 	        <tr>
 	            <th>Name</th>
@@ -718,38 +811,97 @@ function category_table_func($atts)
 				<th>Action</th>
 	        </tr>
 	    </thead>
-	    <tbody>';
-
-    foreach ($categories as $category) {
-        $cid = $category->ID;
-        $table .= '<tr>';
-        $table .= '<td>' . $category->name . '</td>';
-        $table .= '<td>' . $category->slug . '</td>';
-        $table .= '<td>Keywords</td>'; // TODO: need taxonomy for keywords
-        $table .= '<td>' . $category->description . '</td>';
-        $table .= '<td>Yes</td>'; // TODO: is Active (create boolean field)
-        $table .= '<td>
-					<div class="vmenu-container">
-						<button class="vmenu-button" type="button">
-					            <i class="fas fa-chevron-down"></i>
-						</button>
-					    <ul class="vmenu-dropdown">
-					    	<li><a href="/saw-admin/edit-article?a_id=' . $category->term_id . '">Edit</a></li>
-							<li><a href="#">Deactivate</a></li>
-							<li><a href="#">Delete</a></li>
-					    </ul>
-					</div>
-				</td>';
-        $table .= '</tr>';
-    }
-
-    $table .= '</tbody>
 	</table>';
 
     return $table;
 }
 
 add_shortcode('categories_table', 'category_table_func');
+
+add_action('wp_ajax_category_datatables', 'render_categories');
+add_action('wp_ajax_nopriv_category_datatables', 'render_categories');
+
+function render_categories()
+{
+
+    header("Content-Type: application/json");
+
+    $request = $_GET;
+
+    $columns = array(
+        0 => 'categoryName',
+        1 => 'slug',
+        2 => 'keywords',
+        3 => 'description',
+        4 => 'isActive',
+        5 => 'action'
+    );
+
+    $args = array(
+        'hide_empty' => 0,
+        'order' => $request['order'][0]['dir']
+    );
+
+    if ($request['order'][0]['column'] == 0 || $request['order'][0]['column'] == 1 || $request['order'][0]['column'] == 4) {
+        $args['orderby'] = $columns[$request['order'][0]['column']];
+    } else {
+        $args['orderby'] = 'title';
+    }
+
+    //$request['search']['value'] <= Value from search
+    if (!empty($request['search']['value'])) { // When datatables search is used
+        $args['search'] = $request['search']['value'];
+    }
+
+    // grab all categories to display on the table
+    $categories = get_categories($args);
+    $totalData = count($categories);
+    $data = array(); // will store all nested data
+
+    // check for offset and post limit
+    $num_cats = $request['length'];
+    $offset = $request['start'];
+
+    for ($i = (0 + $offset); $i < ($num_cats + $offset); $i++) {
+        if ($i >= $totalData) break; // don't keep going if we've reached the end
+        $category = $categories[$i];
+        $nested_data = array();
+        $cid = $category->term_id;
+        $is_active = get_term_meta($cid, 'is_active', true);
+        $nested_data[] = $category->name;
+        $nested_data[] = $category->slug;
+        $keywords = get_term_meta($cid, 'meta_keywords', true);
+        $keyword_string = array();
+        foreach ($keywords as $keyword) {
+            $keyword_string[] = get_term($keyword)->name;
+        }
+        $keyword_string = join(', ', $keyword_string);
+        $nested_data[] = $keyword_string;
+        $nested_data[] = get_term_meta($cid, 'description', true);
+        $nested_data[] = ($is_active ? "Yes" : "No");
+        $nested_data[] = '<div class="vmenu-container">
+						<button class="vmenu-button" type="button">
+					            <i class="fas fa-chevron-down"></i>
+						</button>
+					    <ul class="vmenu-dropdown">
+					    	<li><a href="/saw-admin/edit-category?cid=' . $cid . '">Edit</a></li>
+							<li><a href="#" class="' . ($is_active ? "deactivate-post" : "activate-post") . '" id="' . $cid . '">' . ($is_active ? "Deactivate" : "Activate") . '</a></li>
+							<li><a href="#">Delete</a></li>
+					    </ul>
+					</div>';
+        $data[] = $nested_data;
+    }
+
+    $json_data = array(
+        "draw" => intval($request['draw']),
+        "recordsTotal" => $totalData,
+        "recordsFiltered" => $totalData,
+        "data" => $data
+    );
+    echo json_encode($json_data);
+
+    wp_die();
+}
 
 function vendor_admin_form_func($atts)
 {
@@ -777,14 +929,16 @@ function vendor_admin_form_func($atts)
 add_shortcode('vendor_edit_form', 'vendor_admin_form_func');
 
 /* Change Advertiser Title label to 'Company Name' */
-function change_post_title_name( $field ) {
-    if( is_page( array('add-advertiser','advertisers', 'edit-advertiser' ) ) ) { // if on the vendor page
+function change_post_title_name($field)
+{
+    if (is_page(array('add-advertiser', 'advertisers', 'edit-advertiser'))) { // if on the vendor page
         $field['label'] = 'Company Name';
-    } elseif (is_page( array('add-article','articles', 'edit-article' ))) {
+    } elseif (is_page(array('add-article', 'articles', 'edit-article'))) {
         $field['label'] = 'URL Title';
     }
     return $field;
 }
+
 add_filter('acf/load_field/name=_post_title', 'change_post_title_name');
 
 function vendor_admin_add_form_func($atts)
@@ -810,49 +964,48 @@ function vendor_admin_add_form_func($atts)
 add_shortcode('vendor_add_form', 'vendor_admin_add_form_func');
 
 /* Auto-fill existing URL slug */
-function acf_vendor_permalinks( $value, $post_id, $field ) {
+function acf_vendor_permalinks($value, $post_id, $field)
+{
 
     $possible_post_types = array(
-            'vendor_profile'
+        'vendor_profile'
     );
-    if ( in_array(get_post_type( $post_id ),$possible_post_types) && !acf_is_empty($value)) {
+    if (in_array(get_post_type($post_id), $possible_post_types) && !acf_is_empty($value)) {
 
-        $new_slug = sanitize_title( $value );
+        $new_slug = sanitize_title($value);
 
-        wp_update_post( array(
-                'ID'         => $post_id,
-                'post_name'  => $new_slug,
+        wp_update_post(array(
+                'ID' => $post_id,
+                'post_name' => $new_slug,
             )
         );
     }
 
     return $new_slug;
 }
-add_filter( 'acf/update_value/name=permalink_title', 'acf_vendor_permalinks', 10, 3 );
 
-function edit_article_text() {
+add_filter('acf/update_value/name=permalink_title', 'acf_vendor_permalinks', 10, 3);
+
+function edit_article_text()
+{
     if (isset($_GET['a_id'])) {
         $article_id = $_GET['a_id'];
         $post_type_obj = get_post_type_object(get_post_type($article_id));
         return 'Edit ' . esc_html($post_type_obj->labels->singular_name);
     } else return 'Edit Article';
 }
+
 add_shortcode('edit_article', 'edit_article_text');
 
 /* Add new Category SHORTCODE */
-/* TODO: This is wrong - not creating a cat TERM yet! */
 function category_admin_add_form_func($atts)
 {
     $args = array(
         'post_id' => 'new_post',
-        'post_title' => true,
-        'new_post' => array(
-            'post_type' => 'vendor_profile',
-            'post_status' => 'publish'
-        ),
+        'field_groups' => array(6613, 6272), // 'Category Management' & 'Article Meta Info'
         'submit_value' => 'Create new Category',
         'instruction_placement' => 'field',
-        'return' => '/saw-admin/edit-category?cid=%post_id%'
+        'updated_message' => __("Category updated", 'acf'),
     );
     ob_start();
     acf_form($args);
@@ -863,47 +1016,166 @@ function category_admin_add_form_func($atts)
 
 add_shortcode('category_add_form', 'category_admin_add_form_func');
 
-/* Add extra fields to the category form dynamically */
-add_action('acf/input/form_data', 'category_form_extras');
-function category_form_extras( $data ) {
-    echo '
-        <div class="acf-field acf-field-text is-required" data-name="_cat_title">
-            <div class="acf-input">
-                <div class="acf-label">
-                    <label for="acf-_cat_title">
-                        Title
-                        <span class="acf-required">*</span>
-                    </label>
-                </div>
-                <div class="acf-input-wrap">
-                    <input id="acf-_cat_title" type="text" name="acf[_cat_title]" style="background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAfBJREFUWAntVk1OwkAUZkoDKza4Utm61iP0AqyIDXahN2BjwiHYGU+gizap4QDuegWN7lyCbMSlCQjU7yO0TOlAi6GwgJc0fT/fzPfmzet0crmD7HsFBAvQbrcrw+Gw5fu+AfOYvgylJ4TwCoVCs1ardYTruqfj8fgV5OUMSVVT93VdP9dAzpVvm5wJHZFbg2LQ2pEYOlZ/oiDvwNcsFoseY4PBwMCrhaeCJyKWZU37KOJcYdi27QdhcuuBIb073BvTNL8ln4NeeR6NRi/wxZKQcGurQs5oNhqLshzVTMBewW/LMU3TTNlO0ieTiStjYhUIyi6DAp0xbEdgTt+LE0aCKQw24U4llsCs4ZRJrYopB6RwqnpA1YQ5NGFZ1YQ41Z5S8IQQdP5laEBRJcD4Vj5DEsW2gE6s6g3d/YP/g+BDnT7GNi2qCjTwGd6riBzHaaCEd3Js01vwCPIbmWBRx1nwAN/1ov+/drgFWIlfKpVukyYihtgkXNp4mABK+1GtVr+SBhJDbBIubVw+Cd/TDgKO2DPiN3YUo6y/nDCNEIsqTKH1en2tcwA9FKEItyDi3aIh8Gl1sRrVnSDzNFDJT1bAy5xpOYGn5fP5JuL95ZjMIn1ya7j5dPGfv0A5eAnpZUY3n5jXcoec5J67D9q+VuAPM47D3XaSeL4AAAAASUVORK5CYII=); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%; cursor: auto;" >
-                </div>
-            </div>
-        </div>
-        <input type="hidden" name="_my_hidden_input" value="123" />
-    ';
+add_shortcode('category_edit_form', 'edit_category_admin');
+function edit_category_admin()
+{
+    if (isset($_GET['cid'])) {
+        $cat_id = $_GET['cid'];
+        $this_category = get_category($cat_id);
+
+        $args = array(
+            'post_id' => 'category_' . $cat_id,
+            'field_groups' => array(6613, 6272), // 'Category Management' & 'Article Meta Info'
+            'submit_value' => 'Update Category',
+            'instruction_placement' => 'field',
+            'updated_message' => __("Category updated", 'acf')
+        );
+        ob_start();
+        acf_form($args);
+        $html = ob_get_contents();
+        ob_end_clean();
+        return $html;
+    } else {
+        return 'No category selected. Head back to the <a href="/saw-admin/categories" alt="SAW Categories">Category table</a> and try again!';
+    }
 }
+
+/* Add extra fields to the category form dynamically */
+add_filter('acf/pre_save_post', 'save_category', 10, 1);
 
 /* Create new Category Term when category form is submitted */
-function save_category($post_id) {
-    // if new post, skip this
-    if($post_id != 'new') {
+function save_category($post_id)
+{
+    // Initialize a $cat_id variable to be used later
+    $cat_id = 0;
+    if (is_page('add-category', 'edit-category')) {
+
+        if(is_page('edit-category')) {
+            if (isset($_GET['cid'])) {
+                $post_id = $_GET['cid'];
+            }
+        }
+        // Get all the field keys on this page
+        if( is_page('add-category')) {
+            $category_key = acf_get_field_key('name', $post_id); // this gets the field key for this exact field
+            $description_key = acf_get_field_key('description', $post_id); // gets the field key for description
+            $slug_key = acf_get_field_key('slug', $post_id); // gets the field key for slug
+        }
+        $title_key = acf_get_field_key('category_title', $post_id); // gets the field key for name
+        $tags_key = acf_get_field_key('tags', $post_id); // gets the field key for tags
+        $active_key = acf_get_field_key('is_active', $post_id); // gets the field key for is_active
+        $meta_title_key = acf_get_field_key('meta_title', $post_id); // gets the field key for meta_title
+        $meta_description_key = acf_get_field_key('meta_description', $post_id); // gets the field key for meta_description
+        $meta_keywords_key = acf_get_field_key('meta_keywords', $post_id); // gets the field key for meta_keywords
+
+        // Get all the values currently inside each field
+        $acf_request = $_POST['acf'];
+        // initialize these three fields
+        $category = '';
+        $description = '';
+        $slug = '';
+        if (is_page('add-category')) {
+            $category = $acf_request[$category_key];
+            $description = $acf_request[$description_key];
+            $slug = $acf_request[$slug_key];
+        } elseif (is_page('edit-category')) {
+            $this_category = get_term($post_id);
+            $category = $this_category->name;
+            $description = $this_category->description;
+            $slug = $this_category->slug;
+        }
+        $title = $acf_request[$title_key];
+        $tags = $acf_request[$tags_key];
+        $active = $acf_request[$active_key];
+        $meta_title = $acf_request[$meta_title_key];
+        $meta_description = $acf_request[$meta_description_key];
+        $meta_keywords = $acf_request[$meta_keywords_key];
+
+        // If we're adding a new category, let's wp_insert_term here
+        if (is_page('add-category')) {
+            // Insert a new Term so we can use its ID for updating ACF fields
+            $cat_id = wp_insert_term(
+                $category,
+                'category',
+                array(
+                    'description' => $description, // get description from form
+                    'slug' => $slug         // get slug from form as well
+                )
+            );
+            if (is_wp_error($cat_id)) {
+                // saving went badly, and the category didn't update!
+                print_r('wp_insert_term resulted in this error: ' . $cat_id);
+                die();
+            }
+        } elseif (is_page('edit-category')) {
+            // if we're editing a category, let's get the category ID and save from there
+            if (isset($_GET['cid'])) {
+                $cat_id = $_GET['cid'];
+
+                wp_update_term($cat_id, 'category', array(
+                    'description' => $description,
+                    'slug' => $slug,
+                    'name' => $category
+                ));
+            }
+        }
+
+        // update these meta items regardless
+        $acf_cat_id = 'category_' . $cat_id;
+        update_field($active_key, $active, $acf_cat_id);
+        update_field($title_key, $title, $acf_cat_id);
+        update_field($tags_key, $tags, $acf_cat_id);
+        update_field($meta_title_key, $meta_title, $acf_cat_id);
+        update_field($meta_description_key, $meta_description, $acf_cat_id);
+        update_field($meta_keywords_key, $meta_keywords, $acf_cat_id);
+
+        wp_redirect('/saw-admin/edit-category?cid=' . $cat_id);
+        exit;
+
+    } else {
         return $post_id;
     }
-    // Create the new category term
-    $category_key = acf_get_field_key( 'category', $post_id ); // this gets the field key for this exact field
-    $category = $_POST['acf'][$category_key];
 
-    $new_cat = wp_insert_term(
-        $category,
-        'category',
-        array(
-            'description' => '', // get description from form
-            'slug' => ''         // get slug from form as well
-        )
-    );
 }
-add_filter('acf/pre_save_post' , 'save_category' );
+
+add_action('acf/save_post', 'delete_null_category_post');
+function delete_null_category_post($post_id)
+{
+    if (is_page('add-category')) {
+        // delete the resulting null post created when a category is created
+        wp_delete_post($post_id, true);
+    }
+}
+
+add_filter('acf/load_value', 'fill_in_category', 10, 3);
+function fill_in_category($value, $post_id, $field)
+{
+    if (isset($_GET['cid'])) {
+        $cat_id = $_GET['cid'];
+        $category = get_term($cat_id, 'category');
+        $cat_id = $category->term_id;
+        switch ($field['name']) {
+            case 'name':
+                return $category->name;
+            case 'category_title':
+                return get_term_meta($cat_id, 'category_title', true);
+            case 'description':
+                return $category->description;
+            case 'slug':
+                return $category->slug;
+            case 'tags':
+                return get_term_meta($cat_id, 'tags', true);
+            case 'meta_title':
+                return get_term_meta($cat_id, 'meta_title', true);
+            case 'meta_keywords':
+                return get_term_meta($cat_id, 'meta_keywords', true);
+            case 'meta_description':
+                return get_term_meta($cat_id, 'meta_description', true);
+            case 'is_active':
+                return get_term_meta($cat_id, 'is_active', true);
+        }
+    }
+}
 
 function article_admin_form_func($atts)
 {
@@ -945,7 +1217,7 @@ function vendor_article_add_form_func($atts)
             case "wedding_story":
                 $nice_name = "Wedding Story";
                 break;
-            case "blog":
+            case "post":
                 $nice_name = "Blog Post";
                 break;
             default:
@@ -1096,8 +1368,17 @@ function process_row($field_key, $post_id)
     return $return_string;
 }
 
-
-// display the tabbed fb, ig, pi social media block in the sidebar (and anywhere else!)
+/**
+ * Social Media Feed Display
+ * display the tabbed fb, ig, pi social media block in the sidebar (and anywhere else!)
+ *
+ *
+ * This function will return the field_key of a certain field.
+ *
+ * @param $atts array Array of attributes from the shortcode (default: null)
+ * @return String
+ */
+//
 function social_media_tab_func($atts)
 {
     $html = '<div class="all-tabs-container">';
@@ -1189,11 +1470,12 @@ fa_custom_setup_cdn_svg(
  * @param $post_id int The post id to check.
  * @return bool
  */
-function acf_get_field_key( $field_name, $post_id ) {
+function acf_get_field_key($field_name, $post_id)
+{
     global $wpdb;
-    $acf_fields = $wpdb->get_results( $wpdb->prepare( "SELECT ID,post_parent,post_name FROM $wpdb->posts WHERE post_excerpt=%s AND post_type=%s" , $field_name , 'acf-field' ) );
+    $acf_fields = $wpdb->get_results($wpdb->prepare("SELECT ID,post_parent,post_name FROM $wpdb->posts WHERE post_excerpt=%s AND post_type=%s", $field_name, 'acf-field'));
     // get all fields with that name.
-    switch ( count( $acf_fields ) ) {
+    switch (count($acf_fields)) {
         case 0: // no such field
             return false;
         case 1: // just one result.
@@ -1202,16 +1484,16 @@ function acf_get_field_key( $field_name, $post_id ) {
     // result is ambiguous
     // get IDs of all field groups for this post
     $field_groups_ids = array();
-    $field_groups = acf_get_field_groups( array(
+    $field_groups = acf_get_field_groups(array(
         'post_id' => $post_id,
-    ) );
-    foreach ( $field_groups as $field_group )
+    ));
+    foreach ($field_groups as $field_group)
         $field_groups_ids[] = $field_group['ID'];
 
     // Check if field is part of one of the field groups
     // Return the first one.
-    foreach ( $acf_fields as $acf_field ) {
-        if ( in_array($acf_field->post_parent,$field_groups_ids) )
+    foreach ($acf_fields as $acf_field) {
+        if (in_array($acf_field->post_parent, $field_groups_ids))
             return $acf_fields[0]->post_name;
     }
     return false;

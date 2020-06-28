@@ -1,4 +1,9 @@
-/* Collections Button Make all Letters Visible! */
+/* Sticky the side menu */
+.page-id-6433 .et_pb_column.et_pb_column_1_4.et_pb_column_0, .parent-pageid-6433 .et_pb_column.et_pb_column_1_4.et_pb_column_0 {
+  top: 0;
+  position: sticky;
+}
+  /* Collections Button Make all Letters Visible! */
 div.dt-button-collection {
   width: auto !important;
 }
@@ -61,15 +66,15 @@ table.dataTable {
     background-repeat: no-repeat;
     background-position: center right; }
   table.dataTable thead .sorting {
-    background-image: url("../images/sort_both.png"); }
+    background-image: url("../img/sort_both.png"); }
   table.dataTable thead .sorting_asc {
-    background-image: url("../images/sort_asc.png"); }
+    background-image: url("../img/sort_asc.png"); }
   table.dataTable thead .sorting_desc {
-    background-image: url("../images/sort_desc.png"); }
+    background-image: url("../img/sort_desc.png"); }
   table.dataTable thead .sorting_asc_disabled {
-    background-image: url("../images/sort_asc_disabled.png"); }
+    background-image: url("../img/sort_asc_disabled.png"); }
   table.dataTable thead .sorting_desc_disabled {
-    background-image: url("../images/sort_desc_disabled.png"); }
+    background-image: url("../img/sort_desc_disabled.png"); }
   table.dataTable tbody tr {
     background-color: #f7f7f7; }
     table.dataTable tbody tr.selected {

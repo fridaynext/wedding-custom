@@ -1,17 +1,17 @@
-jQuery(document).ready(function () {
+$ = jQuery;
 
-	jQuery(".vendor-login a").click(function () {
-		console.log("just clicked vendor login");
-		jQuery("div.vendor-login-form").toggleClass("visible");
+$(document).ready(function () {
+
+	$(".vendor-login a").on('click',function () {
+		$("div.vendor-login-form").toggleClass("visible");
 	});
-	jQuery(".header-search a").click(function () {
-		console.log("just clicked search button");
-		jQuery("div.header-search-dropdown").toggleClass("visible");
+	$(".header-search a").on('click', function () {
+		$("div.header-search-dropdown").toggleClass("visible");
 	});
 
 	// Change the nav bar to fixed position after a certain amount of scroll
-	let navBar = jQuery(".vendor-sticky-nav");
-	jQuery("body").scroll(function () {
+	let navBar = $(".vendor-sticky-nav");
+	$("body").on('scroll',function () {
 		let fromTop = window.scrollY;
 		// 54px - once the nav bar is 54px from the top, make it fixed
 		if (navBar.offsetTop <= 54) {
@@ -22,8 +22,13 @@ jQuery(document).ready(function () {
 		}
 	});
 
-	var vendorTable = jQuery("#vendor_table").DataTable({
+	let vendorTable = $("#vendor_table").DataTable({
 		dom: 'Bfrtip',
+		ajax: {
+			url: '/wp-admin/admin-ajax.php?action=vendor_datatables',
+		},
+		processing: true,
+		serverSide: true,
 		buttons: [
 			{
 				text: 'New Advertiser',
@@ -33,8 +38,13 @@ jQuery(document).ready(function () {
 			}
 		]
 	});
-	var categoryTable = jQuery("#category_table").DataTable({
+	let categoryTable = $("#category_table").DataTable({
 		dom: 'Bfrtip',
+		ajax: {
+			url: '/wp-admin/admin-ajax.php?action=category_datatables',
+		},
+		processing: true,
+		serverSide: true,
 		buttons: [
 			{
 				text: 'New Category',
@@ -44,7 +54,7 @@ jQuery(document).ready(function () {
 			}
 		]
 	});
-	var articleTable = jQuery("#article_table").DataTable({
+	let articleTable = $("#article_table").DataTable({
 		ajax: datatablesajax,
 		dom: 'Bfrtip',
 		processing: true,
@@ -75,7 +85,7 @@ jQuery(document).ready(function () {
 					{
 						text: 'Blog Post',
 						action: function ( e, dt, node, config ) {
-							window.location = "/saw-admin/add-article?cpt=blog";
+							window.location = "/saw-admin/add-article?cpt=post";
 						}
 					}
 				]
@@ -104,18 +114,63 @@ jQuery(document).ready(function () {
 
 	dropdownButtons();
 	function dropdownButtons() {
-		jQuery(".vmenu-button").click(function(event) {
-			jQuery(this).parent().toggleClass("visible");
+		$(".vmenu-button").on('click', function(event) {
+			$(this).parent().toggleClass("visible");
 
 		});
-		jQuery(document).click( function(event) {
-			$target = jQuery(event.target);
-			if(!$target.closest('.vmenu-container').length &&
-				jQuery('.vmenu-container').hasClass('visible')) {
-				jQuery(".visible").removeClass('visible');
+		$(document).on('click',  function(event) {
+			$target = $(event.target);
+			if(!$target.closest('.vmenu-container').length && $('.vmenu-container').hasClass('visible')) {
+				$(".visible").removeClass('visible');
 			}
 		});
 	}
+
+	/******************* DEACTIVATE BUTTON *************************/
+	$(document).on('click', '.deactivate-post', function () {
+		let data = {
+			'action': 'deactivate_post',
+			'article_id': $(this).attr('id'),
+		}
+
+		$.post(fnajax.ajax_url, data, function (response) {
+			// do something once the post has been deactivated!
+			// maybe redraw the tables?
+			if(response.post_type == 'vendor_profile') {
+				alert("Vendor Profile Deactivated!");
+				vendorTable.draw();
+			} else if (response.post_type == 'post' || response.post_type == 'styled_shoot' || response.post_type == 'spotlight' || response.post_type == 'wedding_story') {
+				alert("Article Deactivated!");
+				articleTable.draw();
+			} else if (response.post_type == 'category') {
+				alert("Category Deactivated!");
+				categoryTable.draw();
+			}
+		});
+	});
+
+	/******************* ACTIVATE BUTTON *************************/
+	$(document).on('click', '.activate-post', function () {
+		let data = {
+			'action': 'activate_post',
+			'article_id': $(this).attr('id')
+		}
+		$.post(fnajax.ajax_url, data, function (response) {
+			// do something once the post has been deactivated!
+			// maybe redraw the tables?
+			if(response.post_type == 'vendor_profile') {
+				alert("Vendor Profile Activated!");
+				vendorTable.draw();
+			} else if (response.post_type == 'post' || response.post_type == 'styled_shoot' || response.post_type == 'spotlight' || response.post_type == 'wedding_story') {
+				alert("Article Activated!");
+				articleTable.draw();
+			} else if (response.post_type == 'category') {
+				alert("Category Activated!");
+				categoryTable.draw();
+			}
+		});
+	});
+
 
 	// navBar.stickybits();
 
