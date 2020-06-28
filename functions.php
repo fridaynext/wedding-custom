@@ -10,13 +10,10 @@ define('FRIDAY_NEXT_EXTRAS_VERSION', '1.1.9');
 add_filter('acf/settings/save_json', 'my_acf_json_save_point');
 function my_acf_json_save_point($path)
 {
-
     // update path
-    $path = plugins_url('private/acf/', __FILE__);
-
+    $path = dirname( __FILE__ ) . '/private/acf-json';
     // return
     return $path;
-
 }
 
 add_filter('acf/settings/load_json', 'my_acf_json_load_point');
@@ -26,7 +23,7 @@ function my_acf_json_load_point($paths)
     unset($paths[0]);
 
     // append path
-    $paths[] = plugins_url('private/acf/', __FILE__);
+    $paths[] = dirname( __FILE__ ) . '/private/acf-json';
 
     // return
     return $paths;
@@ -870,15 +867,19 @@ function render_categories()
         $is_active = get_term_meta($cid, 'is_active', true);
         $nested_data[] = $category->name;
         $nested_data[] = $category->slug;
+        $keyword_string = '';
         $keywords = get_term_meta($cid, 'meta_keywords', true);
-        $keyword_string = array();
-        foreach ($keywords as $keyword) {
-            $keyword_string[] = get_term($keyword)->name;
+        if (count($keywords) > 0) {
+            $keyword_arr = array();
+            foreach ($keywords as $keyword) {
+                $this_tag = get_tag($keyword);
+                $keyword_arr[] = $this_tag->name;
+            }
+            $keyword_string = join(', ', $keyword_arr);
         }
-        $keyword_string = join(', ', $keyword_string);
         $nested_data[] = $keyword_string;
-        $nested_data[] = get_term_meta($cid, 'description', true);
-        $nested_data[] = ($is_active ? "Yes" : "No");
+        $nested_data[] = $category->description;
+        $nested_data[] = ($is_active ? "Yes" : "No" );
         $nested_data[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
 					            <i class="fas fa-chevron-down"></i>
@@ -1021,7 +1022,6 @@ function edit_category_admin()
 {
     if (isset($_GET['cid'])) {
         $cat_id = $_GET['cid'];
-        $this_category = get_category($cat_id);
 
         $args = array(
             'post_id' => 'category_' . $cat_id,
@@ -1048,48 +1048,33 @@ function save_category($post_id)
 {
     // Initialize a $cat_id variable to be used later
     $cat_id = 0;
-    if (is_page('add-category', 'edit-category')) {
+    if (is_page(array('add-category', 'edit-category'))) {
 
-        if(is_page('edit-category')) {
-            if (isset($_GET['cid'])) {
-                $post_id = $_GET['cid'];
-            }
-        }
         // Get all the field keys on this page
-        if( is_page('add-category')) {
-            $category_key = acf_get_field_key('name', $post_id); // this gets the field key for this exact field
-            $description_key = acf_get_field_key('description', $post_id); // gets the field key for description
-            $slug_key = acf_get_field_key('slug', $post_id); // gets the field key for slug
-        }
+
+        $active_key = acf_get_field_key('is_active', $post_id); // gets the field key for is_active
+        $category_key = acf_get_field_key('name', $post_id); // this gets the field key for this exact field
         $title_key = acf_get_field_key('category_title', $post_id); // gets the field key for name
         $tags_key = acf_get_field_key('tags', $post_id); // gets the field key for tags
-        $active_key = acf_get_field_key('is_active', $post_id); // gets the field key for is_active
+        $description_key = acf_get_field_key('description', $post_id); // gets the field key for description
+        $slug_key = acf_get_field_key('slug', $post_id); // gets the field key for slug
         $meta_title_key = acf_get_field_key('meta_title', $post_id); // gets the field key for meta_title
-        $meta_description_key = acf_get_field_key('meta_description', $post_id); // gets the field key for meta_description
         $meta_keywords_key = acf_get_field_key('meta_keywords', $post_id); // gets the field key for meta_keywords
+        $meta_description_key = acf_get_field_key('meta_description', $post_id); // gets the field key for meta_description
 
         // Get all the values currently inside each field
         $acf_request = $_POST['acf'];
         // initialize these three fields
-        $category = '';
-        $description = '';
-        $slug = '';
-        if (is_page('add-category')) {
-            $category = $acf_request[$category_key];
-            $description = $acf_request[$description_key];
-            $slug = $acf_request[$slug_key];
-        } elseif (is_page('edit-category')) {
-            $this_category = get_term($post_id);
-            $category = $this_category->name;
-            $description = $this_category->description;
-            $slug = $this_category->slug;
-        }
-        $title = $acf_request[$title_key];
-        $tags = $acf_request[$tags_key];
+
         $active = $acf_request[$active_key];
+        $category = $acf_request[$category_key];
+        $title = $acf_request[$title_key];
+        $description = $acf_request[$description_key];
+        $slug = $acf_request[$slug_key];
+        $tags = $acf_request[$tags_key];
         $meta_title = $acf_request[$meta_title_key];
-        $meta_description = $acf_request[$meta_description_key];
         $meta_keywords = $acf_request[$meta_keywords_key];
+        $meta_description = $acf_request[$meta_description_key];
 
         // If we're adding a new category, let's wp_insert_term here
         if (is_page('add-category')) {
@@ -1122,12 +1107,13 @@ function save_category($post_id)
 
         // update these meta items regardless
         $acf_cat_id = 'category_' . $cat_id;
-        update_field($active_key, $active, $acf_cat_id);
-        update_field($title_key, $title, $acf_cat_id);
-        update_field($tags_key, $tags, $acf_cat_id);
-        update_field($meta_title_key, $meta_title, $acf_cat_id);
-        update_field($meta_description_key, $meta_description, $acf_cat_id);
-        update_field($meta_keywords_key, $meta_keywords, $acf_cat_id);
+        update_field('is_active', $active, $acf_cat_id);
+        $title_key = acf_get_field_key('category_title', $cat_id);
+        update_field('category_title', $title, $acf_cat_id);
+        update_field('tags', $tags, $acf_cat_id);
+        update_field('meta_title', $meta_title, $acf_cat_id);
+        update_field('meta_description', $meta_description, $acf_cat_id);
+        update_field('meta_keywords', $meta_keywords, $acf_cat_id);
 
         wp_redirect('/saw-admin/edit-category?cid=' . $cat_id);
         exit;
@@ -1151,30 +1137,54 @@ add_filter('acf/load_value', 'fill_in_category', 10, 3);
 function fill_in_category($value, $post_id, $field)
 {
     if (isset($_GET['cid'])) {
-        $cat_id = $_GET['cid'];
-        $category = get_term($cat_id, 'category');
-        $cat_id = $category->term_id;
+        $cid = $_GET['cid'];
+        $category = get_term($cid, 'category');
+        $cat_id = 'category_'.$cid;
+
+//        // Get all field keys
+//        $is_active_key = acf_get_field_key('is_active', $cat_id);
+//        $category_title_key = acf_get_field_key('category_title', $cat_id);
+//        $tags_key = acf_get_field_key('tags', $cat_id);
+//        $meta_title_key = acf_get_field_key('meta_title', $cat_id);
+//        $meta_keywords_key = acf_get_field_key('meta_keywords', $cat_id);
+//        $meta_description_key = acf_get_field_key('meta_description', $cat_id);
+
+        // Get all field values
+        $is_active = get_term_meta($cid, 'is_active', true);
+        $category_title = get_term_meta($cid, 'category_title', true);
+        $tags = get_term_meta($cid, 'tags', true);
+        $meta_title = get_term_meta($cid, 'meta_title', true);
+        $meta_keywords = get_term_meta($cid, 'meta_keywords', true);
+        $meta_description = get_term_meta($cid, 'meta_description', true);
+
+        ob_start();
+        print_r($is_active);
+        $activity = ob_get_contents();
+        ob_end_clean();
+
         switch ($field['name']) {
+            case 'is_active':
+                return $activity;
             case 'name':
                 return $category->name;
             case 'category_title':
-                return get_term_meta($cat_id, 'category_title', true);
+                return $category_title;
             case 'description':
                 return $category->description;
             case 'slug':
                 return $category->slug;
             case 'tags':
-                return get_term_meta($cat_id, 'tags', true);
+                return $tags;
             case 'meta_title':
-                return get_term_meta($cat_id, 'meta_title', true);
+                return $meta_title;
             case 'meta_keywords':
-                return get_term_meta($cat_id, 'meta_keywords', true);
+                return $meta_keywords;
             case 'meta_description':
-                return get_term_meta($cat_id, 'meta_description', true);
-            case 'is_active':
-                return get_term_meta($cat_id, 'is_active', true);
+                return $meta_description;
+            default:
+                return $value;
         }
-    }
+    } else return $value; // still have to return, even on the categories wp-admin page
 }
 
 function article_admin_form_func($atts)
