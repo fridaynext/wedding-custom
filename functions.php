@@ -11,7 +11,7 @@ add_filter('acf/settings/save_json', 'my_acf_json_save_point');
 function my_acf_json_save_point($path)
 {
     // update path
-    $path = dirname( __FILE__ ) . '/private/acf-json';
+    $path = dirname(__FILE__) . '/private/acf-json';
     // return
     return $path;
 }
@@ -23,7 +23,7 @@ function my_acf_json_load_point($paths)
     unset($paths[0]);
 
     // append path
-    $paths[] = dirname( __FILE__ ) . '/private/acf-json';
+    $paths[] = dirname(__FILE__) . '/private/acf-json';
 
     // return
     return $paths;
@@ -447,30 +447,35 @@ function vendors_func($atts)
 
 function photographer_func($atts)
 {
-    if (true == get_field('non-existing', get_the_ID())) {
-        if (get_field('photographer-manual', get_the_ID())) {
+    if (isset($_GET['ssid'])) {
+        $post_id = $_GET['ssid'];
+    } else {
+        $post_id = get_the_ID();
+    }
+    if (true == get_field('non-existing', $post_id)) {
+        if (get_field('photographer-manual', $post_id)) {
             // non-existing vendor, with a manual name
-            $return_string = 'Photography by: ' . get_field('photographer-manual', get_the_ID());
-            if (get_field('author', get_the_ID())) {
+            $return_string = 'Photography by: ' . get_field('photographer-manual', $post_id);
+            if (get_field('author', $post_id)) {
                 $auth_pres = true;
                 $return_string .= ' | Written by: ' . get_field('author');
             }
             return $return_string;
-        } else if (get_field('author', get_the_ID())) {
+        } else if (get_field('author', $post_id)) {
             // no photographer, maybe an author, though!
             return 'Written by: ' . get_field('author');
         } else return '';
     } else {
-        if (get_field('photographer', get_the_ID())) {
+        if (get_field('photographer', $post_id)) {
             // Got a Vendor - now check for URL
-            $photographer = get_field('photographer', get_the_ID());
+            $photographer = get_field('photographer', $post_id);
             if (get_field('website', $photographer->ID)) {
                 $return_string = 'Photography by: <a href="' . get_permalink($photographer->ID) . '" alt="' . get_the_title($photographer->ID) . '" style="color:inherit;" target="_blank">' . get_the_title($photographer->ID) . '</a>';
             } else {
                 // Vendor doesn't have a website URL in their profile yet
-                $return_string = 'Photography by: ' . get_field('photographer', get_the_ID())->title;
+                $return_string = 'Photography by: ' . get_field('photographer', $post_id)->title;
             }
-            if (get_field('author', get_the_ID())) {
+            if (get_field('author', $post_id)) {
                 $return_string .= ' | Written by: ' . get_field('author');
             }
             return $return_string;
@@ -879,7 +884,7 @@ function render_categories()
         }
         $nested_data[] = $keyword_string;
         $nested_data[] = $category->description;
-        $nested_data[] = ($is_active ? "Yes" : "No" );
+        $nested_data[] = ($is_active ? "Yes" : "No");
         $nested_data[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
 					            <i class="fas fa-chevron-down"></i>
@@ -1085,7 +1090,7 @@ function save_category($post_id)
 //        }
 
         $active = $acf_request[$active_key];
-        print_r("active key: ".$active_key);
+        print_r("active key: " . $active_key);
 
 //        $active = get_field($active_key, $post_id);
         $category = $acf_request[$category_key];
@@ -1514,4 +1519,104 @@ function acf_get_field_key($field_name, $post_id)
             return $acf_fields[0]->post_name;
     }
     return false;
+}
+
+/************ STYLED SHOOT VENDOR SHORTCODE *****************/
+add_shortcode('styled_shoot_vendors', 'vendor_list_styled');
+function vendor_list_styled()
+{
+    $html = '';
+    if (get_field('vendors')) {
+        $vendor_arr = array();
+        while (the_repeater_field('vendors')) {
+            $vendor_arr[] = array(
+                'category_title' => get_sub_field('category_title'),
+                'vendor_name' => (get_sub_field('non-existing') ? get_sub_field('vendor_manual') : get_the_title(get_sub_field('vendor'))),
+                'non_existing' => (get_sub_field('non-existing') ? true : false),
+                'link' => get_field('website', get_sub_field('vendor')),
+                'id' => get_sub_field('vendor')
+            );
+        }
+        $html .= '<ul>';
+        sort($vendor_arr);
+        foreach ($vendor_arr as $vendor) {
+            $html .= '<li><span style="text-transform: uppercase;">' . $vendor['category_title'] . '</span>';
+            if ($vendor['non_existing']) {
+                $html .= '<br />' . $vendor['vendor_name'] . '</li>';
+            } else {
+                if ($vendor['link'] != '') {
+                    $html .= '<br /><a href="' . get_permalink($vendor['id']) . '" alt="' . $vendor['vendor_name'] . '">' . $vendor['vendor_name'] . '</a></li>';
+                } else {
+                    $html .= '<br />' . $vendor['vendor_name'] . '</li>';
+                }
+            }
+        }
+        $html .= '</ul>';
+    }
+    return $html;
+}
+
+/************* STYLED SHOOT GALLERY ******************/
+add_shortcode('styled_shoot_head_1', 'render_ss_head_one');
+add_shortcode('styled_shoot_head_2', 'render_ss_head_two');
+add_shortcode('ss_header_image', 'render_ss_header_image');
+function render_ss_head_one() {
+    if (isset($_GET['ssid'])) {
+        $ssid = $_GET['ssid'];
+        return get_field('head_1', $ssid);
+    }
+}
+function render_ss_head_two() {
+    if (isset($_GET['ssid'])) {
+        $ssid = $_GET['ssid'];
+        return get_field('head_2', $ssid);
+    }
+}
+function render_ss_header_image() {
+    if (isset($_GET['ssid'])) {
+        $ssid = $_GET['ssid'];
+        $header_img = get_field('header_image', $ssid);
+        return '<img src="' . esc_url($header_img['url']) . '" alt="' . esc_url($header_img['alt']) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
+    }
+}
+
+add_filter( 'envira_gallery_pre_data', 'render_enviragallery', 10, 2);
+function render_enviragallery($data, $gallery_id) {
+    if (isset($_GET['ssid'])) {
+        $ssid = $_GET['ssid'];
+        $newdata = array();
+
+        // Don't lose the original gallery id and configuration
+        $newdata[ "id" ] = $data[ "id" ];
+        $newdata[ "config" ] = $data[ "config" ];
+
+        // Get list of images from our ACF gallery field
+        $gallery = get_post_meta( $ssid, 'article_photo_gallery' );
+        $image_ids = $gallery[0]; // It's an array within an array
+
+        // If we have some images loop around and populate a new data array
+        if( is_array( $image_ids ) ) {
+
+            foreach( $image_ids as $image_id ) {
+
+                $newdata[ "gallery" ][ $image_id ][ "status" ] = 'active';
+                $newdata[ "gallery" ][ $image_id ][ "src" ] = esc_url( wp_get_attachment_url( $image_id ) );
+                $newdata[ "gallery" ][ $image_id ][ "title" ] = esc_html( get_the_title( $image_id ) );
+                $newdata[ "gallery" ][ $image_id ][ "link" ] = esc_url( wp_get_attachment_url( $image_id ) );
+                $newdata[ "gallery" ][ $image_id ][ "alt" ] = trim(strip_tags( get_post_meta($image_id, '_wp_attachment_image_alt', true) ));
+                $newdata[ "gallery" ][ $image_id ][ "thumb" ] = esc_url( wp_get_attachment_thumb_url( $image_id ) );
+
+            }
+        }
+
+        return $newdata;
+
+    }
+}
+add_shortcode('styled_shoot_url', 'render_ss_url');
+function render_ss_url() {
+    $button_html = '<div class="saw-button"><a href="';
+    $button_html .= '/styled-shoot-gallery?ssid=' . get_the_ID() . '\" alt=\"View Styled Shoot\">';
+    $button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+    return $button_html;
 }
