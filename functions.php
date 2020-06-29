@@ -1048,37 +1048,61 @@ function save_category($post_id)
 {
     // Initialize a $cat_id variable to be used later
     $cat_id = 0;
-    if (is_page(array('add-category', 'edit-category'))) {
-
-        // Get all the field keys on this page
+    if (is_page(array('add-category'))) {
+        // Get all the values currently inside each field
+        $acf_request = $_POST['acf'];
 
         $active_key = acf_get_field_key('is_active', $post_id); // gets the field key for is_active
         $category_key = acf_get_field_key('name', $post_id); // this gets the field key for this exact field
+        $description_key = acf_get_field('description', $post_id);
         $title_key = acf_get_field_key('category_title', $post_id); // gets the field key for name
-        $tags_key = acf_get_field_key('tags', $post_id); // gets the field key for tags
-        $description_key = acf_get_field_key('description', $post_id); // gets the field key for description
         $slug_key = acf_get_field_key('slug', $post_id); // gets the field key for slug
         $meta_title_key = acf_get_field_key('meta_title', $post_id); // gets the field key for meta_title
         $meta_keywords_key = acf_get_field_key('meta_keywords', $post_id); // gets the field key for meta_keywords
         $meta_description_key = acf_get_field_key('meta_description', $post_id); // gets the field key for meta_description
 
-        // Get all the values currently inside each field
-        $acf_request = $_POST['acf'];
-        // initialize these three fields
+        $active_edit_key = $category_edit_key = $title_edit_key = $description_edit_key = $slug_edit_key = $meta_title_edit_key = $meta_keywords_edit_key = $meta_description_edit_key = '';
+
+//        // Get all the field keys on this page
+//        if (is_page('edit-category')) {
+//            $cat_id = (int) substr($post_id,9);
+//
+//            if (metadata_exists('term', $cat_id, '_is_active' )) {
+//                $active_edit_key = get_term_meta($cat_id, '_is_active', true);
+//            }
+//            if (metadata_exists('term', $cat_id, '_category_title')) {
+//                $title_edit_key = get_term_meta($cat_id, '_category_title', true);
+//            }
+//            if (metadata_exists('term', $cat_id, '_meta_title' )) {
+//                $meta_title_edit_key = get_term_meta($cat_id, '_meta_title', true);
+//            }
+//            if (metadata_exists('term', $cat_id, '_meta_keywords')) {
+//                $meta_keywords_edit_key = get_term_meta($cat_id, '_meta_keywords', true);
+//            }
+//            if (metadata_exists('term', $cat_id, '_meta_description')) {
+//                $meta_description_edit_key = get_term_meta($cat_id, '_meta_description', true);
+//            }
+//        }
 
         $active = $acf_request[$active_key];
-        $category = $acf_request[$category_key];
-        $title = $acf_request[$title_key];
-        $description = $acf_request[$description_key];
-        $slug = $acf_request[$slug_key];
-        $tags = $acf_request[$tags_key];
-        $meta_title = $acf_request[$meta_title_key];
-        $meta_keywords = $acf_request[$meta_keywords_key];
-        $meta_description = $acf_request[$meta_description_key];
+        print_r("active key: ".$active_key);
 
-        // If we're adding a new category, let's wp_insert_term here
+//        $active = get_field($active_key, $post_id);
+        $category = $acf_request[$category_key];
+//        $category = get_field($category_key, $post_id);
+        $description = $acf_request[$description_key];
+        $title = $acf_request[$title_key];
+//        $title = get_field($title_key, $post_id);
+        $slug = $acf_request[$slug_key];
+//        $slug = get_field($slug_key, $post_id);
+        $meta_title = $acf_request[$meta_title_key];
+//        $meta_title = get_field($meta_title_key, $post_id);
+        $meta_keywords = $acf_request[$meta_keywords_key];
+//        $meta_keywords = get_field($meta_keywords_key, $post_id);
+        $meta_description = $acf_request[$meta_description_key];
+//        $meta_description = get_field($meta_description_key, $post_id);
+
         if (is_page('add-category')) {
-            // Insert a new Term so we can use its ID for updating ACF fields
             $cat_id = wp_insert_term(
                 $category,
                 'category',
@@ -1091,37 +1115,39 @@ function save_category($post_id)
                 // saving went badly, and the category didn't update!
                 print_r('wp_insert_term resulted in this error: ' . $cat_id);
                 die();
+            } else {
+                update_term_meta($cat_id, 'is_active', $active);
+                update_term_meta($cat_id, 'category_title', $title);
+                update_term_meta($cat_id, 'meta_title', $meta_title);
+                update_term_meta($cat_id, 'meta_description', $meta_description);
+                update_term_meta($cat_id, 'meta_keywords', $meta_keywords);
             }
-        } elseif (is_page('edit-category')) {
-            // if we're editing a category, let's get the category ID and save from there
-            if (isset($_GET['cid'])) {
-                $cat_id = $_GET['cid'];
-
-                wp_update_term($cat_id, 'category', array(
-                    'description' => $description,
-                    'slug' => $slug,
-                    'name' => $category
-                ));
-            }
+//        } elseif (is_page('edit-category')) {
+//            // if we're editing a category, let's get the category ID and save from there
+//            if (isset($_GET['cid'])) {
+//                $cat_id = $_GET['cid'];
+//
+//                wp_update_term($cat_id, 'category', array(
+//                    'description' => $description,
+//                    'slug' => $slug,
+//                    'name' => $category
+//                ));
+//                if ($active_edit_key != '') {
+//                    update_field($active_edit_key, $active, $post_id);
+//                    print_r($active);die();
+//                }
+//                if ($title_edit_key != '') update_field($title_edit_key, $title, $post_id);
+//                if ($meta_title_edit_key != '') update_field($meta_title_edit_key, $meta_title, $post_id);
+//                if ($meta_description_edit_key != '') update_field($meta_description_edit_key, $meta_description, $post_id);
+//                if ($meta_keywords_edit_key != '') update_field($meta_keywords_edit_key, $meta_keywords, $post_id);
+//            }
         }
-
-        // update these meta items regardless
-        $acf_cat_id = 'category_' . $cat_id;
-        update_field('is_active', $active, $acf_cat_id);
-        $title_key = acf_get_field_key('category_title', $cat_id);
-        update_field('category_title', $title, $acf_cat_id);
-        update_field('tags', $tags, $acf_cat_id);
-        update_field('meta_title', $meta_title, $acf_cat_id);
-        update_field('meta_description', $meta_description, $acf_cat_id);
-        update_field('meta_keywords', $meta_keywords, $acf_cat_id);
 
         wp_redirect('/saw-admin/edit-category?cid=' . $cat_id);
         exit;
-
     } else {
         return $post_id;
     }
-
 }
 
 add_action('acf/save_post', 'delete_null_category_post');
@@ -1139,48 +1165,29 @@ function fill_in_category($value, $post_id, $field)
     if (isset($_GET['cid'])) {
         $cid = $_GET['cid'];
         $category = get_term($cid, 'category');
-        $cat_id = 'category_'.$cid;
-
-//        // Get all field keys
-//        $is_active_key = acf_get_field_key('is_active', $cat_id);
-//        $category_title_key = acf_get_field_key('category_title', $cat_id);
-//        $tags_key = acf_get_field_key('tags', $cat_id);
-//        $meta_title_key = acf_get_field_key('meta_title', $cat_id);
-//        $meta_keywords_key = acf_get_field_key('meta_keywords', $cat_id);
-//        $meta_description_key = acf_get_field_key('meta_description', $cat_id);
-
-        // Get all field values
-        $is_active = get_term_meta($cid, 'is_active', true);
-        $category_title = get_term_meta($cid, 'category_title', true);
-        $tags = get_term_meta($cid, 'tags', true);
-        $meta_title = get_term_meta($cid, 'meta_title', true);
-        $meta_keywords = get_term_meta($cid, 'meta_keywords', true);
-        $meta_description = get_term_meta($cid, 'meta_description', true);
-
-        ob_start();
-        print_r($is_active);
-        $activity = ob_get_contents();
-        ob_end_clean();
 
         switch ($field['name']) {
             case 'is_active':
-                return $activity;
+                if (metadata_exists('term', $cid, 'is_active')) {
+                    $is_active = get_term_meta($cid, 'is_active', true);
+                } else {
+                    $is_active = false;
+                }
+                return $is_active;
             case 'name':
                 return $category->name;
             case 'category_title':
-                return $category_title;
+                return get_term_meta($cid, 'category_title', true);
             case 'description':
-                return $category->description;
+                return get_term_meta($cid, 'description', true);
             case 'slug':
                 return $category->slug;
-            case 'tags':
-                return $tags;
             case 'meta_title':
-                return $meta_title;
+                return get_term_meta($cid, 'meta_title', true);
             case 'meta_keywords':
-                return $meta_keywords;
+                return get_term_meta($cid, 'meta_keywords', true);
             case 'meta_description':
-                return $meta_description;
+                return get_term_meta($cid, 'meta_description', true);
             default:
                 return $value;
         }
