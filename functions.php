@@ -160,6 +160,11 @@ function fn_enqueue_styles()
         wp_register_style('vendor_profile_style', plugins_url('public/css/vendor-profile.css', __FILE__), array(), FRIDAY_NEXT_EXTRAS_VERSION);
         wp_enqueue_style('vendor_profile_style');
     }
+    // Homepage
+    if (is_page('home')) {
+        wp_register_style('homepage_style', plugins_url('public/css/homepage.css', __FILE__), array(), FRIDAY_NEXT_EXTRAS_VERSION);
+        wp_enqueue_style('homepage_style');
+    }
 }
 
 function fn_enqueue_scripts()
@@ -1668,6 +1673,7 @@ function render_home_hero_slider() {
     $args = array(
         'post_type' => 'home_slide',
         'posts_per_page' => 4,
+        'order' => ASC,
         'meta_key' => 'is_active',
         'meta_value' => true
         // TODO: check for date and make sure it's not expired!
@@ -1676,33 +1682,43 @@ function render_home_hero_slider() {
 
     $html = ''; $count = 0;
     foreach ($home_sliders as $slider) {
-        $slide_type = get_field('slide_type', $slider->ID); // to decide what to include on this page
+        $slide_type = get_field('slide_style', $slider->ID); // to decide what to include on this page
         $html .= '<div class="home-slider-container">';
             $html .= '<div class="slide hero-slide-' . $count . '">';
-                $html .= '<div class="slide-content left-side">'; // flex-column
-                    // slide head 2 (if type 1)
-                    $html .= '<div class="head-2">';
-
-                    $html .= '</div>'; // end .head-2
+                $html .= '<div class="slide-content left-side' . ($slide_type == 1 ? 'orange-bg' : '') . '">'; // flex-column
+                    // parent text container to space things out flexily
+                    $html .= ($slide_type == 1 ? '<div class="hero-text-content">' : '');
+                    $html .= '<strong>SLIDE TYPE: ' . $slide_type . '</strong>';
+                    if ($slide_type == 1) {
+                        // slide head 2 (if type 1)
+                        $html .= '<div class="head-2">';
+                            $html .= '<h3>' . get_field('head_2', $slider->ID) . '</h3>';
+                        $html .= '</div>'; // end .head-2
+                    }
                     // slide head 1 (w/border left)
                     $html .= '<div class="head-1">';
-
+                        $html .= get_field('head_1', $slider->ID);
                     $html .= '</div>'; // end .head-1
-                    // subhead
-                    $html .= '<div class="subhead">';
-
-                    $html .= '</div>'; // end .subhead
+                    if ($slide_type == 1) {
+                        // subhead (if type 1)
+                        $html .= '<div class="subhead">';
+                            $html .= get_field('subhead', $slider->ID);
+                        $html .= '</div>'; // end .subhead
+                    }
                     // photographer
                     $html .= '<div class="photographer-credit">';
-
+                        $html .= 'Photo: ' . get_field('photographers_credit');
                     $html .= '</div>'; // end .photographer-credit
                     // read more link
-                    $html .= '<div class="read-more">';
-
+                    $html .= '<div class="read-more saw-button">';
+                        $html .= '<a href="' . get_field('banner_url') . '" alt="' . get_field('banner_name', $slider->ID) . '">Read More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a>';
                     $html .= '</div>'; // end .read-more
+                    $html .= ($slide_type == 1 ? '</div>' : ''); // end .hero-text-content
                 $html .= '</div>'; // end .slide-content.left-side
             $html .= '</div>'; // end .slide.hero-slide-1[2,3,4]
         $html .= '</div>'; // end .home-slider-container
         $count++;
     }
+
+    return $html;
 }
