@@ -147,7 +147,7 @@ function fn_enqueue_styles()
     wp_register_style('article_styles', plugins_url('public/css/article.css', __FILE__), array(), FRIDAY_NEXT_EXTRAS_VERSION);
     wp_enqueue_style('article_styles');
 
-    wp_register_style('open_sans_light', '//fonts.googleapis.com/css2?family=Encode+Sans:wght@300&display=swap', array(), FRIDAY_NEXT_EXTRAS_VERSION);
+    wp_register_style('open_sans_light', '//fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;300;700&family=Encode+Sans:wght@100;300;700&family=Open+Sans+Condensed:wght@700&display=swap', array(), FRIDAY_NEXT_EXTRAS_VERSION);
     wp_enqueue_style('open_sans_light');
 
     // 'Vendor List' Page Style
@@ -193,6 +193,11 @@ function fn_enqueue_scripts()
     wp_register_script('fn_scripts', plugins_url('public/js/scripts.js', __FILE__), array('jquery', 'facebook_share', 'pinterest_share', 'jquery-ui-core', 'datatables_script', 'datatables_buttons_script'), FRIDAY_NEXT_EXTRAS_VERSION, true);
     wp_localize_script('fn_scripts', 'fnajax', array('ajax_url' => admin_url('admin-ajax.php')));
     wp_enqueue_script('fn_scripts');
+
+    if (is_page('home')) {
+        wp_register_script('swiper_slider', 'https://unpkg.com/swiper/js/swiper.min.js');
+        wp_enqueue_script('swiper_slider');
+    }
 }
 
 add_action('wp_head', 'acf_reqs');
@@ -1132,25 +1137,6 @@ function save_category($post_id)
                 update_term_meta($cat_id, 'meta_description', $meta_description);
                 update_term_meta($cat_id, 'meta_keywords', $meta_keywords);
             }
-//        } elseif (is_page('edit-category')) {
-//            // if we're editing a category, let's get the category ID and save from there
-//            if (isset($_GET['cid'])) {
-//                $cat_id = $_GET['cid'];
-//
-//                wp_update_term($cat_id, 'category', array(
-//                    'description' => $description,
-//                    'slug' => $slug,
-//                    'name' => $category
-//                ));
-//                if ($active_edit_key != '') {
-//                    update_field($active_edit_key, $active, $post_id);
-//                    print_r($active);die();
-//                }
-//                if ($title_edit_key != '') update_field($title_edit_key, $title, $post_id);
-//                if ($meta_title_edit_key != '') update_field($meta_title_edit_key, $meta_title, $post_id);
-//                if ($meta_description_edit_key != '') update_field($meta_description_edit_key, $meta_description, $post_id);
-//                if ($meta_keywords_edit_key != '') update_field($meta_keywords_edit_key, $meta_keywords, $post_id);
-//            }
         }
 
         wp_redirect('/saw-admin/edit-category?cid=' . $cat_id);
@@ -1673,22 +1659,23 @@ function render_home_hero_slider() {
     $args = array(
         'post_type' => 'home_slide',
         'posts_per_page' => 4,
-        'order' => ASC,
+        'order' => 'ASC',
         'meta_key' => 'is_active',
         'meta_value' => true
         // TODO: check for date and make sure it's not expired!
     );
     $home_sliders = get_posts($args);
 
-    $html = ''; $count = 0;
+    $html = ''; $count = 1;
+    $html .= '<div class="home-slider-container swiper-container">';
+    $html .= '<div class="swiper-wrapper">';
     foreach ($home_sliders as $slider) {
         $slide_type = get_field('slide_style', $slider->ID); // to decide what to include on this page
-        $html .= '<div class="home-slider-container">';
-            $html .= '<div class="slide hero-slide-' . $count . '">';
-                $html .= '<div class="slide-content left-side' . ($slide_type == 1 ? 'orange-bg' : '') . '">'; // flex-column
+            $background_image = get_field('background_image', $slider->ID);
+            $html .= '<div class="swiper-slide slide hero-slide-' . $count . ' slide-type-' . $slide_type . '" style="background-image:url(' . esc_url($background_image['url']) . ');background-size:cover;">';
+                $html .= '<div class="slide-content left-side' . ($slide_type == 1 ? ' orange-bg' : '') . '">'; // flex-column
                     // parent text container to space things out flexily
-                    $html .= ($slide_type == 1 ? '<div class="hero-text-content">' : '');
-                    $html .= '<strong>SLIDE TYPE: ' . $slide_type . '</strong>';
+                    $html .= '<div class="hero-text-content">';
                     if ($slide_type == 1) {
                         // slide head 2 (if type 1)
                         $html .= '<div class="head-2">';
@@ -1707,18 +1694,23 @@ function render_home_hero_slider() {
                     }
                     // photographer
                     $html .= '<div class="photographer-credit">';
-                        $html .= 'Photo: ' . get_field('photographers_credit');
+                        $html .= 'Photo: ' . get_field('photographer_credit', $slider->ID);
                     $html .= '</div>'; // end .photographer-credit
                     // read more link
                     $html .= '<div class="read-more saw-button">';
                         $html .= '<a href="' . get_field('banner_url') . '" alt="' . get_field('banner_name', $slider->ID) . '">Read More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a>';
                     $html .= '</div>'; // end .read-more
-                    $html .= ($slide_type == 1 ? '</div>' : ''); // end .hero-text-content
+                    $html .= '</div>'; // end .hero-text-content
                 $html .= '</div>'; // end .slide-content.left-side
             $html .= '</div>'; // end .slide.hero-slide-1[2,3,4]
-        $html .= '</div>'; // end .home-slider-container
         $count++;
     }
+    $html .= '</div>'; // end .swiper-wrapper
+    $html .= '</div>'; // end .swiper-container
 
+    // add swiper js
+    $html .= '<script type="text/javascript">
+                    var heroSwiper = new Swiper(".swiper-container");
+            </script>';
     return $html;
 }
