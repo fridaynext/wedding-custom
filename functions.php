@@ -4,7 +4,7 @@
  * @version 1.1.8
  */
 
-define('FRIDAY_NEXT_EXTRAS_VERSION', '1.1.9');
+define('FRIDAY_NEXT_EXTRAS_VERSION', '1.2.0');
 
 /********************* ACF JSON *********************/
 add_filter('acf/settings/save_json', 'my_acf_json_save_point');
@@ -1619,4 +1619,90 @@ function render_ss_url() {
     $button_html .= '/styled-shoot-gallery?ssid=' . get_the_ID() . '\" alt=\"View Styled Shoot\">';
     $button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
     return $button_html;
+}
+
+add_shortcode('featured_spotlight_module', 'render_featured_spotlights');
+function render_featured_spotlights() {
+    // grab 4 random featured spotlights and display:
+    //  - image
+    //  - title
+    //  - read more link
+    $args = array(
+        'post_type' => 'spotlight',
+        'orderby' => 'rand',
+        'posts_per_page' => 4,
+        'meta_key' => 'is_active',
+        'meta_value' => true
+    );
+    $count = 1;
+    $spotlights = get_posts($args);
+    $html = '<div class="spotlight-widget-container">';
+    foreach ($spotlights as $spotlight) {
+        $extra_class = '';
+        if ($count == 4) {
+            $extra_class = " last";
+        }
+        $html .= '<div class="individual-spotlight' . $extra_class . '">';
+            $html .= '<div class="left-half">';
+            if (get_field('header_image', $spotlight->ID)) {
+                $image = get_field('header_image', $spotlight->ID);
+                $html .= '<img src="' . esc_url($image['url']) . '" alt="' . esc_url($image['alt']) . '" />';
+//                style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;"
+            }
+            $html .= '</div>';
+            $html .= '<div class="right-half">';
+                $html .= '<div class="title">' . get_the_title($spotlight->ID) . '</div>';
+                $html .= '<div class="read-more"><a href="' . get_permalink($spotlight->ID) . '">Read More</a></div>';
+            $html .= '</div>';
+        $html .= '</div>';
+        $count++;
+    }
+    $html .= '</div>';
+    return $html;
+}
+
+/********** HOMEPAGE HERO SLIDER **********/
+add_shortcode('home_page_hero_slider', 'render_home_hero_slider');
+function render_home_hero_slider() {
+    // grab each set of data for home sliders, depending on type
+    $args = array(
+        'post_type' => 'home_slide',
+        'posts_per_page' => 4,
+        'meta_key' => 'is_active',
+        'meta_value' => true
+        // TODO: check for date and make sure it's not expired!
+    );
+    $home_sliders = get_posts($args);
+
+    $html = ''; $count = 0;
+    foreach ($home_sliders as $slider) {
+        $slide_type = get_field('slide_type', $slider->ID); // to decide what to include on this page
+        $html .= '<div class="home-slider-container">';
+            $html .= '<div class="slide hero-slide-' . $count . '">';
+                $html .= '<div class="slide-content left-side">'; // flex-column
+                    // slide head 2 (if type 1)
+                    $html .= '<div class="head-2">';
+
+                    $html .= '</div>'; // end .head-2
+                    // slide head 1 (w/border left)
+                    $html .= '<div class="head-1">';
+
+                    $html .= '</div>'; // end .head-1
+                    // subhead
+                    $html .= '<div class="subhead">';
+
+                    $html .= '</div>'; // end .subhead
+                    // photographer
+                    $html .= '<div class="photographer-credit">';
+
+                    $html .= '</div>'; // end .photographer-credit
+                    // read more link
+                    $html .= '<div class="read-more">';
+
+                    $html .= '</div>'; // end .read-more
+                $html .= '</div>'; // end .slide-content.left-side
+            $html .= '</div>'; // end .slide.hero-slide-1[2,3,4]
+        $html .= '</div>'; // end .home-slider-container
+        $count++;
+    }
 }
