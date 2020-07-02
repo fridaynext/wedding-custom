@@ -51,6 +51,9 @@
 .home-slider-container .left-side .photographer-credit {
     padding-left: 20px;
 }
+.home-slider-container .slide-type-2 .photographer-credit {
+    color: #FFF;
+}
 .home-slider-container .left-side .hero-text-content {
     display: flex;
     flex-direction: column;
@@ -58,4 +61,25 @@
     padding-left: 30px;
     height: 100%;
     justify-content: center;
+}
+.home-slider-container .saw-button.read-more {
+    padding-top: 30px;
+}
+.home-slider-container .saw-button a {
+    color: #FFF;
+    border-color: #FFF;
+}
+.home-slider-container .slide-type-2 .saw-button a {
+    border-color: var(--red-color);
+}
+.home-slider-container .saw-button a:hover {
+    box-shadow: none;
+    background-color: transparent;
+}
+.home-slider-container .slide-type-2 .saw-button a:hover {
+}
+.home-slider-container .alpha-overlay {
+    height: 100%;
+    background: rgb(0,0,0);
+    background: linear-gradient(90deg, rgba(0,0,0,0.8421743697478992) 0%, rgba(0,0,0,0.6096813725490196) 69%, rgba(0,0,0,0) 100%);
 }

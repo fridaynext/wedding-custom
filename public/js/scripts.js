@@ -171,6 +171,11 @@ $(document).ready(function () {
 		});
 	});
 
+	/* Vendor Spotlight Widget Buttons */
+	$('.spotlight-widget-container .individual-spotlight').on('click', function () {
+		// Get the read-more link, then go to it
+		window.location = $(this).find('a').attr('href');
+	});
 
 	// navBar.stickybits();
 
