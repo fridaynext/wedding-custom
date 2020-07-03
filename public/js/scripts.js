@@ -9,6 +9,35 @@ $(document).ready(function () {
 		$("div.header-search-dropdown").toggleClass("visible");
 	});
 
+	// Home hero slider hidden text display on mobile
+	 // get html from ".hero-text-content" and put it in ".text-below-hero"
+	$(".text-below-hero").html(function () {
+		let thisID = $(this).attr("id");
+		let textContent = '.hero-text-content.' + thisID; // go grab the text above and fill it here!
+		let returnHtml = '';
+
+		// Check what type of slide this comes from, so we can only put in the necessary fields
+		if( $(this).hasClass('style-1')) {
+			let heading = $(textContent + ' .head-2').wrap('<span/>').parent().html();
+			returnHtml += heading;
+			$(textContent + ' .head-2').unwrap();
+			let quote = $(textContent + ' .subhead').wrap('<span/>').parent().html();
+			returnHtml += quote;
+			$(textContent + ' .subhead').unwrap();
+			let readMore = $(textContent + ' .read-more.saw-button').wrap('<span/>').parent().html();
+			returnHtml += readMore;
+			$(textContent + ' .read-more.saw-button').unwrap();
+		} else if( $(this).hasClass('style-2')) {
+			let quote = $(textContent + ' .head-1').wrap('<span/>').parent().html();
+			returnHtml += quote;
+			$(textContent + ' .head-1').unwrap();
+			let readMore = $(textContent + ' .read-more.saw-button').wrap('<span/>').parent().html();
+			returnHtml += readMore;
+			$(textContent + ' .read-more.saw-button').unwrap();
+		}
+		return returnHtml;
+	});
+
 	// Change the nav bar to fixed position after a certain amount of scroll
 	let navBar = $(".vendor-sticky-nav");
 	$("body").on('scroll',function () {
@@ -130,7 +159,7 @@ $(document).ready(function () {
 	$(document).on('click', '.deactivate-post', function () {
 		let data = {
 			'action': 'deactivate_post',
-			'article_id': $(this).attr('id'),
+			'article_id': $(this).attr('id')
 		}
 
 		$.post(fnajax.ajax_url, data, function (response) {

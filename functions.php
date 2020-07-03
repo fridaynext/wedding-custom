@@ -564,8 +564,7 @@ function my_ajax_getpostsfordatatables() {
 				$active_text  = 'Activate';
 			}
 			
-			$thumbnail    = get_field( 'featured_image_thumbnail' );
-			$image        = '<img src="' . esc_url( $thumbnail['url'] ) . '" alt="' . esc_url( $thumbnail['alt'] ) . '" width=90 height=90 />';
+			$image        = get_the_post_thumbnail(get_the_ID(), array(90,90));
 			$nestedData   = array();
 			$nestedData[] = $image;
 			$nestedData[] = get_post_type();
@@ -1063,18 +1062,18 @@ function save_category( $post_id ) {
 		
 		$acf_request = $_POST['acf'];
 		
-		$active           = !empty( $acf_request['field_5ef7d204148f8'] ) ? $acf_request['field_5ef7d204148f8'] : 'empty1337';
-		$category         = !empty( $acf_request['field_5ef796a4e05bc'] ) ? $acf_request['field_5ef796a4e05bc'] : 'empty1337';
-		$description      = !empty( $acf_request['field_5ef79704e05be'] ) ? $acf_request['field_5ef79704e05be'] : 'empty1337';
-		$title            = !empty( $acf_request['field_5ef79755e05bf'] ) ? $acf_request['field_5ef79755e05bf'] : 'empty1337';
-		$slug             = !empty( $acf_request['field_5ef796e9e05bd'] ) ? $acf_request['field_5ef796e9e05bd'] : 'empty1337';
-		$meta_title       = !empty( $acf_request['field_5eebe30dbc34e'] ) ? $acf_request['field_5eebe30dbc34e'] : 'empty1337';
-		$meta_keywords    = !empty( $acf_request['field_5eebe335bc34f'] ) ? $acf_request['field_5eebe335bc34f'] : 'empty1337';
-		$meta_description = !empty( $acf_request['field_5eebe397bc350'] ) ? $acf_request['field_5eebe397bc350'] : 'empty1337';
+		$active           = ! empty( $acf_request['field_5ef7d204148f8'] ) ? $acf_request['field_5ef7d204148f8'] : 'empty1337';
+		$category         = ! empty( $acf_request['field_5ef796a4e05bc'] ) ? $acf_request['field_5ef796a4e05bc'] : 'empty1337';
+		$description      = ! empty( $acf_request['field_5ef79704e05be'] ) ? $acf_request['field_5ef79704e05be'] : 'empty1337';
+		$title            = ! empty( $acf_request['field_5ef79755e05bf'] ) ? $acf_request['field_5ef79755e05bf'] : 'empty1337';
+		$slug             = ! empty( $acf_request['field_5ef796e9e05bd'] ) ? $acf_request['field_5ef796e9e05bd'] : 'empty1337';
+		$meta_title       = ! empty( $acf_request['field_5eebe30dbc34e'] ) ? $acf_request['field_5eebe30dbc34e'] : 'empty1337';
+		$meta_keywords    = ! empty( $acf_request['field_5eebe335bc34f'] ) ? $acf_request['field_5eebe335bc34f'] : 'empty1337';
+		$meta_description = ! empty( $acf_request['field_5eebe397bc350'] ) ? $acf_request['field_5eebe397bc350'] : 'empty1337';
 		
-		$args = array();
+		$args                = array();
 		$args['description'] = ( $description != 'empty1337' ) ? $description : '';
-        $args['slug'] = ( $slug != 'empty1337' ) ? $slug : '';
+		$args['slug']        = ( $slug != 'empty1337' ) ? $slug : '';
 		
 		$cat = wp_insert_term(
 			$category,
@@ -1087,27 +1086,42 @@ function save_category( $post_id ) {
 			die();
 		} else {
 			$cat_id = $cat['term_id'];
-			if ( $active != 'empty1337' )           {	update_term_meta( $cat_id, 'is_active', $active ); }
-			if ( $title != 'empty1337' )            { update_term_meta( $cat_id, 'category_title', $title ); }
-			if ( $meta_title != 'empty1337' )       {	update_term_meta( $cat_id, 'meta_title', $meta_title ); }
-			if ( $meta_description != 'empty1337' ) { update_term_meta( $cat_id, 'meta_description', $meta_description );	}
-			if ( $meta_keywords != 'empty1337' )    { update_term_meta( $cat_id, 'meta_keywords', $meta_keywords ); }
+			if ( $active != 'empty1337' ) {
+				update_term_meta( $cat_id, 'is_active', $active );
+			}
+			if ( $title != 'empty1337' ) {
+				update_term_meta( $cat_id, 'category_title', $title );
+			}
+			if ( $meta_title != 'empty1337' ) {
+				update_term_meta( $cat_id, 'meta_title', $meta_title );
+			}
+			if ( $meta_description != 'empty1337' ) {
+				update_term_meta( $cat_id, 'meta_description', $meta_description );
+			}
+			if ( $meta_keywords != 'empty1337' ) {
+				update_term_meta( $cat_id, 'meta_keywords', $meta_keywords );
+			}
 			
 			wp_redirect( '/saw-admin/edit-category?cid=' . $cat_id );
 			exit;
 		}
 	} else if ( is_page( array( 'edit-category' ) ) ) {
-		if (isset($_GET['cid'])) {
-		    $cid = $_GET['cid'];
+		if ( isset( $_GET['cid'] ) ) {
+			$cid         = $_GET['cid'];
 			$acf_request = $_POST['acf'];
-            $description = !empty( $acf_request['field_5ef79704e05be'] ) ? $acf_request['field_5ef79704e05be'] : '';
-            $args = array('description' => $description);
-            $slug = !empty( $acf_request['field_5ef796e9e05bd'] ) ? $acf_request['field_5ef796e9e05bd'] : '';
-            if($slug != '') { $args['slug'] = $slug; }
-            $name = !empty( $acf_request['field_5ef796a4e05bc'] ) ? $acf_request['field_5ef796a4e05bc'] : '';
-            if($name != '') { $args['name'] = $name; }
-            wp_update_term($cid, 'category', $args);
-        }
+			$description = ! empty( $acf_request['field_5ef79704e05be'] ) ? $acf_request['field_5ef79704e05be'] : '';
+			$args        = array( 'description' => $description );
+			$slug        = ! empty( $acf_request['field_5ef796e9e05bd'] ) ? $acf_request['field_5ef796e9e05bd'] : '';
+			if ( $slug != '' ) {
+				$args['slug'] = $slug;
+			}
+			$name = ! empty( $acf_request['field_5ef796a4e05bc'] ) ? $acf_request['field_5ef796a4e05bc'] : '';
+			if ( $name != '' ) {
+				$args['name'] = $name;
+			}
+			wp_update_term( $cid, 'category', $args );
+		}
+		
 		return $post_id;
 	} else {
 		return $post_id;
@@ -1136,6 +1150,7 @@ function fill_in_category( $value, $post_id, $field ) {
 				} else {
 					$is_active = false;
 				}
+				
 				return $is_active;
 			case 'name':
 				return $category->name;
@@ -1652,11 +1667,14 @@ function render_home_hero_slider() {
 	foreach ( $home_sliders as $slider ) {
 		$slide_type       = get_field( 'slide_style', $slider->ID ); // to decide what to include on this page
 		$background_image = get_field( 'background_image', $slider->ID );
-		$html             .= '<div class="swiper-slide slide hero-slide-' . $count . ' slide-type-' . $slide_type . '" style="background-image:url(' . esc_url( $background_image['url'] ) . ');background-size:cover;">';
+		$html             .= '<div class="swiper-slide slide hero-slide-' . $count . ' slide-type-' . $slide_type . '">';
+		$html             .= '<div class="slide-content">'; // flex-column - THIS can get the background
+        $html             .= '<div class="bg-image-layer" style="background-image:url(' . esc_url( $background_image['url'] ) . ');background-size:cover;">';
 		$html             .= ( $slide_type == 2 ? '<div class="alpha-overlay">' : '' );
-		$html             .= '<div class="slide-content left-side' . ( $slide_type == 1 ? ' orange-bg' : '' ) . '">'; // flex-column
+        // if slide type 1, add in the orange left side
+        $html             .= '<div class="left-side' . ( $slide_type == 1 ? ' orange-bg' : '') . '">';
 		// parent text container to space things out flexily
-		$html .= '<div class="hero-text-content">';
+		$html .= '<div class="hero-text-content below-hero-' . $slider->ID . '">';
 		if ( $slide_type == 1 ) {
 			// slide head 2 (if type 1)
 			$html .= '<div class="head-2">';
@@ -1682,9 +1700,13 @@ function render_home_hero_slider() {
 		$html .= '<a href="' . get_field( 'banner_url', $slider->ID ) . '" alt="' . get_field( 'banner_name', $slider->ID ) . '">Read More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a>';
 		$html .= '</div>'; // end .read-more
 		$html .= '</div>'; // end .hero-text-content
+        $html .= '</div>'; // end .orange
+		$html .= '</div>'; // end bg-image-layer
+        $html .= '<div class="text-below-hero style-' . $slide_type .'" id="below-hero-' . $slider->ID . '"></div>';
 		$html .= '</div>'; // end .slide-content.left-side
 		$html .= ( $slide_type == 2 ? '</div>' : '' );
 		$html .= '</div>'; // end .slide.hero-slide-1[2,3,4]
+        // Add another div after the active slide to display text content underneath the image, at 767px and lower
 		$count ++;
 	}
 	$html .= '</div>'; // end .swiper-wrapper
@@ -1694,7 +1716,7 @@ function render_home_hero_slider() {
 	$html .= '<script type="text/javascript">
                     var heroSwiper = new Swiper(".swiper-container", {
                         autoplay: {
-                            delay: 3500,
+                            delay: 304500,
                             disableOnInteraction: false,
                         },
                     });
@@ -1702,3 +1724,32 @@ function render_home_hero_slider() {
 	
 	return $html;
 }
+/********** HOMEPAGE LOCAL FAVES **********/
+add_shortcode( 'homepage_local_faves', 'render_local_fave_grid' );
+function render_local_fave_grid() {
+    // get all Vendors who should be featured in this section
+    $args = array(
+        'post_type' => 'vendor_profile',
+        'meta_key' => 'local_fave_homepage',
+        'meta_value' => 'yes'
+    );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
