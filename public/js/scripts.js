@@ -50,7 +50,6 @@ $(document).ready(function () {
 			navBar.css("z-index", "99");
 		}
 	});
-
 	let vendorTable = $("#vendor_table").DataTable({
 		dom: 'Bfrtip',
 		ajax: {
@@ -67,6 +66,12 @@ $(document).ready(function () {
 			}
 		]
 	});
+	vendorTable.on( 'draw', function () {
+		dropdownButtons();
+	});
+	vendorTable.on( 'search.dt', function() {
+		dropdownButtons();
+	});
 	let categoryTable = $("#category_table").DataTable({
 		dom: 'Bfrtip',
 		ajax: {
@@ -82,6 +87,12 @@ $(document).ready(function () {
 				}
 			}
 		]
+	});
+	categoryTable.on( 'draw', function() {
+		dropdownButtons();
+	});
+	categoryTable.on( 'search.dt', function() {
+		dropdownButtons();
 	});
 	let articleTable = $("#article_table").DataTable({
 		ajax: datatablesajax,
@@ -121,23 +132,32 @@ $(document).ready(function () {
 			}
 		]
 	});
-
-	vendorTable.on( 'draw', function () {
-		dropdownButtons();
-	});
-	vendorTable.on( 'search.dt', function() {
-		dropdownButtons();
-	});
 	articleTable.on( 'draw', function() {
 		dropdownButtons();
 	});
 	articleTable.on( 'search.dt', function() {
 		dropdownButtons();
 	});
-	categoryTable.on( 'draw', function() {
+	let homeSlideTable = $("#home_slider_table").DataTable({
+		dom: 'Bfrtip',
+		ajax: {
+			url: '/wp-admin/admin-ajax.php?action=homeslide_datatables',
+		},
+		processing: true,
+		serverSide: true,
+		buttons: [
+			{
+				text: 'New Home Slider',
+				action: function ( e, dt, node, config ) {
+					window.location = "/saw-admin/add-home-slider";
+				}
+			}
+		]
+	});
+	homeSlideTable.on( 'draw', function() {
 		dropdownButtons();
 	});
-	categoryTable.on( 'search.dt', function() {
+	homeSlideTable.on( 'search.dt', function() {
 		dropdownButtons();
 	});
 

@@ -126,7 +126,7 @@ add_action( 'acf/init', 'my_acf_init' );
 function fn_enqueue_styles() {
 	wp_register_style( 'fn_default_styles', plugins_url( 'public/css/default.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'fn_default_styles' );
-	wp_register_style( 'swiper_style', 'https://unpkg.com/swiper/css/swiper.min.css', array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_register_style( 'swiper_style', 'https://unpkg.com/swiper/swiper-bundle.min.css', array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'swiper_style' );
 	wp_register_style( 'header_style', plugins_url( 'public/css/header.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'header_style' );
@@ -184,7 +184,7 @@ function fn_enqueue_scripts() {
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/js/swiper.min.js' );
+		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/swiper.min.js' );
 		wp_register_script( 'sticky_bits', plugins_url( 'public/js/jquery.stickybits.min.js', __FILE__ ), array(
 			'swiper_slider',
 			'jquery-ui-tabs'
@@ -204,7 +204,7 @@ function fn_enqueue_scripts() {
 	wp_enqueue_script( 'fn_scripts' );
 	
 	if ( is_page( 'home' ) ) {
-		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/js/swiper.min.js' );
+		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/swiper-bundle.min.js' );
 		wp_enqueue_script( 'swiper_slider' );
 	}
 }
@@ -1716,7 +1716,7 @@ function render_home_hero_slider() {
 	$html .= '<script type="text/javascript">
                     var heroSwiper = new Swiper(".swiper-container", {
                         autoplay: {
-                            delay: 304500,
+                            delay: 3500,
                             disableOnInteraction: false,
                         },
                     });
@@ -1733,15 +1733,217 @@ function render_local_fave_grid() {
         'meta_key' => 'local_fave_homepage',
         'meta_value' => 'yes'
     );
+    $local_faves = get_posts($args);
+    
+    $html = '<div class="local-faves-container">';
+    foreach ($local_faves as $local_fave) {
+        $html .= '<div class="individual-fave">';
+            $html .= '<div class="local-fave-image">';
+                $html .= get_the_post_thumbnail($local_fave->ID, array(500,500));
+                $html .= '<div class="fave-image-overlay"></div>';
+            $html .= '</div>'; // END .local-fave-image
+            
+            $html .= '<div class="fave-title-container">';
+	            $html .= '<a href="' . get_permalink($local_fave) . '"><h3>' . $local_fave->post_title . '</h3></a>';
+	        $html .= '</div>'; // END .fave-title-container
+	    $html .= '</div>'; // END .individual-fave
+    }
+    $html .= '</div>'; // END .local-faves-container
+    
+    return $html;
 }
 
+/********** HOMEPAGE BLOG POSTS (BUZZ) **********/
+add_shortcode( 'homepage_daily_buzz', 'render_blog_buzz' );
+function render_blog_buzz() {
+	// get all Vendors who should be featured in this section
+	$args = array(
+		'post_type' => 'post',
+        'posts_per_page' => 4
+	);
+	$blog_posts = get_posts($args);
+	
+	$html = '<div class="local-faves-container">';
+	foreach ($blog_posts as $post) {
+		$html .= '<div class="individual-fave blog-buzz">';
+		$html .= '<div class="local-fave-image">';
+		$html .= get_the_post_thumbnail($post->ID, array(500,500));
+		$html .= '<div class="fave-image-overlay"></div>';
+		$html .= '</div>'; // END .local-fave-image
+		
+		$html .= '<div class="fave-title-container">';
+		$html .= '<a href="' . get_permalink($post) . '"><h3>' . $post->post_title . '</h3></a>';
+		$html .= '</div>'; // END .fave-title-container
+		$html .= '</div>'; // END .individual-fave
+	}
+	$html .= '</div>'; // END .local-faves-container
+	
+	return $html;
+}
 
+/********** HOMEPAGE BLOG POSTS (BUZZ) **********/
+add_shortcode( 'homepage_featured_spotlights', 'render_homepage_spotlights' );
+function render_homepage_spotlights() {
+	// get all Vendors who should be featured in this section
+	$args = array(
+		'post_type' => 'spotlight',
+		'posts_per_page' => 8,
+        'orderby' => 'rand'
+	);
+	$spotlights = get_posts($args);
+	$count = 0;
+	$html = '<div class="local-faves-container">';
+	foreach ($spotlights as $spotlight) {
+	    if($count%4 == 0) {
+	        $html .= '</div><div class="local-faves-container">';
+        }
+		$html .= '<div class="individual-fave spotlight">';
+		$html .= '<div class="local-fave-image">';
+		$html .= get_the_post_thumbnail($spotlight->ID, array(500,500));
+		$html .= '<a href="' . get_permalink($spotlight) . '"><div class="fave-image-overlay"></div></a>';
+		$html .= '</div>'; // END .local-fave-image
+		
+		$html .= '<div class="fave-title-container">';
+		$html .= '<a href="' . get_permalink($spotlight) . '"><h3>' . $spotlight->post_title . '</h3></a>';
+		$html .= '</div>'; // END .fave-title-container
+		$html .= '</div>'; // END .individual-fave
+        $count++;
+	}
+	$html .= '</div>'; // END .local-faves-container
+	
+	return $html;
+}
 
+/********************************* HOME SLIDER TABLE IN SAW ADMIN ************************************/
+add_shortcode('home_slider_table', 'render_home_slider_table');
+function render_home_slider_table() {
+	$hstable = '<table id="home_slider_table" class="dataTable compact display" data-page-length="30">
+	    <thead>
+	        <tr>
+	            <th>Banner</th>
+				<th>Banner Name</th>
+				<th>Post Date</th>
+				<th>Is Featured?</th>
+				<th>End Featured Date</th>
+				<th>View Count &<br />Last Viewed</th>
+				<th>Is Active?</th>
+				<th>Action</th>
+	        </tr>
+	    </thead>
+	</table>';
+	
+	return $hstable;
+}
 
+/********************************* AJAX FOR HOME SLIDER TABLE ************************************/
+add_action( 'wp_ajax_homeslide_datatables', 'render_home_sliders' );
+add_action( 'wp_ajax_nopriv_homeslide_datatables', 'render_home_sliders' );
 
+function render_home_sliders() {
+	
+	header( "Content-Type: application/json" );
+	
+	$request = $_GET;
+	
+	$columns = array(
+		0 => 'banner',
+		1 => 'bannerName',
+		2 => 'postDate',
+		3 => 'isFeatured',
+		4 => 'endFeaturedDate', // featured_release_date - when the banner is no longer featured
+		5 => 'viewCountLastViewed',
+		6 => 'isActive',
+		7 => 'action'
+	);
+	
+	$args = array(
+		'post_type'      => 'home_slide',
+		'posts_per_page' => $request['length'],
+		'offset'         => $request['start'],
+		'order'          => $request['order'][0]['dir']
+	);
+	
+	if ( $request['order'][0]['column'] == 1 || $request['order'][0]['column'] == 5 ) {
+		$args['orderby'] = $columns[ $request['order'][0]['column'] ];
+	} elseif ( $request['order'][0]['column'] == 2 || $request['order'][0]['column'] == 3 ) {
+		$args['orderby'] = 'date';
+	} else {
+		$args['orderby'] = 'title';
+	}
+	
+	//$request['search']['value'] <= Value from search
+	if ( ! empty( $request['search']['value'] ) ) { // When datatables search is used
+		$args['s'] = $request['search']['value'];
+	}
+	
+	$home_slide_query = new WP_Query( $args );
+	$totalData    = $home_slide_query->found_posts;
+	
+	if ( $home_slide_query->have_posts() ) {
+		$data = array();
+		while ( $home_slide_query->have_posts() ) {
+			
+			$home_slide_query->the_post();
+			$active_class = 'deactivate-post';
+			$active_text  = 'Deactivate';
+			if ( ! get_field( 'is_active' ) ) {
+				$active_class = 'activate-post';
+				$active_text  = 'Activate';
+			}
+			
+			$nestedData   = array();
+			$nestedData[] = '<img src="' . get_field('background_image', get_the_ID()) . '" />'; // background image
+			$nestedData[] = get_field('post_name', get_the_ID()); // name
+			$nestedData[] = get_field('banner_start_date', get_the_ID()); // post date
+			$nestedData[] = (get_field('is_slide_featured', get_the_ID()) == true ? 'Yes' : 'No');
+			$nestedData[] = (get_field('is_slide_featured', get_the_ID()) == true ? get_field('featured_slide_release_date', get_the_ID()) : 'N.A.'); // featured release date
+			$nestedData[] = get_field('view_count', get_the_ID()) . '<br />(' . get_field('last_viewed') . ')'; // view count
+            $nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
+			$nestedData[] = '<div class="vmenu-container">
+						<button class="vmenu-button" type="button">
+					            <i class="fas fa-chevron-down"></i>
+						</button>
+					    <ul class="vmenu-dropdown">
+					    	<li><a href="/saw-admin/edit-home-slider?hs_id=' . get_the_ID() . '">Edit</a></li>
+							<li><a href="#" class="' . $active_class . '" id="' . get_the_ID() . '">' . $active_text . '</a></li>
+							<li><a href="' . get_delete_post_link() . '" alt="Delete this Slide">Delete</a></li>
+					    </ul>
+					</div>';
+			
+			$data[] = $nestedData;
+		}
+		
+		wp_reset_query();
+		
+		$json_data = array(
+			"draw"            => intval( $request['draw'] ),
+			"recordsTotal"    => intval( $totalData ),
+			"recordsFiltered" => intval( $totalData ),
+			"data"            => $data
+		);
+		
+		echo json_encode( $json_data );
+		
+	} else {
+		$json_data = array(
+			"data" => array()
+		);
+		echo json_encode( $json_data );
+	}
+	wp_die();
+}
 
+/********************************* ADD HOME SLIDERS IN SAW ADMIN ************************************/
+add_shortcode('home_slider_add_form', 'render_add_home_slider');
+function render_add_home_slider() {
 
+}
 
+/********************************* HOME SLIDER TABLE IN SAW ADMIN ************************************/
+add_shortcode('home_slider_edit_form', 'render_edit_home_slider');
+function render_edit_home_slider() {
+
+}
 
 
 

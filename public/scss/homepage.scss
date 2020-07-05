@@ -14,6 +14,7 @@
       @media screen and (max-width: 767px) {
         height: auto;
       }
+
       .bg-image-layer {
         height: 100%;
         @media screen and (max-width: 767px) {
@@ -31,11 +32,10 @@
           width: 50%;
           max-width: 625px;
           @media screen and (max-width: 767px) {
-            background: url("../img/Template-2-White-Wave-Icon-Shape-2X.png") left bottom;
+            background: url("../img/Template-2-White-Wave-Icon-Shape-2X.png") no-repeat left bottom;
             background-size: cover;
-            width: 100%;
             max-width: 100%;
-            background-repeat: no-repeat;
+            width: 100%;
           }
           @media screen and (max-width: 383px) {
             background-size: contain;
@@ -105,12 +105,14 @@
             display: none;
           }
         }
+
         .saw-button {
           &.read-more {
             padding-top: 30px;
             @media screen and (max-width: 767px) {
               padding-top: 0;
             }
+
             a {
               color: #FFF;
               border-color: #FFF;
@@ -130,12 +132,14 @@
           }
         }
       }
+
       .text-below-hero {
         display: none;
         @media screen and (max-width: 767px) {
           display: block;
           padding: 10px 20px 20px;
         }
+
         &.style-1 {
           .head-2 h3 {
             color: #000;
@@ -144,6 +148,7 @@
             font-size: 1.8em;
             font-weight: 700;
           }
+
           .subhead {
             color: var(--red-color);
             border-left: #000 solid .2em;
@@ -155,10 +160,12 @@
             padding-left: 20px;
             margin-bottom: 20px;
           }
+
           .saw-button.read-more {
             text-align: right;
           }
         }
+
         &.style-2 {
           .head-1 {
             color: #000;
@@ -169,6 +176,7 @@
             text-align: center;
             padding-bottom: 15px;
           }
+
           .saw-button.read-more {
             text-align: center;
             padding-top: 20px;
@@ -196,14 +204,77 @@
     height: 100%;
     background: rgb(0, 0, 0);
     background: linear-gradient(90deg, rgba(0, 0, 0, 0.8421743697478992) 0%, rgba(0, 0, 0, 0.6096813725490196) 69%, rgba(0, 0, 0, 0) 100%);
-      @media screen and (max-width: 767px) {
-        background: url("../img/Template-2-White-Wave-Icon-Shape-2X.png") no-repeat left bottom;
-        background-size: cover;
-        max-width: 100%;
-        width: 100%;
-      }
+    @media screen and (max-width: 767px) {
+      background: url("../img/Template-2-White-Wave-Icon-Shape-2X.png") no-repeat left bottom;
+      background-size: cover;
+      max-width: 100%;
+      width: 100%;
+    }
   }
+
   .read-more.saw-button a {
     border-color: var(--red-color) !important;
+  }
+}
+
+.local-faves-container {
+  display: flex;
+  justify-content: space-evenly;
+  padding-top: 15px;
+
+  .individual-fave {
+    background: var(--charcoal-color);
+    width: 23%;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    overflow: hidden;
+    transition: 0.2s;
+    &.blog-buzz {
+      background: var(--main-teal-color);
+    }
+    &.spotlight {
+      background: var(--red-color);
+    }
+
+    &:hover {
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      transition: .2s;
+
+      .local-fave-image {
+        .fave-image-overlay {
+          opacity: .3 !important;
+          transition: 0.2s;
+        }
+      }
+    }
+
+    .local-fave-image {
+      position: relative;
+
+      img {
+        display: block;
+      }
+
+      .fave-image-overlay {
+        opacity: 0;
+        transition: .2s;
+        background-color: #FFF;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+    }
+
+    .fave-title-container {
+      padding: 10px;
+
+      h3 {
+        color: #FFF;
+        text-transform: uppercase;
+        font-size: 1em;
+      }
+    }
   }
 }
