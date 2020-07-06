@@ -160,6 +160,28 @@ $(document).ready(function () {
 	homeSlideTable.on( 'search.dt', function() {
 		dropdownButtons();
 	});
+	let bannerTable = $("#banner_ad_table").DataTable({
+		dom: 'Bfrtip',
+		ajax: {
+			url: '/wp-admin/admin-ajax.php?action=banner_datatables',
+		},
+		processing: true,
+		serverSide: true,
+		buttons: [
+			{
+				text: 'New Banner Ad',
+				action: function ( e, dt, node, config ) {
+					window.location = "/saw-admin/add-banner-ad";
+				}
+			}
+		]
+	});
+	bannerTable.on( 'draw', function() {
+		dropdownButtons();
+	});
+	bannerTable.on( 'search.dt', function() {
+		dropdownButtons();
+	});
 
 	dropdownButtons();
 	function dropdownButtons() {
@@ -197,6 +219,9 @@ $(document).ready(function () {
 			} else if (response.post_type == 'home_slide') {
 				alert("Home Slider Deactivated!");
 				homeSlideTable.draw();
+			} else if (response.post_type == 'banner') {
+				alert("Banner Ad Deactivated!");
+				bannerTable.draw();
 			}
 		});
 	});
@@ -222,6 +247,9 @@ $(document).ready(function () {
 			} else if (response.post_type == 'home_slide') {
 				alert("Home Slider Activated!");
 				homeSlideTable.draw();
+			} else if (response.post_type == 'banner') {
+				alert("Banner Ad Activated!");
+				bannerTable.draw();
 			}
 		});
 	});

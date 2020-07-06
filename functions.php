@@ -2009,6 +2009,205 @@ function render_edit_home_slider() {
 	}
 }
 
+/********************************* TODO: START OF BANNER AD ADMIN SECTION!!!!!! ************************************/
+/********************************* BANNERS TABLE IN SAW ADMIN ************************************/
+add_shortcode('banner_ad_table', 'render_banner_table');
+function render_banner_table() {
+	$batable = '<table id="banner_ad_table" class="dataTable compact display" data-page-length="30">
+	    <thead>
+	        <tr>
+	            <th>Banner</th>
+				<th>Banner Name</th>
+				<th>Banner Size</th>
+				<th>Advertiser Name</th>
+				<th>Categories</th>
+				<th>Start Date</th>
+				<th>Stop Date</th>
+				<th>View Count &<br />Last Viewed</th>
+				<th>Exposure Level</th>
+				<th>Is Active?</th>
+				<th>Action</th>
+	        </tr>
+	    </thead>
+	</table>';
+	
+	return $batable;
+}
+
+/********************************* AJAX FOR HOME SLIDER TABLE ************************************/
+add_action( 'wp_ajax_banner_datatables', 'render_banner_ads' );
+add_action( 'wp_ajax_nopriv_banner_datatables', 'render_banner_ads' );
+
+function render_banner_ads() {
+	
+	header( "Content-Type: application/json" );
+	
+	$request = $_GET;
+	
+	$columns = array(
+		0  => 'banner',
+		1  => 'bannerName',
+		2  => 'bannerSize',
+		3  => 'advertiserName',
+		4  => 'categories',
+		5  => 'startDate',
+		6  => 'stopDate',
+		7  => 'viewCountLastViewed',
+        8  => 'exposureLevel',
+        9  => 'isActive',
+        10 => 'action'
+	);
+	
+	$args = array(
+		'post_type'      => 'banner',
+		'posts_per_page' => $request['length'],
+		'offset'         => $request['start'],
+		'order'          => $request['order'][0]['dir']
+	);
+	/* TODO: CHANGE THESE TO HEADERS FOR THE BANNER AD CPT */
+	if ( $request['order'][0]['column'] == 1 || $request['order'][0]['column'] == 2 || $request['order'][0]['column'] == 3 || $request['order'][0]['column'] == 5 || $request['order'][0]['column'] == 6 || $request['order'][0]['column'] == 8 || $request['order'][0]['column'] == 9 ) {
+		$args['orderby'] = $columns[ $request['order'][0]['column'] ];
+	} else {
+		$args['orderby'] = 'title';
+	}
+	
+	//$request['search']['value'] <= Value from search
+	if ( ! empty( $request['search']['value'] ) ) { // When datatables search is used
+		$args['s'] = $request['search']['value'];
+	}
+	
+	$banner_ad_query = new WP_Query( $args );
+	$totalData    = $banner_ad_query->found_posts;
+	
+	if ( $banner_ad_query->have_posts() ) {
+		$data = array();
+		while ( $banner_ad_query->have_posts() ) {
+			
+			$banner_ad_query->the_post();
+			$active_class = 'deactivate-post';
+			$active_text  = 'Deactivate';
+			if ( ! get_field( 'is_active' ) ) {
+				$active_class = 'activate-post';
+				$active_text  = 'Activate';
+			}
+			
+			$nestedData   = array();
+			$banner_image = get_field('ad_banner', get_the_ID());
+			$nestedData[] = '<img src="' . $banner_image['url'] . '" />'; // banner ad image
+			$nestedData[] = get_field('banner_name', get_the_ID()); // banner name
+			$nestedData[] = get_field('banner_size', get_the_ID()); // banner size
+            $advertiser = get_field('advertiser'); // grabbing the post object of the vendor
+			$nestedData[] = $advertiser->post_title; // advertiser name
+			
+                // Grab categories from "Premium Listing" section from vendor CPT
+                $categories = get_field('premium_listings', $advertiser->ID);
+                if (is_array($categories)) {
+                    $category_names = '';
+                    $count = 1;
+	                foreach ( $categories as $category ) {
+                        $this_cat = get_term($category['category'], 'category');
+                        if ($count != sizeof($categories)) {
+                            $category_names = $this_cat->name . ', ';
+                            
+                        } else {
+                            $category_names = $this_cat->name;
+                        }
+                        $count++;
+                    }
+	                $nestedData[] = $category_names;
+                } else {
+                    $nestedData[] = '';
+                }
+			
+            $nestedData[] = get_field('banner_start_date'); // startDate
+			$nestedData[] = get_field('banner_stop_date'); // stopDate
+			$nestedData[] = get_field('view_count', get_the_ID()) . '<br />(' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.') . ')'; // view count
+            $nestedData[] = get_field('exposure_level');
+			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
+			$nestedData[] = '<div class="vmenu-container">
+						<button class="vmenu-button" type="button">
+					            <i class="fas fa-chevron-down"></i>
+						</button>
+					    <ul class="vmenu-dropdown">
+					    	<li><a href="/saw-admin/edit-banner-ad?ba_id=' . get_the_ID() . '">Edit</a></li>
+							<li><a href="#" class="' . $active_class . '" id="' . get_the_ID() . '">' . $active_text . '</a></li>
+							<li><a href="' . get_delete_post_link() . '" alt="Delete this Banner Ad">Delete</a></li>
+					    </ul>
+					</div>';
+			
+			$data[] = $nestedData;
+		}
+		
+		wp_reset_query();
+		/* TODO: CHANGE THESE TO HEADERS FOR THE BANNER AD CPT */
+		$json_data = array(
+			"draw"            => intval( $request['draw'] ),
+			"recordsTotal"    => intval( $totalData ),
+			"recordsFiltered" => intval( $totalData ),
+			"data"            => $data
+		);
+		
+		echo json_encode( $json_data );
+		
+	} else {
+		$json_data = array(
+			"data" => array()
+		);
+		echo json_encode( $json_data );
+	}
+	wp_die();
+}
+
+/********************************* ADD BANNER ADS IN SAW ADMIN ************************************/
+add_shortcode('banner_ad_add_form', 'render_add_banner_ad');
+function render_add_banner_ad() {
+	
+	$args = array(
+		'post_id'               => 'new_post',
+		'new_post'              => array(
+			'post_type'   => 'banner',
+			'post_status' => 'publish'
+		),
+		'submit_value'          => 'Create new Banner Ad',
+		'instruction_placement' => 'field',
+		'return'                => '/saw-admin/edit-banner-ad?$ba_id=%post_id%'
+	);
+	ob_start();
+	acf_form( $args );
+	$html = ob_get_contents();
+	ob_end_clean();
+	
+	return $html;
+}
+
+/********************************* SAVE POST TITLE IN BANNER ADS ************************************/
+/******** This is taken care of in the 'save_category' method above, where it will check for the 'add-banner-ad' page **/
+
+
+/********************************* BANNER AD TABLE IN SAW ADMIN ************************************/
+add_shortcode('banner_ad_edit_form', 'render_edit_banner_ad');
+function render_edit_banner_ad() {
+	
+	if ( isset( $_GET['ba_id'] ) ) {
+		$hs_id = $_GET['ba_id'];
+		$args      = array(
+			'post_id'               => $hs_id,
+			'updated_message'       => 'Banner Ad successfully updated!',
+			'instruction_placement' => 'field'
+		);
+		$html      = '<h2>' . get_the_title( $hs_id ) . '</h1>';
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	} else {
+		//Handle the case where there is no parameter
+		return 'No banner ad selected. Head back to the <a href="/saw-admin/banner-ads" alt="SAW Banner Ads">Banner Ads table</a> and try again!';
+	}
+}
+
 
 
 
