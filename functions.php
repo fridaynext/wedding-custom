@@ -142,6 +142,8 @@ function fn_enqueue_styles() {
 		'datatables_buttons_style'
 	), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'datatables_custom' );
+	wp_register_style('admin-styles', plugins_url('public/css/admin.css', __FILE__), array(), FRIDAY_NEXT_EXTRAS_VERSION);
+	wp_enqueue_style('admin-styles');
 	
 	// TODO: Only render these styles for the article pages!
 	wp_register_style( 'article_styles', plugins_url( 'public/css/article.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
@@ -1123,7 +1125,20 @@ function save_category( $post_id ) {
 		}
 		
 		return $post_id;
-	} else {
+	} else if( is_page(array('add-home-slider','edit-home-slider'))) {
+	    // set the 'banner_name' as the post title
+		$acf_request = $_POST['acf'];
+		if (isset($_GET['hs_id'])) {
+		    $hs_id = $_GET['hs_id'];
+        } else $hs_id = $post_id;
+        $home_slider = array(
+            'ID' => $hs_id,
+            'post_title' => !empty($acf_request['field_5efaa2a3191c5']) ? $acf_request['field_5efaa2a3191c5'] : get_the_title($hs_id)
+        );
+        wp_update_post($home_slider);
+        
+		return $post_id; // return $post_id regardless
+    } else {
 		return $post_id;
 	}
 }
@@ -1551,6 +1566,7 @@ function render_ss_head_two() {
 		
 		return get_field( 'head_2', $ssid );
 	}
+	return '';
 }
 
 function render_ss_header_image() {
@@ -1560,40 +1576,44 @@ function render_ss_header_image() {
 		
 		return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
 	}
+	return '';
 }
 
 add_filter( 'envira_gallery_pre_data', 'render_enviragallery', 10, 2 );
 function render_enviragallery( $data, $gallery_id ) {
-	if ( isset( $_GET['ssid'] ) ) {
-		$ssid    = $_GET['ssid'];
-		$newdata = array();
-		
-		// Don't lose the original gallery id and configuration
-		$newdata["id"]     = $data["id"];
-		$newdata["config"] = $data["config"];
-		
-		// Get list of images from our ACF gallery field
-		$gallery   = get_post_meta( $ssid, 'article_photo_gallery' );
-		$image_ids = $gallery[0]; // It's an array within an array
-		
-		// If we have some images loop around and populate a new data array
-		if ( is_array( $image_ids ) ) {
-			
-			foreach ( $image_ids as $image_id ) {
-				
-				$newdata["gallery"][ $image_id ]["status"] = 'active';
-				$newdata["gallery"][ $image_id ]["src"]    = esc_url( wp_get_attachment_url( $image_id ) );
-				$newdata["gallery"][ $image_id ]["title"]  = esc_html( get_the_title( $image_id ) );
-				$newdata["gallery"][ $image_id ]["link"]   = esc_url( wp_get_attachment_url( $image_id ) );
-				$newdata["gallery"][ $image_id ]["alt"]    = trim( strip_tags( get_post_meta( $image_id, '_wp_attachment_image_alt', true ) ) );
-				$newdata["gallery"][ $image_id ]["thumb"]  = esc_url( wp_get_attachment_thumb_url( $image_id ) );
-				
-			}
-		}
-		
-		return $newdata;
-		
-	}
+	if (is_page('styled-shoot-gallery')) {
+	    
+        if ( isset( $_GET['ssid'] ) ) {
+            $ssid    = $_GET['ssid'];
+            $newdata = array();
+            
+            // Don't lose the original gallery id and configuration
+            $newdata["id"]     = $data["id"];
+            $newdata["config"] = $data["config"];
+            
+            // Get list of images from our ACF gallery field
+            $gallery   = get_field( 'article_photo_gallery', $ssid );
+            
+            // If we have some images loop around and populate a new data array
+            if ( is_array( $gallery ) ) {
+       
+                foreach ( $gallery as $image ) {
+	
+	                $newdata["gallery"][ $image["id"] ]["status"] = 'active';
+	                $newdata["gallery"][ $image["id"] ]["src"]    = $image["url"];
+	                $newdata["gallery"][ $image["id"] ]["title"]  = $image["title"];
+	                $newdata["gallery"][ $image["id"] ]["link"]   = $image["url"];
+	                $newdata["gallery"][ $image["id"] ]["alt"]    = $image["alt"];
+	                $newdata["gallery"][ $image["id"] ]["caption"] = $image["caption"];
+	                $newdata["gallery"][ $image["id"] ]["thumb"]  = $image["sizes"]["thumbnail"];
+                    
+                }
+            }
+            return $newdata;
+        }
+    } else {
+	    return $data;
+    }
 }
 
 add_shortcode( 'styled_shoot_url', 'render_ss_url' );
@@ -1716,9 +1736,16 @@ function render_home_hero_slider() {
 	$html .= '<script type="text/javascript">
                     var heroSwiper = new Swiper(".swiper-container", {
                         autoplay: {
-                            delay: 3500,
+                            delay: 4500,
                             disableOnInteraction: false,
+                            grabCursor: true
                         },
+                    });
+                    jQuery(".swiper-container").on("mouseenter", function()  {
+                        heroSwiper.autoplay.stop();
+                    });
+                    jQuery(".swiper-container").on("mouseleave", function() {
+                        heroSwiper.autoplay.start();
                     });
             </script>';
 	
@@ -1892,12 +1919,13 @@ function render_home_sliders() {
 			}
 			
 			$nestedData   = array();
-			$nestedData[] = '<img src="' . get_field('background_image', get_the_ID()) . '" />'; // background image
-			$nestedData[] = get_field('post_name', get_the_ID()); // name
+			$bg_image = get_field('background_image', get_the_ID());
+			$nestedData[] = '<img src="' . $bg_image['url'] . '" />'; // background image
+			$nestedData[] = get_field('banner_name', get_the_ID()); // banner name
 			$nestedData[] = get_field('banner_start_date', get_the_ID()); // post date
 			$nestedData[] = (get_field('is_slide_featured', get_the_ID()) == true ? 'Yes' : 'No');
 			$nestedData[] = (get_field('is_slide_featured', get_the_ID()) == true ? get_field('featured_slide_release_date', get_the_ID()) : 'N.A.'); // featured release date
-			$nestedData[] = get_field('view_count', get_the_ID()) . '<br />(' . get_field('last_viewed') . ')'; // view count
+			$nestedData[] = get_field('view_count', get_the_ID()) . '<br />(' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.') . ')'; // view count
             $nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
@@ -1936,13 +1964,49 @@ function render_home_sliders() {
 /********************************* ADD HOME SLIDERS IN SAW ADMIN ************************************/
 add_shortcode('home_slider_add_form', 'render_add_home_slider');
 function render_add_home_slider() {
-
+	$args = array(
+		'post_id'               => 'new_post',
+		'new_post'              => array(
+			'post_type'   => 'home_slide',
+			'post_status' => 'publish'
+		),
+		'submit_value'          => 'Create new Home Slider',
+		'instruction_placement' => 'field',
+		'return'                => '/saw-admin/edit-home-slider?$hs_id=%post_id%'
+	);
+	ob_start();
+	acf_form( $args );
+	$html = ob_get_contents();
+	ob_end_clean();
+	
+	return $html;
 }
 
+/********************************* SAVE POST TITLE IN HOME SLIDERS ************************************/
+/******** This is taken care of in the 'save_category' method above, where it will check for the 'add-home-slider' page **/
+	
+	
 /********************************* HOME SLIDER TABLE IN SAW ADMIN ************************************/
 add_shortcode('home_slider_edit_form', 'render_edit_home_slider');
 function render_edit_home_slider() {
-
+	if ( isset( $_GET['hs_id'] ) ) {
+		$hs_id = $_GET['hs_id'];
+		$args      = array(
+			'post_id'               => $hs_id,
+			'updated_message'       => 'Home Slider successfully updated!',
+			'instruction_placement' => 'field'
+		);
+		$html      = '<h2>' . get_the_title( $hs_id ) . '</h1>';
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	} else {
+		//Handle the case where there is no parameter
+		return 'No home slider selected. Head back to the <a href="/saw-admin/home-sliders" alt="SAW Home Sliders">Home Sliders table</a> and try again!';
+	}
 }
 
 

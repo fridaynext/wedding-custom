@@ -1,5 +1,5 @@
 /* Sticky the side menu */
-.page-id-6433 .et_pb_column.et_pb_column_1_4.et_pb_column_0, .parent-pageid-6433 .et_pb_column.et_pb_column_1_4.et_pb_column_0 {
+.admin-side-menu {
     top: 0;
     position: sticky;
 }

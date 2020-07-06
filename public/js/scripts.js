@@ -194,6 +194,9 @@ $(document).ready(function () {
 			} else if (response.post_type == 'category') {
 				alert("Category Deactivated!");
 				categoryTable.draw();
+			} else if (response.post_type == 'home_slide') {
+				alert("Home Slider Deactivated!");
+				homeSlideTable.draw();
 			}
 		});
 	});
@@ -216,6 +219,9 @@ $(document).ready(function () {
 			} else if (response.post_type == 'category') {
 				alert("Category Activated!");
 				categoryTable.draw();
+			} else if (response.post_type == 'home_slide') {
+				alert("Home Slider Activated!");
+				homeSlideTable.draw();
 			}
 		});
 	});
@@ -226,6 +232,12 @@ $(document).ready(function () {
 		window.location = $(this).find('a').attr('href');
 	});
 
+	$('.admin-save-button')
+		.parent().css("z-index", "11")
+		.on('click', function () {
+		// when clicked, click the form submit button
+		$('input[type="submit"].acf-button.button-primary').click();
+	});
 	// navBar.stickybits();
 
 

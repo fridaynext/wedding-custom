@@ -1,0 +1,7 @@
+.admin-save-button {
+  z-index: 11;
+  margin-right: -65px;
+}
+.admin-save-button:hover {
+  margin-right: 10px;
+}
