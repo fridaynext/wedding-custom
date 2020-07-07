@@ -468,13 +468,13 @@ function photographer_func( $atts ) {
 			$return_string = 'Photography by: ' . get_field( 'photographer-manual', $post_id );
 			if ( get_field( 'author', $post_id ) ) {
 				$auth_pres     = true;
-				$return_string .= ' | Written by: ' . get_field( 'author' );
+				$return_string .= ' | Written by: ' . get_field( 'author', $post_id );
 			}
 			
 			return $return_string;
 		} else if ( get_field( 'author', $post_id ) ) {
 			// no photographer, maybe an author, though!
-			return 'Written by: ' . get_field( 'author' );
+			return 'Written by: ' . get_field( 'author', $post_id );
 		} else {
 			return '';
 		}
@@ -489,12 +489,16 @@ function photographer_func( $atts ) {
 				$return_string = 'Photography by: ' . get_field( 'photographer', $post_id )->title;
 			}
 			if ( get_field( 'author', $post_id ) ) {
-				$return_string .= ' | Written by: ' . get_field( 'author' );
+				$return_string .= ' | Written by: ' . get_field( 'author', $post_id );
 			}
 			
 			return $return_string;
 		} else {
-			// nothing selected (catch-all)
+			// There's only an author maybe? let's check that
+            if (get_field('author', $post_id)) {
+                $return_string = 'Written by: ' . get_field('author', $post_id);
+                return $return_string;
+            }
 			return '';
 		}
 	}
@@ -1549,42 +1553,36 @@ function vendor_list_styled() {
 }
 
 /************* STYLED SHOOT GALLERY ******************/
-add_shortcode( 'styled_shoot_head_1', 'render_ss_head_one' );
-add_shortcode( 'styled_shoot_head_2', 'render_ss_head_two' );
-add_shortcode( 'ss_header_image', 'render_ss_header_image' );
-function render_ss_head_one() {
-	if ( isset( $_GET['ssid'] ) ) {
-		$ssid = $_GET['ssid'];
-		
-		return get_field( 'head_1', $ssid );
-	}
+add_shortcode( 'article_head_1', 'render_article_head_one' );
+add_shortcode( 'article_head_2', 'render_article_head_two' );
+add_shortcode( 'article_header_image', 'render_article_header_image' );
+function render_article_head_one() {
+	if ( isset( $_GET['aid'] ) ) {
+		return get_field( 'head_1', $_GET['aid'] );
+	} else return '';
 }
 
-function render_ss_head_two() {
-	if ( isset( $_GET['ssid'] ) ) {
-		$ssid = $_GET['ssid'];
-		
-		return get_field( 'head_2', $ssid );
-	}
-	return '';
+function render_article_head_two() {
+	if ( isset( $_GET['aid'] ) ) {
+		return get_field( 'head_2', $_GET['aid'] );
+	} else return '';
 }
 
-function render_ss_header_image() {
-	if ( isset( $_GET['ssid'] ) ) {
-		$ssid       = $_GET['ssid'];
-		$header_img = get_field( 'header_image', $ssid );
+function render_article_header_image() {
+	if ( isset( $_GET['aid'] ) ) {
+		$aid       = $_GET['aid'];
+		$header_img = get_field( 'header_image', $aid );
 		
 		return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
-	}
-	return '';
+	} else return '';
 }
 
 add_filter( 'envira_gallery_pre_data', 'render_enviragallery', 10, 2 );
 function render_enviragallery( $data, $gallery_id ) {
-	if (is_page('styled-shoot-gallery')) {
+	if (is_page(array('styled-shoot-gallery','spotlight-gallery'))) {
 	    
-        if ( isset( $_GET['ssid'] ) ) {
-            $ssid    = $_GET['ssid'];
+        if ( isset( $_GET['aid'] ) ) {
+            $aid    = $_GET['aid'];
             $newdata = array();
             
             // Don't lose the original gallery id and configuration
@@ -1592,7 +1590,7 @@ function render_enviragallery( $data, $gallery_id ) {
             $newdata["config"] = $data["config"];
             
             // Get list of images from our ACF gallery field
-            $gallery   = get_field( 'article_photo_gallery', $ssid );
+            $gallery   = get_field( 'article_photo_gallery', $aid );
             
             // If we have some images loop around and populate a new data array
             if ( is_array( $gallery ) ) {
@@ -1623,6 +1621,29 @@ function render_ss_url() {
 	$button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
 	
 	return $button_html;
+}
+
+/************************** SPOTLIGHT PHOTO/GALLERY BUTTONS *************************************/
+/******************* ONLY SHOW THESE BUTTONS IF EITHER OF THE TWO ACTUALLY EXIST ****************/
+add_shortcode('spotlight_photo_gallery_buttons', 'render_photo_gallery_buttons');
+function render_photo_gallery_buttons() {
+    // this is run on a Featured Spotlight page
+    // ALWAYS going to show the vendor, only sometimes going to show a gallery (if there are any photos in it)
+    
+    $post_id = get_the_ID();
+    
+    // profile page button
+    $vendor = get_field('vendor', $post_id);
+    $vendor_url = get_permalink($vendor);
+    $return_html = '<div class="saw-button"><a href="' . $vendor_url . '" alt="' . $vendor->post_title . '">View Our Profile Page</a></div>';
+    
+    // gallery button, but check for gallery images first
+    $gallery = get_field('article_photo_gallery', $post_id);
+    if (is_array($gallery)) {
+        $return_html .= '<div class="saw-button"><a href="/spotlight-gallery?aid=' . $post_id . '">View Our Gallery</a></div>';
+    }
+    
+    return $return_html;
 }
 
 add_shortcode( 'featured_spotlight_module', 'render_featured_spotlights' );
@@ -1685,6 +1706,9 @@ function render_home_hero_slider() {
 	$html  .= '<div class="home-slider-container swiper-container">';
 	$html  .= '<div class="swiper-wrapper">';
 	foreach ( $home_sliders as $slider ) {
+	    $view_count = get_field('view_count', $slider->ID);
+	    update_field('view_count', $view_count+1, $slider->ID);
+	    update_field('last_viewed', date("Y-m-d H:i:s"), $slider->ID);
 		$slide_type       = get_field( 'slide_style', $slider->ID ); // to decide what to include on this page
 		$background_image = get_field( 'background_image', $slider->ID );
 		$html             .= '<div class="swiper-slide slide hero-slide-' . $count . ' slide-type-' . $slide_type . '">';
@@ -2122,7 +2146,7 @@ function render_banner_ads() {
             $nestedData[] = get_field('banner_start_date'); // startDate
 			$nestedData[] = get_field('banner_stop_date'); // stopDate
 			$nestedData[] = get_field('view_count', get_the_ID()) . '<br />(' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.') . ')'; // view count
-            $nestedData[] = get_field('exposure_level');
+            $nestedData[] = get_field('exposure_level') . 'X';
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
