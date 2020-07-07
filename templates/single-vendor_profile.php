@@ -39,7 +39,16 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
             C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
             C14.36,11.99,12.69,13.69,10.63,13.69z"/>
                                                 </svg>
-                            <div class="vendor-address-text"><?php the_field("address", get_the_ID()); ?></div>
+                            <?php
+                                $address = get_field('address');
+                                $address_string = '';
+                                $address_string .= !empty($address['address_line_1']) ? $address['address_line_1'] : '';
+                                $address_string .= !empty($address['address_line_2']) ? ', ' . $address['address_line_2'] : '';
+                                $address_string .= !empty($address['city']) ? ', ' . $address['city'] : '';
+                                $address_string .= !empty($address['state']) ? ', ' . $address['state'] : '';
+                                $address_string .= !empty($address['zip']) ? ', ' . $address['zip'] : '';
+                            ?>
+                            <div class="vendor-address-text"><?php echo $address_string; ?></div>
                         </div>
 
                         <?php // website

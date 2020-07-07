@@ -1635,12 +1635,12 @@ function render_photo_gallery_buttons() {
     // profile page button
     $vendor = get_field('vendor', $post_id);
     $vendor_url = get_permalink($vendor);
-    $return_html = '<div class="saw-button"><a href="' . $vendor_url . '" alt="' . $vendor->post_title . '">View Our Profile Page</a></div>';
+    $return_html = '<div class="saw-button"><a href="' . $vendor_url . '" alt="' . $vendor->post_title . '">View Our Profile Page <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
     
     // gallery button, but check for gallery images first
     $gallery = get_field('article_photo_gallery', $post_id);
     if (is_array($gallery)) {
-        $return_html .= '<div class="saw-button"><a href="/spotlight-gallery?aid=' . $post_id . '">View Our Gallery</a></div>';
+        $return_html .= '<div class="saw-button"><a href="/spotlight-gallery?aid=' . $post_id . '">View Our Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i>    </a></div>';
     }
     
     return $return_html;
@@ -2232,7 +2232,46 @@ function render_edit_banner_ad() {
 	}
 }
 
+/************************ SPOTLIGHT VENDOR INFORMATION **********************/
+add_shortcode( 'spotlight_vendor_information', 'render_spotlight_vendor' );
+function render_spotlight_vendor() {
 
+    // Get the linked vendor and print:
+        // 1. 'View Vendor Profile' SAW link
+        // 2. Phone number
+        // 3. Address
+        // 4. Website Link
+    $vendor = get_field('vendor');
+    
+    $html = '<div class="spotlight-vendor-info-container">';
+	$html .= '<div class="vendor-profile-link">';
+	$html .= '<i class="fas fa-info-circle"></i><span><a href="' . get_the_permalink($vendor) . '" alt="' . $vendor->post_title . '">View Vendor Profile</a></span>';
+	$html .= '</div>';
+	$html .= '<div class="vendor-phone-number">';
+	$html .= '<i class="fas fa-phone-alt"></i><span><a href="tel:' . get_field('business_phone_number', $vendor->ID) . '">' . get_field('business_phone_number', $vendor->ID) . '</a></span>';
+	$html .= '</div>';
+	$address = get_field('address', $vendor->ID);
+	if ($address) {
+	    $html .= '<div class="vendor-address">';
+	    $html .= '<i class="fas fa-map-marker-alt"></i>';
+	    if (!empty($address['address_line_1'])) $html .= $address['address_line_1'];
+	    if (!empty($address['address_line_2'])) $html .= ', ' . $address['address_line_2'];
+	    if (!empty($address['city'])) $html .= ', ' . $address['city'];
+	    if (!empty($address['state'])) $html .= ', ' . $address['state'];
+	    if (!empty($address['zip'])) $html .= ' ' . $address['zip'];
+	    $html .= '</div>';
+    }
+	$website = get_field('website', $vendor->ID);
+	if (!empty($website)) {
+	    $html .= '<div class="vendor-website">';
+	    $html .= '<i class="fas fa-globe"></i>';
+	    $html .= '<a href="' . $website . '" alt="' . $vendor->post_title . '" target="_blank">Website</a>';
+	    $html .= '</div>';
+    }
+	$html .= '</div>';
+	
+	return $html;
+}
 
 
 

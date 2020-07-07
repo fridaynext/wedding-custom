@@ -277,6 +277,11 @@ $(document).ready(function () {
 	//     $phone_formatted = text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
 	//     return '<a href="tel:' + $phone_formatted + '">' + $phone_formatted + '</a>';
 	// });
+	jQuery('.spotlight-vendor-info-container .vendor-phone-number span a').text(function(i, text) {
+		$phone_formatted = text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+		return $phone_formatted;
+	});
+
 	// var swiper = new Swiper('.swiper-container', {
 	//     slidesPerView: 'auto',
 	//     centeredSlides: true,
