@@ -1,11 +1,20 @@
+.hero-slider-shortcode-divi-module {
+  .et_pb_code_inner {
+    height: 100%;
+    padding-bottom: 5px;
+  }
+}
 .home-slider-container {
-  //height: 450px;
+  height: 100%;
   margin-top: 5px;
   margin-bottom: 5px;
   @media screen and (max-width: 767px) {
     height: auto;
   }
-
+  .et_pb_code_inner {
+    height: 100%;
+    padding-bottom: 5px;
+  }
   .swiper-slide {
     height: auto;
 

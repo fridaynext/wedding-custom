@@ -1577,47 +1577,71 @@ function render_article_header_image() {
 	} else return '';
 }
 
-add_filter( 'envira_gallery_pre_data', 'render_enviragallery', 10, 2 );
-function render_enviragallery( $data, $gallery_id ) {
-	if (is_page(array('styled-shoot-gallery','spotlight-gallery'))) {
-	    
-        if ( isset( $_GET['aid'] ) ) {
-            $aid    = $_GET['aid'];
-            $newdata = array();
-            
-            // Don't lose the original gallery id and configuration
-            $newdata["id"]     = $data["id"];
-            $newdata["config"] = $data["config"];
-            
-            // Get list of images from our ACF gallery field
-            $gallery   = get_field( 'article_photo_gallery', $aid );
-            
-            // If we have some images loop around and populate a new data array
-            if ( is_array( $gallery ) ) {
-       
-                foreach ( $gallery as $image ) {
-	
-	                $newdata["gallery"][ $image["id"] ]["status"] = 'active';
-	                $newdata["gallery"][ $image["id"] ]["src"]    = $image["url"];
-	                $newdata["gallery"][ $image["id"] ]["title"]  = $image["title"];
-	                $newdata["gallery"][ $image["id"] ]["link"]   = $image["url"];
-	                $newdata["gallery"][ $image["id"] ]["alt"]    = $image["alt"];
-	                $newdata["gallery"][ $image["id"] ]["caption"] = $image["caption"];
-	                $newdata["gallery"][ $image["id"] ]["thumb"]  = $image["sizes"]["thumbnail"];
-                    
-                }
-            }
-            return $newdata;
+add_shortcode( 'article_gallery', 'render_article_gallery' );
+function render_article_gallery() {
+	if ( isset( $_GET['aid'] ) ) {
+		$aid = $_GET['aid'];
+		$gallery = get_field('article_photo_gallery', $aid);
+		if ($gallery) {
+		    $images_string = implode(',', $gallery);
+		    
+//		    $shortcode = sprintf('[' . 'gallery ids="%s"]', esc_attr($images_string));
+			
+            ob_start();
+		    envira_dynamic(array(
+		            'id' => 'custom'.$aid,
+                    'images' => $images_string
+            ));
+		    $gallery = ob_get_contents();
+			
+		    ob_end_clean();
+		    return $gallery;
         }
-    } else {
-	    return $data;
-    }
+	}
+	else return '';
 }
+
+//add_filter( 'envira_gallery_pre_data', 'render_enviragallery', 10, 2 );
+//function render_enviragallery( $data, $gallery_id ) {
+//	if (is_page(array('styled-shoot-gallery','spotlight-gallery'))) {
+//
+//        if ( isset( $_GET['aid'] ) ) {
+//            $aid    = $_GET['aid'];
+//            $newdata = array();
+//
+//            // Don't lose the original gallery id and configuration
+//            $newdata["id"]     = $data["id"];
+//            $newdata["config"] = $data["config"];
+//
+//            // Get list of images from our ACF gallery field
+//            $gallery   = get_field( 'article_photo_gallery', $aid );
+//
+//            // If we have some images loop around and populate a new data array
+//            if ( is_array( $gallery ) ) {
+//
+//                foreach ( $gallery as $image ) {
+//
+//	                $newdata["gallery"][ $image["id"] ]["status"] = 'active';
+//	                $newdata["gallery"][ $image["id"] ]["src"]    = $image["url"];
+//	                $newdata["gallery"][ $image["id"] ]["title"]  = $image["title"];
+//	                $newdata["gallery"][ $image["id"] ]["link"]   = $image["url"];
+//	                $newdata["gallery"][ $image["id"] ]["alt"]    = $image["alt"];
+//	                $newdata["gallery"][ $image["id"] ]["caption"] = $image["caption"];
+//	                $newdata["gallery"][ $image["id"] ]["thumb"]  = $image["sizes"]["thumbnail"];
+//
+//                }
+//            }
+//            return $newdata;
+//        }
+//    } else {
+//	    return $data;
+//    }
+//}
 
 add_shortcode( 'styled_shoot_url', 'render_ss_url' );
 function render_ss_url() {
 	$button_html = '<div class="saw-button"><a href="';
-	$button_html .= '/styled-shoot-gallery?ssid=' . get_the_ID() . '\" alt=\"View Styled Shoot\">';
+	$button_html .= '/styled-shoot-gallery?aid=' . get_the_ID() . '\" alt=\"View Styled Shoot\">';
 	$button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
 	
 	return $button_html;

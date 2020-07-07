@@ -41,6 +41,16 @@
 		"oAP": "/functions.php",
 		"oF": 0
 		},
+	"/public/css/admin.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/css/admin-min.css",
+		"oF": 0,
+		"oS": 3
+		},
 	"/public/css/article.css": {
 		"aP": 1,
 		"bl": 0,
@@ -88,6 +98,16 @@
 		"oA": 0,
 		"oAP": "/public/css/homepage.css.map",
 		"oF": 0
+		},
+	"/public/css/table-min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/css/table-min-min.css",
+		"oF": 0,
+		"oS": 3
 		},
 	"/public/css/table.css": {
 		"aP": 1,
