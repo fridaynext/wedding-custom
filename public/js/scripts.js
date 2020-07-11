@@ -268,6 +268,18 @@ $(document).ready(function () {
 	});
 	// navBar.stickybits();
 
+	// check the post type with AJAX, and if 'wedding-story', come in and remove the size from the images
+	if ($('body').hasClass("single-wedding_story")) {
+		resizeThumbnails($('.wedding-story-blog-square .et_pb_image_container'));
+	}
+	function resizeThumbnails ($container) {
+		$images = $container.find('img'); // Get all the images inside your $container
+
+		$images.each (function (index, element) {
+			$src = $(element).attr('src'); // Get the image's source
+			$(element).attr('src', $src.replace('-400x250', '')); // Remove the thumbnail size portion from the source and replace it
+		});
+	}
 
 	// class to give display: block; --> header-search-dropdown
 	// jQuery("#sidebar").stickybits();
@@ -277,7 +289,7 @@ $(document).ready(function () {
 	//     $phone_formatted = text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
 	//     return '<a href="tel:' + $phone_formatted + '">' + $phone_formatted + '</a>';
 	// });
-	jQuery('.spotlight-vendor-info-container .vendor-phone-number span a').text(function(i, text) {
+	$('.spotlight-vendor-info-container .vendor-phone-number span a').text(function(i, text) {
 		$phone_formatted = text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
 		return $phone_formatted;
 	});

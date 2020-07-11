@@ -29,11 +29,18 @@
     -moz-transition: all 0.3s;
     white-space: nowrap;
 }
+.wedding-story-button .saw-button a {
+    color: var(--main-teal-color);
+    border: 2px solid var(--main-teal-color);
+}
 .saw-button a:hover {
     background: var(--red-color);
     color: #FFF;
     padding: 5px 11px;
     box-shadow: 5px 10px 10px var(--medium-gray-color);
+}
+.wedding-story-button .saw-button a:hover {
+    background: var(--main-teal-color);
 }
 .saw-button a svg {
     opacity: 0;

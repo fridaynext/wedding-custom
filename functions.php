@@ -41,55 +41,66 @@ add_action( 'wp_enqueue_scripts', 'fn_enqueue_scripts' );
 
 // read in csv, and import into WP database
 function import_vendors_func() {
-//    $row = 1;
-//    // 9 total fields
-//    $html = '';
-//    if (($handle = fopen(plugins_url("public/sawimport.csv",__FILE__), "r")) !== FALSE) {
-//        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-//            $num = count($data);
-//            $row++;
-//            $new_vendor_id = wp_insert_post( array(
-//                    'post_title' => $data[0],
-//                    'post_type' => 'vendor_profile',
-//                    'post_status' => 'publish'
-//            ));
+	
 //
-//            if($new_vendor_id != 0) {
-//                $address = array(
-//                    'address_line_1' => $data[8],
-//                    'city' => $data[7],
-//                    'state' => $data[6],
-//                    'zip' => $data[5]
-//                );
-//                update_field('address', $address, $new_vendor_id);
-//                for ($c=0; $c < $num; $c++) {
-//                    if( $data[$c] != '' ) {
+//    $row = 1;
+//    if(!file_exists("/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv")) {
+//        die('File does not exist');
+//    }
+//    // 18 total fields
+//    $html = '';
+//    if ($handle = fopen("/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r") !== FALSE) {
+//	    $handle = fopen("/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r");
+//        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+//
+//            $num = count($data);
+//            echo "<p> $num fields in line $row: <br /></p>\n";
+//            $row++;
+//            for ($c=0; $c < $num; $c++) {
+//	            if( $data[$c] != '' ) {
+//	                $this_id = $data[0];
 //                        switch ($c) {
-//                            case 1: // Last Name
-//                                update_field('contact_last', $data[$c], $new_vendor_id);
+//                            case 3: // About Us
+//                                update_field('about_this_vendor', $data[$c], $this_id);
 //                                break;
-//                            case 2: // First Name
-//                                update_field('contact_first', $data[$c], $new_vendor_id);
+//                            case 5: // First Name
+//                                update_field('subject_line', $data[$c], $this_id);
 //                                break;
-//                            case 3: // Cell Phone
-//                                update_field('text_phone_number', $data[$c], $new_vendor_id);
+//                            case 7: // Cell Phone
+//                                update_field('facebook', $data[$c], $this_id);
 //                                break;
-//                            case 4: // Phone
-//                                update_field('business_phone_number', $data[$c], $new_vendor_id);
+//                            case 9: // Phone
+//                                update_field('instagram', $data[$c], $this_id);
 //                                break;
-//                            case 9: // Website
-//                                update_field('website', $data[$c], $new_vendor_id);
+//                            case 10: // Website
+//                                update_field('pinterest', $data[$c], $this_id);
 //                                break;
-//                            case 10: // Email
-//                                update_field('email', $data[$c], $new_vendor_id);
-//                                break;
+//	                        case 11: // Email
+//		                        update_field('meta_title', $data[$c], $this_id);
+//		                        break;
+//	                        case 12: // Email
+//		                        update_field('meta_description', $data[$c], $this_id);
+//		                        break;
+//	                        case 13: // Email
+//                                $keywords = explode(",", $data[$c]);
+//		                        update_field('meta_title', $keywords, $this_id);
+//		                        break;
+//	                        case 17: // Email
+//		                        update_field('360-virtual-tour', $data[$c], $this_id);
+//		                        break;
 //                        }
 //                    }
-//                }
-//                $html .= "Success adding: " . $data[0] . "<br>";
-//            } else {
-//                $html .= "Error adding: " . $data[0] . "<br>";
 //            }
+//
+//
+////                update_field('address', $address, $new_vendor_id);
+////                for ($c=0; $c < $num; $c++) {
+////
+////                }
+////                $html .= "Success adding: " . $data[0] . "<br>";
+////            } else {
+////                $html .= "Error adding: " . $data[0] . "<br>";
+////            }
 //        }
 //        fclose($handle);
 //    }
@@ -186,7 +197,7 @@ function fn_enqueue_scripts() {
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/swiper.min.js' );
+		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper.min.js' );
 		wp_register_script( 'sticky_bits', plugins_url( 'public/js/jquery.stickybits.min.js', __FILE__ ), array(
 			'swiper_slider',
 			'jquery-ui-tabs'
@@ -771,6 +782,28 @@ function my_ajax_activate_post() {
 	}
 }
 
+/* Get Post Type for Javascript */
+add_action( 'wp_ajax_get_post_type', 'my_ajax_get_post_type' );
+function my_ajax_get_post_type() {
+    if (get_post_type() == 'wedding_story') {
+	    $resp = array(
+		    'title'     => 'Post Type',
+		    'content'   => 'Found Wedding Story',
+		    'post_type' => 'wedding_story'
+	    );
+	    wp_send_json( $resp );
+	    wp_die();
+    } else {
+	    $resp = array(
+		    'title'     => 'Post Type',
+		    'content'   => 'Not Wedding Story',
+		    'post_type' => get_the_ID()
+	    );
+	    wp_send_json( $resp );
+	    wp_die();
+    }
+}
+
 /* Vendors Table Shortcode */
 function vendor_table_func( $atts ) {
 	$vtable = '<table id="vendor_table" class="dataTable compact display" data-page-length="30">
@@ -1336,7 +1369,7 @@ function article_content_func( $atts ) {
 	// No value.
 	else :
 		// No content to display in the story
-		return 'No content to display 2';
+		return 'No content to display!';
 	endif;
 }
 
@@ -1559,13 +1592,13 @@ add_shortcode( 'article_header_image', 'render_article_header_image' );
 function render_article_head_one() {
 	if ( isset( $_GET['aid'] ) ) {
 		return get_field( 'head_1', $_GET['aid'] );
-	} else return '';
+	} else return get_field( 'head_1', get_the_ID() );
 }
 
 function render_article_head_two() {
 	if ( isset( $_GET['aid'] ) ) {
 		return get_field( 'head_2', $_GET['aid'] );
-	} else return '';
+	} else return get_field( 'head_2', get_the_ID() );
 }
 
 function render_article_header_image() {
@@ -1581,24 +1614,25 @@ add_shortcode( 'article_gallery', 'render_article_gallery' );
 function render_article_gallery() {
 	if ( isset( $_GET['aid'] ) ) {
 		$aid = $_GET['aid'];
+		
 		$gallery = get_field('article_photo_gallery', $aid);
 		if ($gallery) {
 		    $images_string = implode(',', $gallery);
+		    $return_string = '';
+            if (function_exists('envira_dynamic')) {
+                ob_start();
+                envira_dynamic(array(
+                        'id' => 'custom-'.$aid,
+                        'images' => $images_string
+                ));
+                $return_string = ob_get_contents();
+                ob_end_clean();
+            }
 		    
-//		    $shortcode = sprintf('[' . 'gallery ids="%s"]', esc_attr($images_string));
-			
-            ob_start();
-		    envira_dynamic(array(
-		            'id' => 'custom'.$aid,
-                    'images' => $images_string
-            ));
-		    $gallery = ob_get_contents();
-			
-		    ob_end_clean();
-		    return $gallery;
+		    return $return_string;
         }
 	}
-	else return '';
+	return '';
 }
 
 //add_filter( 'envira_gallery_pre_data', 'render_enviragallery', 10, 2 );
@@ -1640,9 +1674,15 @@ function render_article_gallery() {
 
 add_shortcode( 'styled_shoot_url', 'render_ss_url' );
 function render_ss_url() {
-	$button_html = '<div class="saw-button"><a href="';
-	$button_html .= '/styled-shoot-gallery?aid=' . get_the_ID() . '\" alt=\"View Styled Shoot\">';
-	$button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+    if (get_post_type() == 'styled_shoot') {
+        $button_html = '<div class="saw-button"><a href="';
+        $button_html .= '/styled-shoot-gallery?aid=' . get_the_ID() . '" alt="View Styled Shoot">';
+        $button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+    } else if (get_post_type() == 'wedding_story') {
+	    $button_html = '<div class="saw-button"><a href="';
+	    $button_html .= '/our-wedding-story-gallery?aid=' . get_the_ID() . '" alt="View Our Wedding Story Gallery">';
+	    $button_html .= 'View Our Wedding Story Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+    }
 	
 	return $button_html;
 }

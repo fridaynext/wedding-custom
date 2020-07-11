@@ -374,6 +374,14 @@
 		"oS": 0,
 		"sct": 0
 		},
+	"/public/vendor_data.csv": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/public/vendor_data.csv",
+		"oF": 0
+		},
 	"/templates/header.php": {
 		"cB": 0,
 		"ft": 8192,
