@@ -13,6 +13,27 @@
     height: auto;
   }
 }
+.home-slider-container .swiper-pagination {
+  bottom: 30px;
+}
+@media screen and (max-width: 767px) {
+  .home-slider-container .swiper-pagination {
+    bottom: -6px;
+  }
+}
+.home-slider-container .swiper-pagination .swiper-pagination-bullet {
+  background: #FFF;
+  opacity: 0.6;
+}
+@media screen and (max-width: 767px) {
+  .home-slider-container .swiper-pagination .swiper-pagination-bullet {
+    background: var(--main-teal-color);
+  }
+}
+.home-slider-container .swiper-pagination .swiper-pagination-bullet-active {
+  background: var(--red-color);
+  opacity: 1;
+}
 .home-slider-container .et_pb_code_inner {
   height: 100%;
   padding-bottom: 5px;

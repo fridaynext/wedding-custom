@@ -1757,7 +1757,7 @@ function render_home_hero_slider() {
 	// grab each set of data for home sliders, depending on type
 	$args         = array(
 		'post_type'      => 'home_slide',
-		'posts_per_page' => 4,
+		'posts_per_page' => 5,
 		'order'          => 'ASC',
 		'meta_key'       => 'is_active',
 		'meta_value'     => true
@@ -1818,21 +1818,25 @@ function render_home_hero_slider() {
 		$count ++;
 	}
 	$html .= '</div>'; // end .swiper-wrapper
+    $html .= '<div class="swiper-pagination"></div>';
 	$html .= '</div>'; // end .swiper-container
 	
 	// add swiper js
 	$html .= '<script type="text/javascript">
                     var heroSwiper = new Swiper(".swiper-container", {
                         autoplay: {
-                            delay: 4500,
+                            delay: 7500,
                             disableOnInteraction: false,
-                            grabCursor: true
+                            grabCursor: true,
                         },
+                        pagination: {
+                            el: ".swiper-pagination",
+                            clickable: true
+                        }
                     });
                     jQuery(".swiper-container").on("mouseenter", function()  {
                         heroSwiper.autoplay.stop();
-                    });
-                    jQuery(".swiper-container").on("mouseleave", function() {
+                    }).on("mouseleave", function() {
                         heroSwiper.autoplay.start();
                     });
             </script>';
@@ -2007,13 +2011,13 @@ function render_home_sliders() {
 			}
 			
 			$nestedData   = array();
-			$bg_image = get_field('background_image', get_the_ID());
+			$bg_image = get_field('background_image');
 			$nestedData[] = '<img src="' . $bg_image['url'] . '" />'; // background image
-			$nestedData[] = get_field('banner_name', get_the_ID()); // banner name
-			$nestedData[] = get_field('banner_start_date', get_the_ID()); // post date
-			$nestedData[] = (get_field('is_slide_featured', get_the_ID()) == true ? 'Yes' : 'No');
-			$nestedData[] = (get_field('is_slide_featured', get_the_ID()) == true ? get_field('featured_slide_release_date', get_the_ID()) : 'N.A.'); // featured release date
-			$nestedData[] = get_field('view_count', get_the_ID()) . '<br />(' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.') . ')'; // view count
+			$nestedData[] = get_field('banner_name'); // banner name
+			$nestedData[] = get_field('banner_start_date'); // post date
+			$nestedData[] = (get_field('is_slide_featured') == true ? 'Yes' : 'No');
+			$nestedData[] = (get_field('banner_end_date') ? get_field('banner_end_date') : 'N.A.'); // featured release date
+			$nestedData[] = '<strong>' . get_field('view_count') . '</strong><br />' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.'); // view count
             $nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
