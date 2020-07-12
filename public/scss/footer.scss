@@ -1,3 +1,35 @@
 #menu-footer-menu-computer .bridal-buzz {
   padding-right: 110px;
 }
+#vendor-footer-menu {
+  display: inline-block;
+  .icon-container {
+    z-index: 4;
+  }
+}
+#footer-stay-connected {
+  .red-container {
+    cursor: pointer;
+    width: 150px;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--red-color);
+    .arrows-up {
+      padding-bottom: 5px;
+      width: 20px;
+      height: auto;
+    }
+    .stay-connected-text {
+      line-height: 1;
+      letter-spacing: 1px;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      color: #FFF;
+    }
+  }
+}

@@ -2343,10 +2343,35 @@ function render_spotlight_vendor() {
 	return $html;
 }
 
+/******************** VENDORS FOOTER MENU SHORTCODE ********************/
+ add_shortcode('vendors_footer_menu', 'render_vendors_footer');
+function render_vendors_footer() {
+    $html =
+        '<div id="vendor-footer-menu" class="hamburger-button">
+            <div class="icon-container">
+                <a class="hamburger-click" href="#"><img class="hamburger-icon" src="' . plugins_url('public/img/vendors-hamburger-menu.svg', __FILE__) . '" alt="Vendor Menu" width=45 height=auto /></a>
+                <div class="icon-link-cover"></div>
+            </div> <!-- END .icon-container -->
+        </div>'; // END #vendor-footer-menu
+    
+    return $html;
+}
 
-
-
-
+/******************** STAY CONNECTED FOOTER MENU SHORTCODE ********************/
+add_shortcode('stay_connected', 'render_stay_connected_footer');
+function render_stay_connected_footer() {
+    $html =
+        '<div id="footer-stay-connected">
+            <div class="red-container">
+                <img class="arrows-up" src="' . plugins_url('public/img/arrows-up.svg', __FILE__) .  '" alt="Stay Connected" />
+                <span class="stay-connected-text">
+                    Stay<br />Connected
+                </span><!-- END .stay-connected-text -->
+            </div> <!-- END .red-container -->
+        </div>'; // END #footer-stay-connected
+    
+    return $html;
+}
 
 
 

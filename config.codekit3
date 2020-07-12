@@ -177,6 +177,16 @@
 		"oF": 0,
 		"oS": 3
 		},
+	"/public/img/arrows-up.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 2,
+		"oAP": "/public/img/arrows-up.svg",
+		"oF": 0,
+		"opt": 0,
+		"plM": 52780316221407,
+		"prP": 0
+		},
 	"/public/img/header-search-icon.svg": {
 		"ft": 2097152,
 		"miP": 0,
@@ -326,6 +336,16 @@
 		"opt": 0,
 		"oT": 1,
 		"q": 100
+		},
+	"/public/img/vendors-hamburger-menu.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 2,
+		"oAP": "/public/img/vendors-hamburger-menu.svg",
+		"oF": 0,
+		"opt": 0,
+		"plM": 52780316221407,
+		"prP": 0
 		},
 	"/public/js/jquery.stickybits.min.js": {
 		"bF": 0,
