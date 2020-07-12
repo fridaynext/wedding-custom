@@ -81,6 +81,34 @@
 		"oF": 0,
 		"oS": 3
 		},
+	"/public/css/footer.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/css/footer-min.css",
+		"oF": 0,
+		"oS": 3
+		},
+	"/public/css/footer.css.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/public/css/footer.css.map",
+		"oF": 0
+		},
+	"/public/css/header-min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/css/header-min-min.css",
+		"oF": 0,
+		"oS": 3
+		},
 	"/public/css/header.css": {
 		"aP": 1,
 		"bl": 0,
@@ -349,6 +377,19 @@
 		"ma": 0,
 		"oA": 0,
 		"oAP": "/public/css/admin.css",
+		"oF": 2,
+		"oS": 0,
+		"sct": 0
+		},
+	"/public/scss/footer.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 1,
+		"oA": 0,
+		"oAP": "/public/css/footer.css",
 		"oF": 2,
 		"oS": 0,
 		"sct": 0

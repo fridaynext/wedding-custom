@@ -269,7 +269,8 @@ $(document).ready(function () {
 	// navBar.stickybits();
 
 	// check the post type with AJAX, and if 'wedding-story', come in and remove the size from the images
-	if ($('body').hasClass("single-wedding_story")) {
+	var body = $('body');
+	if (body.hasClass("single-wedding_story") || body.hasClass("single-spotlight") || body.hasClass("single-post") || body.hasClass("single-styled_shoot")) {
 		resizeThumbnails($('.wedding-story-blog-square .et_pb_image_container'));
 	}
 	function resizeThumbnails ($container) {

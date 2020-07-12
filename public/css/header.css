@@ -112,14 +112,35 @@
         padding-right: 5px;
     }
 }
-#menu-header-top-menu-computer li a {
+#menu-header-top-menu-computer li a, #menu-header-top-menu-tablet li a {
     text-transform: uppercase;
 }
-#menu-header-top-menu-computer .header-search a, #menu-header-top-menu-computer .vendor-login a {
+#menu-header-top-menu-tablet .vendor-login {
+    border-right: var(--medium-gray-color) 1px solid;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-right: 10px;
+    padding-right: 20px;
+}
+#menu-header-top-menu-computer .header-search a, #menu-header-top-menu-computer .vendor-login a, #menu-header-top-menu-tablet .vendor-login a {
     font-size: .8em;
 }
-#menu-header-top-menu-computer .social-icon {
+#menu-header-top-menu-computer .social-icon, #menu-header-top-menu-tablet .social-icon {
     padding-left: 5px;
     padding-right: 5px;
-    font-size: 1.5em
+    font-size: 1.5em;
+}
+#menu-header-top-menu-phone .social-icon {
+    padding-left: 1px;
+    padding-right: 5px;
+    font-size: 1.5em;
+}
+/* Prevent the Hamburger Menu */
+@media screen and (max-width: 980px) {
+    .et_pb_menu__wrap .et_pb_menu__menu {
+        display: block !important;
+    }
+    .et_mobile_nav_menu {
+        display: none !important;
+    }
 }

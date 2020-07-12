@@ -141,6 +141,8 @@ function fn_enqueue_styles() {
 	wp_enqueue_style( 'swiper_style' );
 	wp_register_style( 'header_style', plugins_url( 'public/css/header.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'header_style' );
+	wp_register_style( 'footer_style', plugins_url( 'public/css/footer.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_enqueue_style( 'footer_style' );
 	wp_register_style( 'jquery-ui-style', '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'jquery-ui-style' );
 	
@@ -785,11 +787,11 @@ function my_ajax_activate_post() {
 /* Get Post Type for Javascript */
 add_action( 'wp_ajax_get_post_type', 'my_ajax_get_post_type' );
 function my_ajax_get_post_type() {
-    if (get_post_type() == 'wedding_story') {
+    if (in_array(get_post_type(), ['wedding_story','styled_shoot','post','spotlight'])) {
 	    $resp = array(
 		    'title'     => 'Post Type',
-		    'content'   => 'Found Wedding Story',
-		    'post_type' => 'wedding_story'
+		    'content'   => 'Found Article',
+		    'post_type' => get_post_type()
 	    );
 	    wp_send_json( $resp );
 	    wp_die();
