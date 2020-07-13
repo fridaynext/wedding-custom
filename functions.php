@@ -2645,7 +2645,16 @@ function render_vendors_footer() {
                 <div class="icon-link-cover"></div>
             </div> <!-- END .icon-container -->
             <div class="vendor-list-container">
-            
+                <ul class="vendor-mega-menu">
+                <p>Choose a Vendor Category</p>';
+                // render each individual vendor
+                foreach ($vendor_categories as $vendor_category) {
+                    $category_name = $vendor_category->name;
+                    $html .= '<li>';
+                        $html .= '<a href="/category/' . $vendor_category->slug . '" alt="' . $category_name . '">' . $category_name . '</a>';
+                    $html .= '</li>';
+                }
+                $html .= '</ul>
             </div> <!-- END .vendor-list-container -->
         </div>'; // END #vendor-footer-menu
 	

@@ -6,6 +6,41 @@
   .icon-container {
     z-index: 4;
   }
+  .vendor-list-container {
+    display: none;
+    position: absolute;
+    bottom: 70px;
+    width: 280px;
+    text-transform: uppercase;
+    border: var(--charcoal-color) 2px solid;
+    padding-top: 5px;
+    background: #FFF;
+    max-height: 40vh;
+    overflow: scroll;
+    &.visible {
+      display: block;
+    }
+    p {
+      padding-left: 5px;
+      padding-right: 5px;
+      text-align: center;
+    }
+    ul.vendor-mega-menu {
+      padding: 0;
+      list-style-type: none;
+      li {
+        padding-left: 5px;
+        padding-right: 5px;
+        text-align: center;
+        font-weight: 300;
+        background: var(--main-teal-color);
+        border-top: 1px #FFF solid;
+        a {
+          color: #000;
+        }
+      }
+    }
+  }
 }
 #footer-stay-connected {
   .red-container {

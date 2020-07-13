@@ -309,6 +309,10 @@ $(document).ready(function () {
 		});
 	}
 
+	$('a.hamburger-click').on('click', function (e) {
+		$('div.vendor-list-container').toggleClass('visible');
+		e.preventDefault();
+	});
 	// class to give display: block; --> header-search-dropdown
 	// jQuery("#sidebar").stickybits();
 
