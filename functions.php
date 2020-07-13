@@ -39,71 +39,150 @@ function remove_admin_bar() {
 add_action( 'wp_print_styles', 'fn_enqueue_styles' );
 add_action( 'wp_enqueue_scripts', 'fn_enqueue_scripts' );
 
+//add_filter( 'posts_where', 'this_vendor_title_posts_where' );
+//function this_vendor_title_posts_where( $where ) {
+//	global $wpdb;
+//	if ( isset( $_GET['this_vendor_title'] ) && ! empty( $_GET['this_vendor_title'] ) ) {
+//		$this_vendor_title = $_GET['this_vendor_title'];
+//		$where             .= ' AND ' . $wpdb->posts . '.post_title LIKE \'' . esc_sql( $wpdb->esc_like( $this_vendor_title ) ) . '%\'';
+//	}
+//
+//	return $where;
+//}
+
 // read in csv, and import into WP database
 function import_vendors_func() {
 	
+	
+	$row = 1;
+	if ( ! file_exists( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv" ) ) {
+		die( 'File does not exist' );
+	}
+
+
+//	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" ) !== false ) {
+//		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" );
+	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" ) !== false ) {
+		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" );
+		
+		$repeat_ven = 1;
+		$last_ven   = '';
+		$tag_count = 0;
+		$all_tags = get_terms(array("taxonomy" => "post_tag", "hide-empty" => false));
+		$tag_name_array = array();
+		
+		
+		foreach ($all_tags as $single_tag) {
+		    $tag_name_array[$single_tag->name] = $single_tag->term_id;
+        }
+		while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== false ) {
+			
+			$num = count( $data );
+			echo "<p> $num fields in line $row: <br /></p>\n";
+			$row ++;
+			echo "Row: $row<br />";
+//			$vendor_id   = $data[0];
+//			$vendor_name = $data[1];
+//			$cat_name    = $data[2];
 //
-//    $row = 1;
-//    if(!file_exists("/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv")) {
-//        die('File does not exist');
-//    }
-//    // 18 total fields
-//    $html = '';
-//    if ($handle = fopen("/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r") !== FALSE) {
-//	    $handle = fopen("/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r");
-//        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+//			if ( $vendor_name == $last_ven ) { // checking the previous row with this one
+//				$repeat_ven ++;
+//			} else {
+//				$repeat_ven = 1;
+//			}
+//			$last_ven = $data[1]; // after doing the check, set $last_ven to the current row
 //
-//            $num = count($data);
-//            echo "<p> $num fields in line $row: <br /></p>\n";
+//			$this_cat = get_terms( array(
+//				'taxonomy' => 'category',
+//				'name'     => $cat_name
+//			) );
+//			foreach ( $this_cat as $cat ) {
+//				$premium_listings = get_field( 'field_5ef380bcbbd1b', $vendor_id );
+//				$field_row        = array(
+//					'field_5ef3814abbd1d' => 5,
+//					'field_5ef38122bbd1c' => $cat->term_id// taxonomy,
+//				);
+//				if ( sizeof( $premium_listings ) >= $repeat_ven ) {
+//					echo "Updating row " . $repeat_ven . " for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
+//					update_row( 'field_5ef380bcbbd1b', $repeat_ven, $field_row, $vendor_id );
+//				} else {
+//					add_row( 'field_5ef380bcbbd1b', $field_row, $vendor_id );
+//					echo "Adding row for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
+//				}
+//				break; // break immediately, since there should only be one category per line
+//			}
 //            $row++;
-//            for ($c=0; $c < $num; $c++) {
-//	            if( $data[$c] != '' ) {
-//	                $this_id = $data[0];
-//                        switch ($c) {
-//                            case 3: // About Us
-//                                update_field('about_this_vendor', $data[$c], $this_id);
-//                                break;
-//                            case 5: // First Name
-//                                update_field('subject_line', $data[$c], $this_id);
-//                                break;
-//                            case 7: // Cell Phone
-//                                update_field('facebook', $data[$c], $this_id);
-//                                break;
-//                            case 9: // Phone
-//                                update_field('instagram', $data[$c], $this_id);
-//                                break;
-//                            case 10: // Website
-//                                update_field('pinterest', $data[$c], $this_id);
-//                                break;
-//	                        case 11: // Email
-//		                        update_field('meta_title', $data[$c], $this_id);
-//		                        break;
-//	                        case 12: // Email
-//		                        update_field('meta_description', $data[$c], $this_id);
-//		                        break;
-//	                        case 13: // Email
-//                                $keywords = explode(",", $data[$c]);
-//		                        update_field('meta_title', $keywords, $this_id);
-//		                        break;
-//	                        case 17: // Email
-//		                        update_field('360-virtual-tour', $data[$c], $this_id);
-//		                        break;
-//                        }
-//                    }
-//            }
-//
-//
-////                update_field('address', $address, $new_vendor_id);
-////                for ($c=0; $c < $num; $c++) {
-////
-////                }
-////                $html .= "Success adding: " . $data[0] . "<br>";
-////            } else {
-////                $html .= "Error adding: " . $data[0] . "<br>";
-////            }
-//        }
-//        fclose($handle);
-//    }
+			
+			for ( $c = 0; $c < $num; $c ++ ) {
+				if ( $data[ $c ] != '' ) {
+					$this_id = $data[0];
+					switch ( $c ) {
+//						case 3: // About Us
+//							update_field( 'about_this_vendor', $data[ $c ], $this_id );
+//							break;
+//						case 5: // Subject Line
+//							update_field( 'subject_line', $data[ $c ], $this_id );
+//							break;
+//						case 7: // Facebook
+//							update_field( 'facebook', $data[ $c ], $this_id );
+//							break;
+//						case 9: // Instagram
+//							update_field( 'instagram', $data[ $c ], $this_id );
+//							break;
+//						case 10: // Pinterest
+//							update_field( 'pinterest', $data[ $c ], $this_id );
+//							break;
+						case 11: // Meta Title
+							update_field( 'meta_title', $data[ $c ], $this_id );
+							break;
+						case 12: // Meta Description
+							update_field( 'meta_description', $data[ $c ], $this_id );
+							break;
+						case 13: // Meta Keywords
+							
+                            $keywords = explode( ",", $data[ $c ] );
+							$keyword_id_arr = array();
+							foreach ($keywords as $keyword) {
+								$tag_count += 1;
+							    // get the tag id
+//                                $this_term = get_term_by('name', trim($keyword), 'tag');
+                                if(key_exists(trim($keyword), $tag_name_array)) {
+                                    $keyword_id_arr[] = $tag_name_array[trim($keyword)];
+                                } else {
+	                                echo "Tag " . $tag_count . " wasn't found, creating it now...<br />";
+	                                $this_term = wp_insert_term( trim( $keyword ), 'post_tag' );
+	                                if ( ! is_wp_error( $this_term ) && ( $this_term != false && ! is_null( $this_term ) ) ) {
+		                                echo "Now adding tag " . $tag_count . " as id: " . $this_term['term_id'] . "<br />";
+		                                $keyword_id_arr[] = $this_term['term_id'];
+	                                } else {
+		                                echo "<strong>Still couldn't create tag " . $tag_count . " for some reason</strong><br />";
+		                                echo $this_term->get_error_message() . "<br />";
+	                                }
+                                }
+                            }
+							update_field( 'meta_keywords', $keyword_id_arr, $this_id );
+							break;
+						case 17: // 360 Virtual Tour
+							update_field( '360-virtual-tour', $data[ $c ], $this_id );
+							break;
+					}
+				}
+			}
+			
+			
+			/*update_field( 'address', $address, $new_vendor_id );
+			for ( $c = 0; $c < $num; $c ++ ) {
+			
+			}
+			$html .= "Success adding: " . $data[0] . "<br>";
+		}
+	else {
+			$html .= "Error adding: " . $data[0] . "<br>";
+		}*/
+		}
+		fclose( $handle );
+	}
+
 //    return $html;
 //    $vendors = get_posts(array('post_type' =>'vendor_profile', 'posts_per_page' => -1));
 //    foreach ($vendors as $vendor) {
@@ -155,8 +234,8 @@ function fn_enqueue_styles() {
 		'datatables_buttons_style'
 	), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'datatables_custom' );
-	wp_register_style('admin-styles', plugins_url('public/css/admin.css', __FILE__), array(), FRIDAY_NEXT_EXTRAS_VERSION);
-	wp_enqueue_style('admin-styles');
+	wp_register_style( 'admin-styles', plugins_url( 'public/css/admin.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_enqueue_style( 'admin-styles' );
 	
 	// TODO: Only render these styles for the article pages!
 	wp_register_style( 'article_styles', plugins_url( 'public/css/article.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
@@ -508,10 +587,12 @@ function photographer_func( $atts ) {
 			return $return_string;
 		} else {
 			// There's only an author maybe? let's check that
-            if (get_field('author', $post_id)) {
-                $return_string = 'Written by: ' . get_field('author', $post_id);
-                return $return_string;
-            }
+			if ( get_field( 'author', $post_id ) ) {
+				$return_string = 'Written by: ' . get_field( 'author', $post_id );
+				
+				return $return_string;
+			}
+			
 			return '';
 		}
 	}
@@ -583,7 +664,7 @@ function my_ajax_getpostsfordatatables() {
 				$active_text  = 'Activate';
 			}
 			
-			$image        = get_the_post_thumbnail(get_the_ID(), array(90,90));
+			$image        = get_the_post_thumbnail( get_the_ID(), array( 90, 90 ) );
 			$nestedData   = array();
 			$nestedData[] = $image;
 			$nestedData[] = get_post_type();
@@ -681,7 +762,17 @@ function render_vendors() {
 			
 			$nestedData   = array();
 			$nestedData[] = '<a href="' . get_the_permalink() . '" alt="' . get_the_title() . '" target="_blank">' . get_the_title() . '</a>';
-			$nestedData[] = ''; // TODO: get all categories
+			$cats         = get_field( 'field_5ef380bcbbd1b' );
+			$cat_array    = array();
+			if ( $cats ) {
+				foreach ( $cats as $cat ) {
+					if ( $cat['category'] != '' ) {
+						$category    = get_term( $cat['category'] );
+						$cat_array[] = $category->name;
+					}
+				}
+			}
+			$nestedData[] = join( ', ', $cat_array );
 			$nestedData[] = get_post_field( 'post_name' );
 			$nestedData[] = get_field( 'group' ); // TODO: filter out individual taxonomy
 			$nestedData[] = ''; // TODO: premium level for each category
@@ -787,23 +878,23 @@ function my_ajax_activate_post() {
 /* Get Post Type for Javascript */
 add_action( 'wp_ajax_get_post_type', 'my_ajax_get_post_type' );
 function my_ajax_get_post_type() {
-    if (in_array(get_post_type(), ['wedding_story','styled_shoot','post','spotlight'])) {
-	    $resp = array(
-		    'title'     => 'Post Type',
-		    'content'   => 'Found Article',
-		    'post_type' => get_post_type()
-	    );
-	    wp_send_json( $resp );
-	    wp_die();
-    } else {
-	    $resp = array(
-		    'title'     => 'Post Type',
-		    'content'   => 'Not Wedding Story',
-		    'post_type' => get_the_ID()
-	    );
-	    wp_send_json( $resp );
-	    wp_die();
-    }
+	if ( in_array( get_post_type(), [ 'wedding_story', 'styled_shoot', 'post', 'spotlight' ] ) ) {
+		$resp = array(
+			'title'     => 'Post Type',
+			'content'   => 'Found Article',
+			'post_type' => get_post_type()
+		);
+		wp_send_json( $resp );
+		wp_die();
+	} else {
+		$resp = array(
+			'title'     => 'Post Type',
+			'content'   => 'Not Wedding Story',
+			'post_type' => get_the_ID()
+		);
+		wp_send_json( $resp );
+		wp_die();
+	}
 }
 
 /* Vendors Table Shortcode */
@@ -1164,20 +1255,22 @@ function save_category( $post_id ) {
 		}
 		
 		return $post_id;
-	} else if( is_page(array('add-home-slider','edit-home-slider'))) {
-	    // set the 'banner_name' as the post title
+	} else if ( is_page( array( 'add-home-slider', 'edit-home-slider' ) ) ) {
+		// set the 'banner_name' as the post title
 		$acf_request = $_POST['acf'];
-		if (isset($_GET['hs_id'])) {
-		    $hs_id = $_GET['hs_id'];
-        } else $hs_id = $post_id;
-        $home_slider = array(
-            'ID' => $hs_id,
-            'post_title' => !empty($acf_request['field_5efaa2a3191c5']) ? $acf_request['field_5efaa2a3191c5'] : get_the_title($hs_id)
-        );
-        wp_update_post($home_slider);
-        
+		if ( isset( $_GET['hs_id'] ) ) {
+			$hs_id = $_GET['hs_id'];
+		} else {
+			$hs_id = $post_id;
+		}
+		$home_slider = array(
+			'ID'         => $hs_id,
+			'post_title' => ! empty( $acf_request['field_5efaa2a3191c5'] ) ? $acf_request['field_5efaa2a3191c5'] : get_the_title( $hs_id )
+		);
+		wp_update_post( $home_slider );
+		
 		return $post_id; // return $post_id regardless
-    } else {
+	} else {
 		return $post_id;
 	}
 }
@@ -1594,22 +1687,28 @@ add_shortcode( 'article_header_image', 'render_article_header_image' );
 function render_article_head_one() {
 	if ( isset( $_GET['aid'] ) ) {
 		return get_field( 'head_1', $_GET['aid'] );
-	} else return get_field( 'head_1', get_the_ID() );
+	} else {
+		return get_field( 'head_1', get_the_ID() );
+	}
 }
 
 function render_article_head_two() {
 	if ( isset( $_GET['aid'] ) ) {
 		return get_field( 'head_2', $_GET['aid'] );
-	} else return get_field( 'head_2', get_the_ID() );
+	} else {
+		return get_field( 'head_2', get_the_ID() );
+	}
 }
 
 function render_article_header_image() {
 	if ( isset( $_GET['aid'] ) ) {
-		$aid       = $_GET['aid'];
+		$aid        = $_GET['aid'];
 		$header_img = get_field( 'header_image', $aid );
 		
 		return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
-	} else return '';
+	} else {
+		return '';
+	}
 }
 
 add_shortcode( 'article_gallery', 'render_article_gallery' );
@@ -1617,23 +1716,24 @@ function render_article_gallery() {
 	if ( isset( $_GET['aid'] ) ) {
 		$aid = $_GET['aid'];
 		
-		$gallery = get_field('article_photo_gallery', $aid);
-		if ($gallery) {
-		    $images_string = implode(',', $gallery);
-		    $return_string = '';
-            if (function_exists('envira_dynamic')) {
-                ob_start();
-                envira_dynamic(array(
-                        'id' => 'custom-'.$aid,
-                        'images' => $images_string
-                ));
-                $return_string = ob_get_contents();
-                ob_end_clean();
-            }
-		    
-		    return $return_string;
-        }
+		$gallery = get_field( 'article_photo_gallery', $aid );
+		if ( $gallery ) {
+			$images_string = implode( ',', $gallery );
+			$return_string = '';
+			if ( function_exists( 'envira_dynamic' ) ) {
+				ob_start();
+				envira_dynamic( array(
+					'id'     => 'custom-' . $aid,
+					'images' => $images_string
+				) );
+				$return_string = ob_get_contents();
+				ob_end_clean();
+			}
+			
+			return $return_string;
+		}
 	}
+	
 	return '';
 }
 
@@ -1676,40 +1776,40 @@ function render_article_gallery() {
 
 add_shortcode( 'styled_shoot_url', 'render_ss_url' );
 function render_ss_url() {
-    if (get_post_type() == 'styled_shoot') {
-        $button_html = '<div class="saw-button"><a href="';
-        $button_html .= '/styled-shoot-gallery?aid=' . get_the_ID() . '" alt="View Styled Shoot">';
-        $button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-    } else if (get_post_type() == 'wedding_story') {
-	    $button_html = '<div class="saw-button"><a href="';
-	    $button_html .= '/our-wedding-story-gallery?aid=' . get_the_ID() . '" alt="View Our Wedding Story Gallery">';
-	    $button_html .= 'View Our Wedding Story Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-    }
+	if ( get_post_type() == 'styled_shoot' ) {
+		$button_html = '<div class="saw-button"><a href="';
+		$button_html .= '/styled-shoot-gallery?aid=' . get_the_ID() . '" alt="View Styled Shoot">';
+		$button_html .= 'View Styled Shoot Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+	} else if ( get_post_type() == 'wedding_story' ) {
+		$button_html = '<div class="saw-button"><a href="';
+		$button_html .= '/our-wedding-story-gallery?aid=' . get_the_ID() . '" alt="View Our Wedding Story Gallery">';
+		$button_html .= 'View Our Wedding Story Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+	}
 	
 	return $button_html;
 }
 
 /************************** SPOTLIGHT PHOTO/GALLERY BUTTONS *************************************/
 /******************* ONLY SHOW THESE BUTTONS IF EITHER OF THE TWO ACTUALLY EXIST ****************/
-add_shortcode('spotlight_photo_gallery_buttons', 'render_photo_gallery_buttons');
+add_shortcode( 'spotlight_photo_gallery_buttons', 'render_photo_gallery_buttons' );
 function render_photo_gallery_buttons() {
-    // this is run on a Featured Spotlight page
-    // ALWAYS going to show the vendor, only sometimes going to show a gallery (if there are any photos in it)
-    
-    $post_id = get_the_ID();
-    
-    // profile page button
-    $vendor = get_field('vendor', $post_id);
-    $vendor_url = get_permalink($vendor);
-    $return_html = '<div class="saw-button"><a href="' . $vendor_url . '" alt="' . $vendor->post_title . '">View Our Profile Page <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-    
-    // gallery button, but check for gallery images first
-    $gallery = get_field('article_photo_gallery', $post_id);
-    if (is_array($gallery)) {
-        $return_html .= '<div class="saw-button"><a href="/spotlight-gallery?aid=' . $post_id . '">View Our Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i>    </a></div>';
-    }
-    
-    return $return_html;
+	// this is run on a Featured Spotlight page
+	// ALWAYS going to show the vendor, only sometimes going to show a gallery (if there are any photos in it)
+	
+	$post_id = get_the_ID();
+	
+	// profile page button
+	$vendor      = get_field( 'vendor', $post_id );
+	$vendor_url  = get_permalink( $vendor );
+	$return_html = '<div class="saw-button"><a href="' . $vendor_url . '" alt="' . $vendor->post_title . '">View Our Profile Page <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+	
+	// gallery button, but check for gallery images first
+	$gallery = get_field( 'article_photo_gallery', $post_id );
+	if ( is_array( $gallery ) ) {
+		$return_html .= '<div class="saw-button"><a href="/spotlight-gallery?aid=' . $post_id . '">View Our Gallery <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i>    </a></div>';
+	}
+	
+	return $return_html;
 }
 
 add_shortcode( 'featured_spotlight_module', 'render_featured_spotlights' );
@@ -1772,17 +1872,17 @@ function render_home_hero_slider() {
 	$html  .= '<div class="home-slider-container swiper-container">';
 	$html  .= '<div class="swiper-wrapper">';
 	foreach ( $home_sliders as $slider ) {
-	    $view_count = get_field('view_count', $slider->ID);
-	    update_field('view_count', $view_count+1, $slider->ID);
-	    update_field('last_viewed', date("Y-m-d H:i:s"), $slider->ID);
+		$view_count = get_field( 'view_count', $slider->ID );
+		update_field( 'view_count', $view_count + 1, $slider->ID );
+		update_field( 'last_viewed', date( "Y-m-d H:i:s" ), $slider->ID );
 		$slide_type       = get_field( 'slide_style', $slider->ID ); // to decide what to include on this page
 		$background_image = get_field( 'background_image', $slider->ID );
 		$html             .= '<div class="swiper-slide slide hero-slide-' . $count . ' slide-type-' . $slide_type . '">';
 		$html             .= '<div class="slide-content">'; // flex-column - THIS can get the background
-        $html             .= '<div class="bg-image-layer" style="background-image:url(' . esc_url( $background_image['url'] ) . ');background-size:cover;">';
+		$html             .= '<div class="bg-image-layer" style="background-image:url(' . esc_url( $background_image['url'] ) . ');background-size:cover;">';
 		$html             .= ( $slide_type == 2 ? '<div class="alpha-overlay">' : '' );
-        // if slide type 1, add in the orange left side
-        $html             .= '<div class="left-side' . ( $slide_type == 1 ? ' orange-bg' : '') . '">';
+		// if slide type 1, add in the orange left side
+		$html .= '<div class="left-side' . ( $slide_type == 1 ? ' orange-bg' : '' ) . '">';
 		// parent text container to space things out flexily
 		$html .= '<div class="hero-text-content below-hero-' . $slider->ID . '">';
 		if ( $slide_type == 1 ) {
@@ -1810,17 +1910,17 @@ function render_home_hero_slider() {
 		$html .= '<a href="' . get_field( 'banner_url', $slider->ID ) . '" alt="' . get_field( 'banner_name', $slider->ID ) . '">Read More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a>';
 		$html .= '</div>'; // end .read-more
 		$html .= '</div>'; // end .hero-text-content
-        $html .= '</div>'; // end .orange
+		$html .= '</div>'; // end .orange
 		$html .= '</div>'; // end bg-image-layer
-        $html .= '<div class="text-below-hero style-' . $slide_type .'" id="below-hero-' . $slider->ID . '"></div>';
+		$html .= '<div class="text-below-hero style-' . $slide_type . '" id="below-hero-' . $slider->ID . '"></div>';
 		$html .= '</div>'; // end .slide-content.left-side
 		$html .= ( $slide_type == 2 ? '</div>' : '' );
 		$html .= '</div>'; // end .slide.hero-slide-1[2,3,4]
-        // Add another div after the active slide to display text content underneath the image, at 767px and lower
+		// Add another div after the active slide to display text content underneath the image, at 767px and lower
 		$count ++;
 	}
 	$html .= '</div>'; // end .swiper-wrapper
-    $html .= '<div class="swiper-pagination"></div>';
+	$html .= '<div class="swiper-pagination"></div>';
 	$html .= '</div>'; // end .swiper-container
 	
 	// add swiper js
@@ -1845,55 +1945,56 @@ function render_home_hero_slider() {
 	
 	return $html;
 }
+
 /********** HOMEPAGE LOCAL FAVES **********/
 add_shortcode( 'homepage_local_faves', 'render_local_fave_grid' );
 function render_local_fave_grid() {
-    // get all Vendors who should be featured in this section
-    $args = array(
-        'post_type' => 'vendor_profile',
-        'meta_key' => 'local_fave_homepage',
-        'meta_value' => 'yes'
-    );
-    $local_faves = get_posts($args);
-    
-    $html = '<div class="local-faves-container">';
-    foreach ($local_faves as $local_fave) {
-        $html .= '<div class="individual-fave">';
-            $html .= '<div class="local-fave-image">';
-                $html .= get_the_post_thumbnail($local_fave->ID, array(500,500));
-                $html .= '<div class="fave-image-overlay"></div>';
-            $html .= '</div>'; // END .local-fave-image
-            
-            $html .= '<div class="fave-title-container">';
-	            $html .= '<a href="' . get_permalink($local_fave) . '"><h3>' . $local_fave->post_title . '</h3></a>';
-	        $html .= '</div>'; // END .fave-title-container
-	    $html .= '</div>'; // END .individual-fave
-    }
-    $html .= '</div>'; // END .local-faves-container
-    
-    return $html;
+	// get all Vendors who should be featured in this section
+	$args        = array(
+		'post_type'  => 'vendor_profile',
+		'meta_key'   => 'local_fave_homepage',
+		'meta_value' => 'yes'
+	);
+	$local_faves = get_posts( $args );
+	
+	$html = '<div class="local-faves-container">';
+	foreach ( $local_faves as $local_fave ) {
+		$html .= '<div class="individual-fave">';
+		$html .= '<div class="local-fave-image">';
+		$html .= get_the_post_thumbnail( $local_fave->ID, array( 500, 500 ) );
+		$html .= '<div class="fave-image-overlay"></div>';
+		$html .= '</div>'; // END .local-fave-image
+		
+		$html .= '<div class="fave-title-container">';
+		$html .= '<a href="' . get_permalink( $local_fave ) . '"><h3>' . $local_fave->post_title . '</h3></a>';
+		$html .= '</div>'; // END .fave-title-container
+		$html .= '</div>'; // END .individual-fave
+	}
+	$html .= '</div>'; // END .local-faves-container
+	
+	return $html;
 }
 
 /********** HOMEPAGE BLOG POSTS (BUZZ) **********/
 add_shortcode( 'homepage_daily_buzz', 'render_blog_buzz' );
 function render_blog_buzz() {
 	// get all Vendors who should be featured in this section
-	$args = array(
-		'post_type' => 'post',
-        'posts_per_page' => 4
+	$args       = array(
+		'post_type'      => 'post',
+		'posts_per_page' => 4
 	);
-	$blog_posts = get_posts($args);
+	$blog_posts = get_posts( $args );
 	
 	$html = '<div class="local-faves-container">';
-	foreach ($blog_posts as $post) {
+	foreach ( $blog_posts as $post ) {
 		$html .= '<div class="individual-fave blog-buzz">';
 		$html .= '<div class="local-fave-image">';
-		$html .= get_the_post_thumbnail($post->ID, array(500,500));
+		$html .= get_the_post_thumbnail( $post->ID, array( 500, 500 ) );
 		$html .= '<div class="fave-image-overlay"></div>';
 		$html .= '</div>'; // END .local-fave-image
 		
 		$html .= '<div class="fave-title-container">';
-		$html .= '<a href="' . get_permalink($post) . '"><h3>' . $post->post_title . '</h3></a>';
+		$html .= '<a href="' . get_permalink( $post ) . '"><h3>' . $post->post_title . '</h3></a>';
 		$html .= '</div>'; // END .fave-title-container
 		$html .= '</div>'; // END .individual-fave
 	}
@@ -1906,29 +2007,29 @@ function render_blog_buzz() {
 add_shortcode( 'homepage_featured_spotlights', 'render_homepage_spotlights' );
 function render_homepage_spotlights() {
 	// get all Vendors who should be featured in this section
-	$args = array(
-		'post_type' => 'spotlight',
+	$args       = array(
+		'post_type'      => 'spotlight',
 		'posts_per_page' => 8,
-        'orderby' => 'rand'
+		'orderby'        => 'rand'
 	);
-	$spotlights = get_posts($args);
-	$count = 0;
-	$html = '<div class="local-faves-container">';
-	foreach ($spotlights as $spotlight) {
-	    if($count%4 == 0) {
-	        $html .= '</div><div class="local-faves-container">';
-        }
+	$spotlights = get_posts( $args );
+	$count      = 0;
+	$html       = '<div class="local-faves-container">';
+	foreach ( $spotlights as $spotlight ) {
+		if ( $count % 4 == 0 ) {
+			$html .= '</div><div class="local-faves-container">';
+		}
 		$html .= '<div class="individual-fave spotlight">';
 		$html .= '<div class="local-fave-image">';
-		$html .= get_the_post_thumbnail($spotlight->ID, array(500,500));
-		$html .= '<a href="' . get_permalink($spotlight) . '"><div class="fave-image-overlay"></div></a>';
+		$html .= get_the_post_thumbnail( $spotlight->ID, array( 500, 500 ) );
+		$html .= '<a href="' . get_permalink( $spotlight ) . '"><div class="fave-image-overlay"></div></a>';
 		$html .= '</div>'; // END .local-fave-image
 		
 		$html .= '<div class="fave-title-container">';
-		$html .= '<a href="' . get_permalink($spotlight) . '"><h3>' . $spotlight->post_title . '</h3></a>';
+		$html .= '<a href="' . get_permalink( $spotlight ) . '"><h3>' . $spotlight->post_title . '</h3></a>';
 		$html .= '</div>'; // END .fave-title-container
 		$html .= '</div>'; // END .individual-fave
-        $count++;
+		$count ++;
 	}
 	$html .= '</div>'; // END .local-faves-container
 	
@@ -1936,7 +2037,7 @@ function render_homepage_spotlights() {
 }
 
 /********************************* HOME SLIDER TABLE IN SAW ADMIN ************************************/
-add_shortcode('home_slider_table', 'render_home_slider_table');
+add_shortcode( 'home_slider_table', 'render_home_slider_table' );
 function render_home_slider_table() {
 	$hstable = '<table id="home_slider_table" class="dataTable compact display" data-page-length="30">
 	    <thead>
@@ -1998,7 +2099,7 @@ function render_home_sliders() {
 	}
 	
 	$home_slide_query = new WP_Query( $args );
-	$totalData    = $home_slide_query->found_posts;
+	$totalData        = $home_slide_query->found_posts;
 	
 	if ( $home_slide_query->have_posts() ) {
 		$data = array();
@@ -2013,14 +2114,14 @@ function render_home_sliders() {
 			}
 			
 			$nestedData   = array();
-			$bg_image = get_field('background_image');
+			$bg_image     = get_field( 'background_image' );
 			$nestedData[] = '<img src="' . $bg_image['url'] . '" />'; // background image
-			$nestedData[] = get_field('banner_name'); // banner name
-			$nestedData[] = get_field('banner_start_date'); // post date
-			$nestedData[] = (get_field('is_slide_featured') == true ? 'Yes' : 'No');
-			$nestedData[] = (get_field('banner_end_date') ? get_field('banner_end_date') : 'N.A.'); // featured release date
-			$nestedData[] = '<strong>' . get_field('view_count') . '</strong><br />' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.'); // view count
-            $nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
+			$nestedData[] = get_field( 'banner_name' ); // banner name
+			$nestedData[] = get_field( 'banner_start_date' ); // post date
+			$nestedData[] = ( get_field( 'is_slide_featured' ) == true ? 'Yes' : 'No' );
+			$nestedData[] = ( get_field( 'banner_end_date' ) ? get_field( 'banner_end_date' ) : 'N.A.' ); // featured release date
+			$nestedData[] = '<strong>' . get_field( 'view_count' ) . '</strong><br />' . ( get_field( 'last_viewed' ) ? get_field( 'last_viewed' ) : 'N.A.' ); // view count
+			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
 					            <i class="fas fa-chevron-down"></i>
@@ -2056,7 +2157,7 @@ function render_home_sliders() {
 }
 
 /********************************* ADD HOME SLIDERS IN SAW ADMIN ************************************/
-add_shortcode('home_slider_add_form', 'render_add_home_slider');
+add_shortcode( 'home_slider_add_form', 'render_add_home_slider' );
 function render_add_home_slider() {
 	$args = array(
 		'post_id'               => 'new_post',
@@ -2078,19 +2179,19 @@ function render_add_home_slider() {
 
 /********************************* SAVE POST TITLE IN HOME SLIDERS ************************************/
 /******** This is taken care of in the 'save_category' method above, where it will check for the 'add-home-slider' page **/
-	
-	
+
+
 /********************************* HOME SLIDER TABLE IN SAW ADMIN ************************************/
-add_shortcode('home_slider_edit_form', 'render_edit_home_slider');
+add_shortcode( 'home_slider_edit_form', 'render_edit_home_slider' );
 function render_edit_home_slider() {
 	if ( isset( $_GET['hs_id'] ) ) {
 		$hs_id = $_GET['hs_id'];
-		$args      = array(
+		$args  = array(
 			'post_id'               => $hs_id,
 			'updated_message'       => 'Home Slider successfully updated!',
 			'instruction_placement' => 'field'
 		);
-		$html      = '<h2>' . get_the_title( $hs_id ) . '</h1>';
+		$html  = '<h2>' . get_the_title( $hs_id ) . '</h1>';
 		ob_start();
 		acf_form( $args );
 		$html .= ob_get_contents();
@@ -2105,7 +2206,7 @@ function render_edit_home_slider() {
 
 /********************************* TODO: START OF BANNER AD ADMIN SECTION!!!!!! ************************************/
 /********************************* BANNERS TABLE IN SAW ADMIN ************************************/
-add_shortcode('banner_ad_table', 'render_banner_table');
+add_shortcode( 'banner_ad_table', 'render_banner_table' );
 function render_banner_table() {
 	$batable = '<table id="banner_ad_table" class="dataTable compact display" data-page-length="30">
 	    <thead>
@@ -2147,9 +2248,9 @@ function render_banner_ads() {
 		5  => 'startDate',
 		6  => 'stopDate',
 		7  => 'viewCountLastViewed',
-        8  => 'exposureLevel',
-        9  => 'isActive',
-        10 => 'action'
+		8  => 'exposureLevel',
+		9  => 'isActive',
+		10 => 'action'
 	);
 	
 	$args = array(
@@ -2171,7 +2272,7 @@ function render_banner_ads() {
 	}
 	
 	$banner_ad_query = new WP_Query( $args );
-	$totalData    = $banner_ad_query->found_posts;
+	$totalData       = $banner_ad_query->found_posts;
 	
 	if ( $banner_ad_query->have_posts() ) {
 		$data = array();
@@ -2186,37 +2287,37 @@ function render_banner_ads() {
 			}
 			
 			$nestedData   = array();
-			$banner_image = get_field('ad_banner', get_the_ID());
+			$banner_image = get_field( 'ad_banner', get_the_ID() );
 			$nestedData[] = '<img src="' . $banner_image['url'] . '" />'; // banner ad image
-			$nestedData[] = get_field('banner_name', get_the_ID()); // banner name
-			$nestedData[] = get_field('banner_size', get_the_ID()); // banner size
-            $advertiser = get_field('advertiser'); // grabbing the post object of the vendor
+			$nestedData[] = get_field( 'banner_name', get_the_ID() ); // banner name
+			$nestedData[] = get_field( 'banner_size', get_the_ID() ); // banner size
+			$advertiser   = get_field( 'advertiser' ); // grabbing the post object of the vendor
 			$nestedData[] = $advertiser->post_title; // advertiser name
 			
-                // Grab categories from "Premium Listing" section from vendor CPT
-                $categories = get_field('premium_listings', $advertiser->ID);
-                if (is_array($categories)) {
-                    $category_names = '';
-                    $count = 1;
-	                foreach ( $categories as $category ) {
-                        $this_cat = get_term($category['category'], 'category');
-                        if ($count != sizeof($categories)) {
-                            $category_names = $this_cat->name . ', ';
-                            
-                        } else {
-                            $category_names = $this_cat->name;
-                        }
-                        $count++;
-                    }
-	                $nestedData[] = $category_names;
-                } else {
-                    $nestedData[] = '';
-                }
+			// Grab categories from "Premium Listing" section from vendor CPT
+			$categories = get_field( 'premium_listings', $advertiser->ID );
+			if ( is_array( $categories ) ) {
+				$category_names = '';
+				$count          = 1;
+				foreach ( $categories as $category ) {
+					$this_cat = get_term( $category['category'], 'category' );
+					if ( $count != sizeof( $categories ) ) {
+						$category_names = $this_cat->name . ', ';
+						
+					} else {
+						$category_names = $this_cat->name;
+					}
+					$count ++;
+				}
+				$nestedData[] = $category_names;
+			} else {
+				$nestedData[] = '';
+			}
 			
-            $nestedData[] = get_field('banner_start_date'); // startDate
-			$nestedData[] = get_field('banner_stop_date'); // stopDate
-			$nestedData[] = get_field('view_count', get_the_ID()) . '<br />(' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.') . ')'; // view count
-            $nestedData[] = get_field('exposure_level') . 'X';
+			$nestedData[] = get_field( 'banner_start_date' ); // startDate
+			$nestedData[] = get_field( 'banner_stop_date' ); // stopDate
+			$nestedData[] = get_field( 'view_count', get_the_ID() ) . '<br />(' . ( get_field( 'last_viewed' ) ? get_field( 'last_viewed' ) : 'N.A.' ) . ')'; // view count
+			$nestedData[] = get_field( 'exposure_level' ) . 'X';
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
@@ -2253,7 +2354,7 @@ function render_banner_ads() {
 }
 
 /********************************* ADD BANNER ADS IN SAW ADMIN ************************************/
-add_shortcode('banner_ad_add_form', 'render_add_banner_ad');
+add_shortcode( 'banner_ad_add_form', 'render_add_banner_ad' );
 function render_add_banner_ad() {
 	
 	$args = array(
@@ -2279,17 +2380,17 @@ function render_add_banner_ad() {
 
 
 /********************************* BANNER AD TABLE IN SAW ADMIN ************************************/
-add_shortcode('banner_ad_edit_form', 'render_edit_banner_ad');
+add_shortcode( 'banner_ad_edit_form', 'render_edit_banner_ad' );
 function render_edit_banner_ad() {
 	
 	if ( isset( $_GET['ba_id'] ) ) {
 		$hs_id = $_GET['ba_id'];
-		$args      = array(
+		$args  = array(
 			'post_id'               => $hs_id,
 			'updated_message'       => 'Banner Ad successfully updated!',
 			'instruction_placement' => 'field'
 		);
-		$html      = '<h2>' . get_the_title( $hs_id ) . '</h1>';
+		$html  = '<h2>' . get_the_title( $hs_id ) . '</h1>';
 		ob_start();
 		acf_form( $args );
 		$html .= ob_get_contents();
@@ -2305,72 +2406,99 @@ function render_edit_banner_ad() {
 /************************ SPOTLIGHT VENDOR INFORMATION **********************/
 add_shortcode( 'spotlight_vendor_information', 'render_spotlight_vendor' );
 function render_spotlight_vendor() {
-
-    // Get the linked vendor and print:
-        // 1. 'View Vendor Profile' SAW link
-        // 2. Phone number
-        // 3. Address
-        // 4. Website Link
-    $vendor = get_field('vendor');
-    
-    $html = '<div class="spotlight-vendor-info-container">';
-	$html .= '<div class="vendor-profile-link">';
-	$html .= '<i class="fas fa-info-circle"></i><span><a href="' . get_the_permalink($vendor) . '" alt="' . $vendor->post_title . '">View Vendor Profile</a></span>';
-	$html .= '</div>';
-	$html .= '<div class="vendor-phone-number">';
-	$html .= '<i class="fas fa-phone-alt"></i><span><a href="tel:' . get_field('business_phone_number', $vendor->ID) . '">' . get_field('business_phone_number', $vendor->ID) . '</a></span>';
-	$html .= '</div>';
-	$address = get_field('address', $vendor->ID);
-	if ($address) {
-	    $html .= '<div class="vendor-address">';
-	    $html .= '<i class="fas fa-map-marker-alt"></i>';
-	    if (!empty($address['address_line_1'])) $html .= $address['address_line_1'];
-	    if (!empty($address['address_line_2'])) $html .= ', ' . $address['address_line_2'];
-	    if (!empty($address['city'])) $html .= ', ' . $address['city'];
-	    if (!empty($address['state'])) $html .= ', ' . $address['state'];
-	    if (!empty($address['zip'])) $html .= ' ' . $address['zip'];
-	    $html .= '</div>';
-    }
-	$website = get_field('website', $vendor->ID);
-	if (!empty($website)) {
-	    $html .= '<div class="vendor-website">';
-	    $html .= '<i class="fas fa-globe"></i>';
-	    $html .= '<a href="' . $website . '" alt="' . $vendor->post_title . '" target="_blank">Website</a>';
-	    $html .= '</div>';
-    }
+	
+	// Get the linked vendor and print:
+	// 1. 'View Vendor Profile' SAW link
+	// 2. Phone number
+	// 3. Address
+	// 4. Website Link
+	$vendor = get_field( 'vendor' );
+	
+	$html    = '<div class="spotlight-vendor-info-container">';
+	$html    .= '<div class="vendor-profile-link">';
+	$html    .= '<i class="fas fa-info-circle"></i><span><a href="' . get_the_permalink( $vendor ) . '" alt="' . $vendor->post_title . '">View Vendor Profile</a></span>';
+	$html    .= '</div>';
+	$html    .= '<div class="vendor-phone-number">';
+	$html    .= '<i class="fas fa-phone-alt"></i><span><a href="tel:' . get_field( 'business_phone_number', $vendor->ID ) . '">' . get_field( 'business_phone_number', $vendor->ID ) . '</a></span>';
+	$html    .= '</div>';
+	$address = get_field( 'address', $vendor->ID );
+	if ( $address ) {
+		$html .= '<div class="vendor-address">';
+		$html .= '<i class="fas fa-map-marker-alt"></i>';
+		if ( ! empty( $address['address_line_1'] ) ) {
+			$html .= $address['address_line_1'];
+		}
+		if ( ! empty( $address['address_line_2'] ) ) {
+			$html .= ', ' . $address['address_line_2'];
+		}
+		if ( ! empty( $address['city'] ) ) {
+			$html .= ', ' . $address['city'];
+		}
+		if ( ! empty( $address['state'] ) ) {
+			$html .= ', ' . $address['state'];
+		}
+		if ( ! empty( $address['zip'] ) ) {
+			$html .= ' ' . $address['zip'];
+		}
+		$html .= '</div>';
+	}
+	$website = get_field( 'website', $vendor->ID );
+	if ( ! empty( $website ) ) {
+		$html .= '<div class="vendor-website">';
+		$html .= '<i class="fas fa-globe"></i>';
+		$html .= '<a href="' . $website . '" alt="' . $vendor->post_title . '" target="_blank">Website</a>';
+		$html .= '</div>';
+	}
 	$html .= '</div>';
 	
 	return $html;
 }
 
 /******************** VENDORS FOOTER MENU SHORTCODE ********************/
- add_shortcode('vendors_footer_menu', 'render_vendors_footer');
+add_shortcode( 'vendors_footer_menu', 'render_vendors_footer' );
 function render_vendors_footer() {
-    $html =
-        '<div id="vendor-footer-menu" class="hamburger-button">
+	// Only get vendor categories that currently have something in them - don't want pages showing up with no results!
+	global $wpdb;
+	
+	$query             = $wpdb->prepare(
+		"SELECT t.*, COUNT(*) from $wpdb->terms AS t
+        INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
+        INNER JOIN $wpdb->term_relationships AS r ON r.term_taxonomy_id = tt.term_taxonomy_id
+        INNER JOIN $wpdb->posts AS p ON p.ID = r.object_id
+        WHERE p.post_type = 'vendor_profile' AND tt.taxonomy = 'category'
+        GROUP BY t.term_id"
+	);
+	$vendor_categories = $wpdb->get_results( $query );
+//	print_r($vendor_categories);die();
+	
+	$html =
+		'<div id="vendor-footer-menu" class="hamburger-button">
             <div class="icon-container">
-                <a class="hamburger-click" href="#"><img class="hamburger-icon" src="' . plugins_url('public/img/vendors-hamburger-menu.svg', __FILE__) . '" alt="Vendor Menu" width=45 height=auto /></a>
+                <a class="hamburger-click" href="#"><img class="hamburger-icon" src="' . plugins_url( 'public/img/vendors-hamburger-menu.svg', __FILE__ ) . '" alt="Vendor Menu" width=45 height=auto /></a>
                 <div class="icon-link-cover"></div>
             </div> <!-- END .icon-container -->
+            <div class="vendor-list-container">
+            
+            </div> <!-- END .vendor-list-container -->
         </div>'; // END #vendor-footer-menu
-    
-    return $html;
+	
+	return $html;
 }
 
 /******************** STAY CONNECTED FOOTER MENU SHORTCODE ********************/
-add_shortcode('stay_connected', 'render_stay_connected_footer');
+add_shortcode( 'stay_connected', 'render_stay_connected_footer' );
 function render_stay_connected_footer() {
-    $html =
-        '<div id="footer-stay-connected">
+	$html =
+		'<div id="footer-stay-connected">
             <div class="red-container">
-                <img class="arrows-up" src="' . plugins_url('public/img/arrows-up.svg', __FILE__) .  '" alt="Stay Connected" />
+                <img class="arrows-up" src="' . plugins_url( 'public/img/arrows-up.svg', __FILE__ ) . '" alt="Stay Connected" />
                 <span class="stay-connected-text">
                     Stay<br />Connected
                 </span><!-- END .stay-connected-text -->
             </div> <!-- END .red-container -->
         </div>'; // END #footer-stay-connected
-    
-    return $html;
+	
+	return $html;
 }
 
 
