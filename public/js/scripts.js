@@ -182,7 +182,28 @@ $(document).ready(function () {
 	bannerTable.on( 'search.dt', function() {
 		dropdownButtons();
 	});
-
+	let specialOfferTable = $("#special_offer_table").DataTable({
+		dom: 'Bfrtip',
+		ajax: {
+			url: '/wp-admin/admin-ajax.php?action=special_offer_datatables',
+		},
+		processing: true,
+		serverSide: true,
+		buttons: [
+			{
+				text: 'New Special Offer',
+				action: function ( e, dt, node, config ) {
+					window.location = "/saw-admin/add-special-offer";
+				}
+			}
+		]
+	});
+	specialOfferTable.on( 'draw', function() {
+		dropdownButtons();
+	});
+	specialOfferTable.on( 'search.dt', function() {
+		dropdownButtons();
+	});
 	dropdownButtons();
 	function dropdownButtons() {
 		$(".vmenu-button").on('click', function(event) {
@@ -209,19 +230,22 @@ $(document).ready(function () {
 			// maybe redraw the tables?
 			if(response.post_type == 'vendor_profile') {
 				alert("Vendor Profile Deactivated!");
-				vendorTable.draw();
+				vendorTable.draw('page');
 			} else if (response.post_type == 'post' || response.post_type == 'styled_shoot' || response.post_type == 'spotlight' || response.post_type == 'wedding_story') {
 				alert("Article Deactivated!");
-				articleTable.draw();
+				articleTable.draw('page');
 			} else if (response.post_type == 'category') {
 				alert("Category Deactivated!");
-				categoryTable.draw();
+				categoryTable.draw('page');
 			} else if (response.post_type == 'home_slide') {
 				alert("Home Slider Deactivated!");
-				homeSlideTable.draw();
+				homeSlideTable.draw('page');
 			} else if (response.post_type == 'banner') {
 				alert("Banner Ad Deactivated!");
-				bannerTable.draw();
+				bannerTable.draw('page');
+			} else if (response.post_type == 'special_offers') {
+				alert("Special Offer Deactivated!");
+				specialOfferTable.draw('page');
 			}
 		});
 	});
@@ -237,19 +261,22 @@ $(document).ready(function () {
 			// maybe redraw the tables?
 			if(response.post_type == 'vendor_profile') {
 				alert("Vendor Profile Activated!");
-				vendorTable.draw();
+				vendorTable.draw('page');
 			} else if (response.post_type == 'post' || response.post_type == 'styled_shoot' || response.post_type == 'spotlight' || response.post_type == 'wedding_story') {
 				alert("Article Activated!");
-				articleTable.draw();
+				articleTable.draw('page');
 			} else if (response.post_type == 'category') {
 				alert("Category Activated!");
-				categoryTable.draw();
+				categoryTable.draw('page');
 			} else if (response.post_type == 'home_slide') {
 				alert("Home Slider Activated!");
-				homeSlideTable.draw();
+				homeSlideTable.draw('page');
 			} else if (response.post_type == 'banner') {
 				alert("Banner Ad Activated!");
-				bannerTable.draw();
+				bannerTable.draw('page');
+			} else if (response.post_type == 'special_offers') {
+				alert("Special Offer Activated!");
+				specialOfferTable.draw('page');
 			}
 		});
 	});

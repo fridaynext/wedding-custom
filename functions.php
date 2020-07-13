@@ -51,145 +51,145 @@ add_action( 'wp_enqueue_scripts', 'fn_enqueue_scripts' );
 //}
 
 // read in csv, and import into WP database
-function import_vendors_func() {
-	
-	
-	$row = 1;
-	if ( ! file_exists( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv" ) ) {
-		die( 'File does not exist' );
-	}
-
-
-//	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" ) !== false ) {
-//		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" );
-	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" ) !== false ) {
-		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" );
-		
-		$repeat_ven = 1;
-		$last_ven   = '';
-		$tag_count = 0;
-		$all_tags = get_terms(array("taxonomy" => "post_tag", "hide-empty" => false));
-		$tag_name_array = array();
-		
-		
-		foreach ($all_tags as $single_tag) {
-		    $tag_name_array[$single_tag->name] = $single_tag->term_id;
-        }
-		while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== false ) {
-			
-			$num = count( $data );
-			echo "<p> $num fields in line $row: <br /></p>\n";
-			$row ++;
-			echo "Row: $row<br />";
-//			$vendor_id   = $data[0];
-//			$vendor_name = $data[1];
-//			$cat_name    = $data[2];
+//function import_vendors_func() {
 //
-//			if ( $vendor_name == $last_ven ) { // checking the previous row with this one
-//				$repeat_ven ++;
-//			} else {
-//				$repeat_ven = 1;
-//			}
-//			$last_ven = $data[1]; // after doing the check, set $last_ven to the current row
 //
-//			$this_cat = get_terms( array(
-//				'taxonomy' => 'category',
-//				'name'     => $cat_name
-//			) );
-//			foreach ( $this_cat as $cat ) {
-//				$premium_listings = get_field( 'field_5ef380bcbbd1b', $vendor_id );
-//				$field_row        = array(
-//					'field_5ef3814abbd1d' => 5,
-//					'field_5ef38122bbd1c' => $cat->term_id// taxonomy,
-//				);
-//				if ( sizeof( $premium_listings ) >= $repeat_ven ) {
-//					echo "Updating row " . $repeat_ven . " for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
-//					update_row( 'field_5ef380bcbbd1b', $repeat_ven, $field_row, $vendor_id );
-//				} else {
-//					add_row( 'field_5ef380bcbbd1b', $field_row, $vendor_id );
-//					echo "Adding row for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
+//	$row = 1;
+//	if ( ! file_exists( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv" ) ) {
+//		die( 'File does not exist' );
+//	}
+//
+//
+////	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" ) !== false ) {
+////		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" );
+//	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" ) !== false ) {
+//		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" );
+//
+//		$repeat_ven = 1;
+//		$last_ven   = '';
+//		$tag_count = 0;
+//		$all_tags = get_terms(array("taxonomy" => "post_tag", "hide-empty" => false));
+//		$tag_name_array = array();
+//
+//
+//		foreach ($all_tags as $single_tag) {
+//		    $tag_name_array[$single_tag->name] = $single_tag->term_id;
+//        }
+//		while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== false ) {
+//
+//			$num = count( $data );
+//			echo "<p> $num fields in line $row: <br /></p>\n";
+//			$row ++;
+//			echo "Row: $row<br />";
+////			$vendor_id   = $data[0];
+////			$vendor_name = $data[1];
+////			$cat_name    = $data[2];
+////
+////			if ( $vendor_name == $last_ven ) { // checking the previous row with this one
+////				$repeat_ven ++;
+////			} else {
+////				$repeat_ven = 1;
+////			}
+////			$last_ven = $data[1]; // after doing the check, set $last_ven to the current row
+////
+////			$this_cat = get_terms( array(
+////				'taxonomy' => 'category',
+////				'name'     => $cat_name
+////			) );
+////			foreach ( $this_cat as $cat ) {
+////				$premium_listings = get_field( 'field_5ef380bcbbd1b', $vendor_id );
+////				$field_row        = array(
+////					'field_5ef3814abbd1d' => 5,
+////					'field_5ef38122bbd1c' => $cat->term_id// taxonomy,
+////				);
+////				if ( sizeof( $premium_listings ) >= $repeat_ven ) {
+////					echo "Updating row " . $repeat_ven . " for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
+////					update_row( 'field_5ef380bcbbd1b', $repeat_ven, $field_row, $vendor_id );
+////				} else {
+////					add_row( 'field_5ef380bcbbd1b', $field_row, $vendor_id );
+////					echo "Adding row for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
+////				}
+////				break; // break immediately, since there should only be one category per line
+////			}
+////            $row++;
+//
+//			for ( $c = 0; $c < $num; $c ++ ) {
+//				if ( $data[ $c ] != '' ) {
+//					$this_id = $data[0];
+//					switch ( $c ) {
+////						case 3: // About Us
+////							update_field( 'about_this_vendor', $data[ $c ], $this_id );
+////							break;
+////						case 5: // Subject Line
+////							update_field( 'subject_line', $data[ $c ], $this_id );
+////							break;
+////						case 7: // Facebook
+////							update_field( 'facebook', $data[ $c ], $this_id );
+////							break;
+////						case 9: // Instagram
+////							update_field( 'instagram', $data[ $c ], $this_id );
+////							break;
+////						case 10: // Pinterest
+////							update_field( 'pinterest', $data[ $c ], $this_id );
+////							break;
+//						case 11: // Meta Title
+//							update_field( 'meta_title', $data[ $c ], $this_id );
+//							break;
+//						case 12: // Meta Description
+//							update_field( 'meta_description', $data[ $c ], $this_id );
+//							break;
+//						case 13: // Meta Keywords
+//
+//                            $keywords = explode( ",", $data[ $c ] );
+//							$keyword_id_arr = array();
+//							foreach ($keywords as $keyword) {
+//								$tag_count += 1;
+//							    // get the tag id
+////                                $this_term = get_term_by('name', trim($keyword), 'tag');
+//                                if(key_exists(trim($keyword), $tag_name_array)) {
+//                                    $keyword_id_arr[] = $tag_name_array[trim($keyword)];
+//                                } else {
+//	                                echo "Tag " . $tag_count . " wasn't found, creating it now...<br />";
+//	                                $this_term = wp_insert_term( trim( $keyword ), 'post_tag' );
+//	                                if ( ! is_wp_error( $this_term ) && ( $this_term != false && ! is_null( $this_term ) ) ) {
+//		                                echo "Now adding tag " . $tag_count . " as id: " . $this_term['term_id'] . "<br />";
+//		                                $keyword_id_arr[] = $this_term['term_id'];
+//	                                } else {
+//		                                echo "<strong>Still couldn't create tag " . $tag_count . " for some reason</strong><br />";
+//		                                echo $this_term->get_error_message() . "<br />";
+//	                                }
+//                                }
+//                            }
+//							update_field( 'meta_keywords', $keyword_id_arr, $this_id );
+//							break;
+//						case 17: // 360 Virtual Tour
+//							update_field( '360-virtual-tour', $data[ $c ], $this_id );
+//							break;
+//					}
 //				}
-//				break; // break immediately, since there should only be one category per line
 //			}
-//            $row++;
-			
-			for ( $c = 0; $c < $num; $c ++ ) {
-				if ( $data[ $c ] != '' ) {
-					$this_id = $data[0];
-					switch ( $c ) {
-//						case 3: // About Us
-//							update_field( 'about_this_vendor', $data[ $c ], $this_id );
-//							break;
-//						case 5: // Subject Line
-//							update_field( 'subject_line', $data[ $c ], $this_id );
-//							break;
-//						case 7: // Facebook
-//							update_field( 'facebook', $data[ $c ], $this_id );
-//							break;
-//						case 9: // Instagram
-//							update_field( 'instagram', $data[ $c ], $this_id );
-//							break;
-//						case 10: // Pinterest
-//							update_field( 'pinterest', $data[ $c ], $this_id );
-//							break;
-						case 11: // Meta Title
-							update_field( 'meta_title', $data[ $c ], $this_id );
-							break;
-						case 12: // Meta Description
-							update_field( 'meta_description', $data[ $c ], $this_id );
-							break;
-						case 13: // Meta Keywords
-							
-                            $keywords = explode( ",", $data[ $c ] );
-							$keyword_id_arr = array();
-							foreach ($keywords as $keyword) {
-								$tag_count += 1;
-							    // get the tag id
-//                                $this_term = get_term_by('name', trim($keyword), 'tag');
-                                if(key_exists(trim($keyword), $tag_name_array)) {
-                                    $keyword_id_arr[] = $tag_name_array[trim($keyword)];
-                                } else {
-	                                echo "Tag " . $tag_count . " wasn't found, creating it now...<br />";
-	                                $this_term = wp_insert_term( trim( $keyword ), 'post_tag' );
-	                                if ( ! is_wp_error( $this_term ) && ( $this_term != false && ! is_null( $this_term ) ) ) {
-		                                echo "Now adding tag " . $tag_count . " as id: " . $this_term['term_id'] . "<br />";
-		                                $keyword_id_arr[] = $this_term['term_id'];
-	                                } else {
-		                                echo "<strong>Still couldn't create tag " . $tag_count . " for some reason</strong><br />";
-		                                echo $this_term->get_error_message() . "<br />";
-	                                }
-                                }
-                            }
-							update_field( 'meta_keywords', $keyword_id_arr, $this_id );
-							break;
-						case 17: // 360 Virtual Tour
-							update_field( '360-virtual-tour', $data[ $c ], $this_id );
-							break;
-					}
-				}
-			}
-			
-			
-			/*update_field( 'address', $address, $new_vendor_id );
-			for ( $c = 0; $c < $num; $c ++ ) {
-			
-			}
-			$html .= "Success adding: " . $data[0] . "<br>";
-		}
-	else {
-			$html .= "Error adding: " . $data[0] . "<br>";
-		}*/
-		}
-		fclose( $handle );
-	}
-
-//    return $html;
-//    $vendors = get_posts(array('post_type' =>'vendor_profile', 'posts_per_page' => -1));
-//    foreach ($vendors as $vendor) {
-//        $website = 'https://' . get_field('website', $vendor->ID);
-//        update_field('website', $website, $vendor->ID);
-//    }
-}
+//
+//
+//			/*update_field( 'address', $address, $new_vendor_id );
+//			for ( $c = 0; $c < $num; $c ++ ) {
+//
+//			}
+//			$html .= "Success adding: " . $data[0] . "<br>";
+//		}
+//	else {
+//			$html .= "Error adding: " . $data[0] . "<br>";
+//		}*/
+//		}
+//		fclose( $handle );
+//	}
+//
+////    return $html;
+////    $vendors = get_posts(array('post_type' =>'vendor_profile', 'posts_per_page' => -1));
+////    foreach ($vendors as $vendor) {
+////        $website = 'https://' . get_field('website', $vendor->ID);
+////        update_field('website', $website, $vendor->ID);
+////    }
+//}
 
 add_shortcode( 'import_vendors', 'import_vendors_func' );
 
@@ -1076,7 +1076,9 @@ function change_post_title_name( $field ) {
 		$field['label'] = 'Company Name';
 	} elseif ( is_page( array( 'add-article', 'articles', 'edit-article' ) ) ) {
 		$field['label'] = 'URL Title';
-	}
+	} elseif ( is_page( array( 'add-special-offer', 'special-offers', 'edit-special-offer') ) ) {
+	    $field['label'] = 'Special Offer Title';
+    }
 	
 	return $field;
 }
@@ -2177,10 +2179,6 @@ function render_add_home_slider() {
 	return $html;
 }
 
-/********************************* SAVE POST TITLE IN HOME SLIDERS ************************************/
-/******** This is taken care of in the 'save_category' method above, where it will check for the 'add-home-slider' page **/
-
-
 /********************************* HOME SLIDER TABLE IN SAW ADMIN ************************************/
 add_shortcode( 'home_slider_edit_form', 'render_edit_home_slider' );
 function render_edit_home_slider() {
@@ -2203,6 +2201,175 @@ function render_edit_home_slider() {
 		return 'No home slider selected. Head back to the <a href="/saw-admin/home-sliders" alt="SAW Home Sliders">Home Sliders table</a> and try again!';
 	}
 }
+
+/********************************* SPECIAL OFFER TABLE IN SAW ADMIN ************************************/
+add_shortcode( 'special_offers_table', 'render_special_offer_table' );
+function render_special_offer_table() {
+	$sotable = '<table id="special_offer_table" class="dataTable compact display" data-page-length="30">
+	    <thead>
+	        <tr>
+	            <th>Vendor Name</th>
+				<th>Special Offer Name</th>
+				<th>Start Date & Time</th>
+				<th>End Date</th>
+				<th>View Count &<br />Last Viewed</th>
+				<th>Is Active?</th>
+				<th>Action</th>
+	        </tr>
+	    </thead>
+	</table>';
+	
+	return $sotable;
+}
+
+/********************************* AJAX FOR HOME SLIDER TABLE ************************************/
+add_action( 'wp_ajax_special_offer_datatables', 'render_special_offers' );
+add_action( 'wp_ajax_nopriv_special_offer_datatables', 'render_special_offers' );
+
+function render_special_offers() {
+	
+	header( "Content-Type: application/json" );
+	
+	$request = $_GET;
+	
+	$columns = array(
+		0 => 'vendorName',
+		1 => 'specialOfferName',
+		2 => 'startDate',
+		3 => 'endDate',
+		4 => 'viewCountLastViewed',
+		5 => 'isActive',
+		6 => 'action'
+	);
+	
+	$args = array(
+		'post_type'      => 'special_offers',
+		'posts_per_page' => $request['length'],
+		'offset'         => $request['start'],
+		'order'          => $request['order'][0]['dir']
+	);
+	
+	if ( $request['order'][0]['column'] == 0 || $request['order'][0]['column'] == 1 ) {
+		$args['orderby'] = $columns[ $request['order'][0]['column'] ];
+	} elseif ( $request['order'][0]['column'] == 2 || $request['order'][0]['column'] == 3 ) {
+		$args['orderby'] = 'date';
+	} else {
+		$args['orderby'] = 'title';
+	}
+	
+	//$request['search']['value'] <= Value from search
+	if ( ! empty( $request['search']['value'] ) ) { // When datatables search is used
+		$args['s'] = $request['search']['value'];
+	}
+	
+	$special_offer_query = new WP_Query( $args );
+	$totalData        = $special_offer_query->found_posts;
+	
+	if ( $special_offer_query->have_posts() ) {
+		$data = array();
+		while ( $special_offer_query->have_posts() ) {
+			
+			$special_offer_query->the_post();
+			$active_class = 'deactivate-post';
+			$active_text  = 'Deactivate';
+			if ( ! get_field( 'is_active' ) ) {
+				$active_class = 'activate-post';
+				$active_text  = 'Activate';
+			}
+			
+			$nestedData   = array();
+			$vendor = get_field('vendor');
+			$nestedData[] = $vendor->post_title; // Vendor Name
+			$nestedData[] = get_the_title(); // Special Offer Name
+			$nestedData[] = get_field( 'offer_start_date' ); // start date
+			$nestedData[] = get_field( 'offer_end_date' ); // end date
+			$nestedData[] = '<strong>' . get_field( 'view_count' ) . '</strong><br />' . ( get_field( 'last_viewed' ) ? get_field( 'last_viewed' ) : 'N.A.' ); // view count
+			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
+			$nestedData[] = '<div class="vmenu-container">
+						<button class="vmenu-button" type="button">
+					            <i class="fas fa-chevron-down"></i>
+						</button>
+					    <ul class="vmenu-dropdown">
+					    	<li><a href="/saw-admin/edit-special-offer?so_id=' . get_the_ID() . '">Edit</a></li>
+							<li><a href="#" class="' . $active_class . '" id="' . get_the_ID() . '">' . $active_text . '</a></li>
+							<li><a href="' . get_delete_post_link() . '" alt="Delete this Special Offer">Delete</a></li>
+					    </ul>
+					</div>';
+			
+			$data[] = $nestedData;
+		}
+		
+		wp_reset_query();
+		
+		$json_data = array(
+			"draw"            => intval( $request['draw'] ),
+			"recordsTotal"    => intval( $totalData ),
+			"recordsFiltered" => intval( $totalData ),
+			"data"            => $data
+		);
+		
+		echo json_encode( $json_data );
+		
+	} else {
+		$json_data = array(
+			"data" => array()
+		);
+		echo json_encode( $json_data );
+	}
+	wp_die();
+}
+
+/********************************* EDIT SPECIAL OFFER IN SAW ADMIN ************************************/
+add_shortcode( 'special_offer_edit_form', 'render_edit_special_offer' );
+function render_edit_special_offer() {
+	if ( isset( $_GET['so_id'] ) ) {
+		$so_id = $_GET['so_id'];
+		$args  = array(
+			'post_id'               => $so_id,
+			'updated_message'       => 'Special Offer successfully updated!',
+			'instruction_placement' => 'field',
+			'post_title'            => true
+		);
+		$html  = '<h2>' . get_the_title( $so_id ) . '</h1>';
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	} else {
+		//Handle the case where there is no parameter
+		return 'No special offer selected. Head back to the <a href="/saw-admin/special-offers" alt="SAW Special Offers">Special Offers table</a> and try again!';
+	}
+}
+
+/********************************* ADD SPECIAL OFFERS IN SAW ADMIN ************************************/
+add_shortcode( 'special_offer_add_form', 'render_add_special_offer' );
+function render_add_special_offer() {
+	$args = array(
+		'post_id'               => 'new_post',
+		'new_post'              => array(
+			'post_type'   => 'special_offers',
+			'post_status' => 'publish'
+		),
+		'submit_value'          => 'Create new Special Offer',
+		'instruction_placement' => 'field',
+		'return'                => '/saw-admin/edit-special-offer?$so_id=%post_id%',
+        'post_title'            => true,
+        
+	);
+	ob_start();
+	acf_form( $args );
+	$html = ob_get_contents();
+	ob_end_clean();
+	
+	return $html;
+}
+/********************************* SAVE POST TITLE IN HOME SLIDERS ************************************/
+/******** This is taken care of in the 'save_category' method above, where it will check for the 'add-home-slider' page **/
+
+
+
 
 /********************************* TODO: START OF BANNER AD ADMIN SECTION!!!!!! ************************************/
 /********************************* BANNERS TABLE IN SAW ADMIN ************************************/
