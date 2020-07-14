@@ -1076,9 +1076,9 @@ function change_post_title_name( $field ) {
 		$field['label'] = 'Company Name';
 	} elseif ( is_page( array( 'add-article', 'articles', 'edit-article' ) ) ) {
 		$field['label'] = 'URL Title';
-	} elseif ( is_page( array( 'add-special-offer', 'special-offers', 'edit-special-offer') ) ) {
-	    $field['label'] = 'Special Offer Title';
-    }
+	} elseif ( is_page( array( 'add-special-offer', 'special-offers', 'edit-special-offer' ) ) ) {
+		$field['label'] = 'Special Offer Title';
+	}
 	
 	return $field;
 }
@@ -1955,16 +1955,17 @@ function render_local_fave_grid() {
 	$args        = array(
 		'post_type'  => 'vendor_profile',
 		'meta_key'   => 'local_fave_homepage',
-		'meta_value' => 'yes'
+		'meta_value' => 'yes',
+        'posts_per_page' => 12
 	);
 	$local_faves = get_posts( $args );
-	
-	$html = '<div class="local-faves-container">';
+	$html = '<div class="swiper-container">';
+	$html .= '<div class="local-faves-container swiper-wrapper">';
 	foreach ( $local_faves as $local_fave ) {
-		$html .= '<div class="individual-fave">';
+		$html .= '<div class="individual-fave swiper-slide">';
 		$html .= '<div class="local-fave-image">';
 		$html .= get_the_post_thumbnail( $local_fave->ID, array( 500, 500 ) );
-		$html .= '<div class="fave-image-overlay"></div>';
+		$html .= '<a href="' . get_permalink( $local_fave ) . '"><div class="fave-image-overlay"></div></a>';
 		$html .= '</div>'; // END .local-fave-image
 		
 		$html .= '<div class="fave-title-container">';
@@ -1973,6 +1974,7 @@ function render_local_fave_grid() {
 		$html .= '</div>'; // END .individual-fave
 	}
 	$html .= '</div>'; // END .local-faves-container
+    $html .= '</div>';
 	
 	return $html;
 }
@@ -1983,17 +1985,20 @@ function render_blog_buzz() {
 	// get all Vendors who should be featured in this section
 	$args       = array(
 		'post_type'      => 'post',
-		'posts_per_page' => 4
+		'posts_per_page' => 4,
+        'order_by'       => 'date',
+        'order'          => 'DESC'
 	);
 	$blog_posts = get_posts( $args );
 	
 	$html = '<div class="local-faves-container">';
 	foreach ( $blog_posts as $post ) {
-		$html .= '<div class="individual-fave blog-buzz">';
-		$html .= '<div class="local-fave-image">';
-		$html .= get_the_post_thumbnail( $post->ID, array( 500, 500 ) );
-		$html .= '<div class="fave-image-overlay"></div>';
-		$html .= '</div>'; // END .local-fave-image
+		$html  .= '<div class="individual-fave blog-buzz">';
+		$html  .= '<div class="local-fave-image">';
+		$image = get_field( 'header_image', $post->ID );
+		$html  .= '<img src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
+		$html  .= '<a href="' . get_permalink( $post ) . '"><div class="fave-image-overlay"></div></a>';
+		$html  .= '</div>'; // END .local-fave-image
 		
 		$html .= '<div class="fave-title-container">';
 		$html .= '<a href="' . get_permalink( $post ) . '"><h3>' . $post->post_title . '</h3></a>';
@@ -2005,7 +2010,7 @@ function render_blog_buzz() {
 	return $html;
 }
 
-/********** HOMEPAGE BLOG POSTS (BUZZ) **********/
+/********** HOMEPAGE SPOTLIGHTS **********/
 add_shortcode( 'homepage_featured_spotlights', 'render_homepage_spotlights' );
 function render_homepage_spotlights() {
 	// get all Vendors who should be featured in this section
@@ -2263,7 +2268,7 @@ function render_special_offers() {
 	}
 	
 	$special_offer_query = new WP_Query( $args );
-	$totalData        = $special_offer_query->found_posts;
+	$totalData           = $special_offer_query->found_posts;
 	
 	if ( $special_offer_query->have_posts() ) {
 		$data = array();
@@ -2278,7 +2283,7 @@ function render_special_offers() {
 			}
 			
 			$nestedData   = array();
-			$vendor = get_field('vendor');
+			$vendor       = get_field( 'vendor' );
 			$nestedData[] = $vendor->post_title; // Vendor Name
 			$nestedData[] = get_the_title(); // Special Offer Name
 			$nestedData[] = get_field( 'offer_start_date' ); // start date
@@ -2355,8 +2360,8 @@ function render_add_special_offer() {
 		'submit_value'          => 'Create new Special Offer',
 		'instruction_placement' => 'field',
 		'return'                => '/saw-admin/edit-special-offer?$so_id=%post_id%',
-        'post_title'            => true,
-        
+		'post_title'            => true,
+	
 	);
 	ob_start();
 	acf_form( $args );
@@ -2365,10 +2370,9 @@ function render_add_special_offer() {
 	
 	return $html;
 }
+
 /********************************* SAVE POST TITLE IN HOME SLIDERS ************************************/
 /******** This is taken care of in the 'save_category' method above, where it will check for the 'add-home-slider' page **/
-
-
 
 
 /********************************* TODO: START OF BANNER AD ADMIN SECTION!!!!!! ************************************/
@@ -2647,14 +2651,14 @@ function render_vendors_footer() {
             <div class="vendor-list-container">
                 <ul class="vendor-mega-menu">
                 <p>Choose a Vendor Category</p>';
-                // render each individual vendor
-                foreach ($vendor_categories as $vendor_category) {
-                    $category_name = $vendor_category->name;
-                    $html .= '<li>';
-                        $html .= '<a href="/category/' . $vendor_category->slug . '" alt="' . $category_name . '">' . $category_name . '</a>';
-                    $html .= '</li>';
-                }
-                $html .= '</ul>
+	// render each individual vendor
+	foreach ( $vendor_categories as $vendor_category ) {
+		$category_name = $vendor_category->name;
+		$html          .= '<li>';
+		$html          .= '<a href="/category/' . $vendor_category->slug . '" alt="' . $category_name . '">' . $category_name . '</a>';
+		$html          .= '</li>';
+	}
+	$html .= '</ul>
             </div> <!-- END .vendor-list-container -->
         </div>'; // END #vendor-footer-menu
 	
