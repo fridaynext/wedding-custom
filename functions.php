@@ -1,10 +1,10 @@
 <?php
 /**
  * @package FN_Extras
- * @version 1.1.8
+ * @version 1.2.1
  */
 
-define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.0' );
+define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.1' );
 
 /********************* ACF JSON *********************/
 //add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
@@ -262,6 +262,7 @@ function fn_enqueue_styles() {
 	}
 }
 
+//*********************************  WP_ENQUEUE_SCRIPTS *******************************//
 function fn_enqueue_scripts() {
 	// Scripts
 	wp_register_script( 'facebook_share', 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0' );
@@ -294,6 +295,7 @@ function fn_enqueue_scripts() {
 		'facebook_share',
 		'pinterest_share',
 		'jquery-ui-core',
+		'jquery-ui-tabs',
 		'datatables_script',
 		'datatables_buttons_script'
 	), FRIDAY_NEXT_EXTRAS_VERSION, true );
@@ -2702,7 +2704,42 @@ function render_stay_connected_footer() {
                     Stay<br />Connected
                 </span><!-- END .stay-connected-text -->
             </div> <!-- END .red-container -->
-        </div>'; // END #footer-stay-connected
+            <div class="pop-up-social">
+                <div class="social-share-footer-content">
+                    <div class="social-share-footer-title">Stay Connected</div>
+                    <div class="all-tabs-container">
+                        <div id="footer-social-tabs">
+                            <span class="social-tabs-triangle"></span>
+                            <ul>
+                                <li><a href="#facebook">Facebook</a></li>
+                                <li><a href="#pinterest">Pinterest</a></li>
+                                <li><a href="#instagram">Instagram</a></li>
+                            </ul>
+        
+                            <div id="facebook" class="social-share-div">
+                                <div class="fb-page" data-href="https://www.facebook.com/SanAntonioWeddings/" data-tabs="timeline" data-width="259" data-height="359" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
+                                    <blockquote cite="https://www.facebook.com/SanAntonioWeddings/" class="fb-xfbml-parse-ignore">
+                                        <a href="https://www.facebook.com/SanAntonioWeddings/"></a>
+                                    </blockquote>
+                                </div>
+                            </div>
+                            <div id="pinterest" class="social-share-div">
+                                <a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="242" data-pin-scale-width="80" href="https://www.pinterest.com/sanantonioweddings/"></a>
+                            </div>
+                            <div id="instagram" class="social-share-div">Instagram content here.<br>And a new line.<br>Another.</div>
+                            </div>
+                        </div>
+                        <script type="text/javascript">
+                            jQuery( function() {
+                                jQuery("#footer-social-tabs").tabs({
+                                    event: "mouseover"
+                                });
+                                jQuery(".all-tabs-container").parent().addClass("social-sidebar-tabs");
+                            });
+                        </script>
+                    </div>
+                </div> <!-- END .vendor-social-sidebar-content -->
+            </div>'; // END #footer-stay-connected
 	
 	return $html;
 }

@@ -363,7 +363,6 @@ div.in-the-press {
     border: none;
     display: flex;
     justify-content: space-between;
-    padding-top: 15px;
 }
 .vendor-profile-sidebar-content.social-sidebar-tabs .ui-tabs .ui-tabs-nav li {
     border-radius: 0;

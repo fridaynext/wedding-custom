@@ -40,7 +40,7 @@
 #vendor-footer-menu .vendor-list-container {
   display: none;
   position: absolute;
-  bottom: 70px;
+  bottom: 73px;
   width: 280px;
   text-transform: uppercase;
   border: var(--charcoal-color) 2px solid;
@@ -96,6 +96,81 @@
   text-transform: uppercase;
   text-align: center;
   color: #FFF;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs {
+  border: 6px solid var(--charcoal-color);
+  padding: 0;
+  height: 100%;
+  background-color: var(--light-gray-color);
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs #footer-social-tabs {
+  background: var(--light-gray-color);
+  border-radius: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .social-tabs-triangle {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-right: 10px solid transparent;
+  border-top: 12px solid var(--red-color);
+  /*border-bottom: 12px solid transparent;*/
+  border-left: 10px solid transparent;
+  margin-top: -0.2em;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .social-share-div {
+  padding: 5px 0.1em 0.1em;
+  width: 100%;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .social-share-footer-title {
+  background: var(--red-color);
+  color: white;
+  text-align: center;
+  padding: 10px;
+  text-transform: uppercase;
+  font-size: 1.2em;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .ui-tabs .ui-tabs-nav {
+  background: transparent;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .ui-tabs .ui-tabs-nav li {
+  background: var(--red-color);
+  border-radius: 0;
+  border: none;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .ui-tabs .ui-tabs-nav li.ui-state-active {
+  background: white;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .ui-tabs .ui-tabs-nav li.ui-state-active a {
+  color: black;
+}
+#footer-stay-connected .social-share-footer-content.social-sidebar-tabs .ui-tabs .ui-tabs-nav li a {
+  color: white;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-size: 0.9em;
+}
+#footer-stay-connected .pop-up-social {
+  position: absolute;
+  bottom: 73px;
+  right: 5px;
+  width: 282px;
+  height: 485px;
+  display: none;
+}
+#footer-stay-connected .pop-up-social.visible {
+  display: block;
+}
+@media screen and (max-width: 767px) {
+  #footer-stay-connected .pop-up-social.visible {
+    display: none !important;
+  }
 }
 
 /*# sourceMappingURL=footer.css.map */

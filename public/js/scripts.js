@@ -313,6 +313,10 @@ $(document).ready(function () {
 		$('div.vendor-list-container').toggleClass('visible');
 		e.preventDefault();
 	});
+	$('#footer-stay-connected .red-container').on('click', function(e) {
+		$('div.pop-up-social').toggleClass('visible');
+		e.preventDefault();
+	});
 	// class to give display: block; --> header-search-dropdown
 	// jQuery("#sidebar").stickybits();
 

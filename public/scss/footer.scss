@@ -1,45 +1,56 @@
 #menu-footer-menu-computer .bridal-buzz {
   padding-right: 110px;
 }
+
 .footer-tablet-menu-left {
   width: 50%;
   margin-bottom: 15px;
+
   #menu-footer-bottom-left-tablet {
     li {
       margin-top: 0;
+
       a {
         padding-bottom: 0;
       }
     }
   }
 }
+
 .footer-tablet-menu-right {
   width: 50%;
+
   .et_pb_menu__wrap {
     justify-content: flex-start;
   }
+
   #menu-footer-bottom-right-tablet {
     li {
       margin-top: 0;
+
       a {
         padding-bottom: 0;
       }
     }
   }
 }
+
 #menu-footer-menu-phone {
   flex-direction: column;
   align-items: center;
 }
+
 #vendor-footer-menu {
   display: inline-block;
+
   .icon-container {
     z-index: 4;
   }
+
   .vendor-list-container {
     display: none;
     position: absolute;
-    bottom: 70px;
+    bottom: 73px;
     width: 280px;
     text-transform: uppercase;
     border: var(--charcoal-color) 2px solid;
@@ -47,17 +58,21 @@
     background: #FFF;
     max-height: 40vh;
     overflow: scroll;
+
     &.visible {
       display: block;
     }
+
     p {
       padding-left: 5px;
       padding-right: 5px;
       text-align: center;
     }
+
     ul.vendor-mega-menu {
       padding: 0;
       list-style-type: none;
+
       li {
         padding-left: 5px;
         padding-right: 5px;
@@ -65,6 +80,7 @@
         font-weight: 300;
         background: var(--main-teal-color);
         border-top: 1px #FFF solid;
+
         a {
           color: #000;
         }
@@ -72,6 +88,7 @@
     }
   }
 }
+
 #footer-stay-connected {
   .red-container {
     cursor: pointer;
@@ -83,11 +100,13 @@
     justify-content: center;
     align-items: center;
     background: var(--red-color);
+
     .arrows-up {
       padding-bottom: 5px;
       width: 20px;
       height: auto;
     }
+
     .stay-connected-text {
       line-height: 1;
       letter-spacing: 1px;
@@ -95,6 +114,90 @@
       text-transform: uppercase;
       text-align: center;
       color: #FFF;
+    }
+  }
+
+  .social-share-footer-content {
+    &.social-sidebar-tabs {
+      border: 6px solid var(--charcoal-color);
+      padding: 0;
+      height: 100%;
+      background-color: var(--light-gray-color);
+      #footer-social-tabs {
+        background: var(--light-gray-color);
+        border-radius: 0;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .social-tabs-triangle {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-right: 10px solid transparent;
+        border-top: 12px solid var(--red-color);
+        /*border-bottom: 12px solid transparent;*/
+        border-left: 10px solid transparent;
+        margin-top: -0.2em;
+      }
+      .social-share-div {
+        padding: 5px .1em .1em;
+        width: 100%;
+      }
+      .social-share-footer-title {
+        background: var(--red-color);
+        color: white;
+        text-align: center;
+        padding: 10px;
+        text-transform: uppercase;
+        font-size: 1.2em;
+      }
+
+      .ui-tabs .ui-tabs-nav {
+        background: transparent;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+
+        li {
+          background: var(--red-color);
+          border-radius: 0;
+          border: none;
+
+          &.ui-state-active {
+            background: white;
+
+            a {
+              color: black;
+            }
+          }
+
+          a {
+            color: white;
+            padding-left: 5px;
+            padding-right: 5px;
+            font-size: 0.9em;
+          }
+        }
+      }
+
+    }
+  }
+
+  .pop-up-social {
+    position: absolute;
+    bottom: 73px;
+    right: 5px;
+    width: 282px;
+    height: 485px;
+    display: none;
+    &.visible {
+      display: block;
+      @media screen and (max-width: 767px) {
+        display: none !important;
+      }
     }
   }
 }
