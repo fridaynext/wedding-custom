@@ -2,6 +2,35 @@
   padding-right: 110px;
 }
 
+.footer-tablet-menu-left {
+  width: 50%;
+  margin-bottom: 15px;
+}
+.footer-tablet-menu-left #menu-footer-bottom-left-tablet li {
+  margin-top: 0;
+}
+.footer-tablet-menu-left #menu-footer-bottom-left-tablet li a {
+  padding-bottom: 0;
+}
+
+.footer-tablet-menu-right {
+  width: 50%;
+}
+.footer-tablet-menu-right .et_pb_menu__wrap {
+  justify-content: flex-start;
+}
+.footer-tablet-menu-right #menu-footer-bottom-right-tablet li {
+  margin-top: 0;
+}
+.footer-tablet-menu-right #menu-footer-bottom-right-tablet li a {
+  padding-bottom: 0;
+}
+
+#menu-footer-menu-phone {
+  flex-direction: column;
+  align-items: center;
+}
+
 #vendor-footer-menu {
   display: inline-block;
 }

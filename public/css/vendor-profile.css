@@ -95,14 +95,20 @@ div.vendor-meta {
 /******************************* SWIPER SLIDER GALLERY **************************************/
 .swiper-container {
     width: 100%;
-    height: 450px;
+    max-width: 900px;
 }
 .swiper-wrapper {
     align-items: center;
-    height: 425px;
+    height: 460px;
+}
+@media screen and (max-width: 1034px) {
+    .swiper-wrapper {
+        height: 420px;
+    }
 }
 .swiper-slide {
     height: 100%;
+    max-width: 800px;
     text-align: center;
     font-size: 18px;
     background: #fff;
@@ -135,7 +141,7 @@ div.vendor-meta {
     z-index: 5;
 }
 .swiper-slide img {
-    max-width: 800px;
+    /*max-width: 800px;*/
     width: auto;
     max-height: 100%
 }
@@ -294,6 +300,9 @@ div.in-the-press {
     flex-direction: column;
     justify-content: space-evenly;
     padding: 10px;
+}
+.individual-press-post .press-social-slider .icon-container img {
+    max-width: 55px;
 }
 /*.individual-press-post .press-social-slider */
 

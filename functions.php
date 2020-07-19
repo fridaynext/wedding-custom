@@ -7,26 +7,26 @@
 define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.0' );
 
 /********************* ACF JSON *********************/
-add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
-function my_acf_json_save_point( $path ) {
-	// update path
-	$path = dirname( __FILE__ ) . '/private/acf-json';
-	
-	// return
-	return $path;
-}
-
-add_filter( 'acf/settings/load_json', 'my_acf_json_load_point' );
-function my_acf_json_load_point( $paths ) {
-	// remove original path (optional)
-	unset( $paths[0] );
-	
-	// append path
-	$paths[] = dirname( __FILE__ ) . '/private/acf-json';
-	
-	// return
-	return $paths;
-}
+//add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
+//function my_acf_json_save_point( $path ) {
+//	// update path
+//	$path = dirname( __FILE__ ) . '/private/acf-json';
+//
+//	// return
+//	return $path;
+//}
+//
+//add_filter( 'acf/settings/load_json', 'my_acf_json_load_point' );
+//function my_acf_json_load_point( $paths ) {
+//	// remove original path (optional)
+//	unset( $paths[0] );
+//
+//	// append path
+//	$paths[] = dirname( __FILE__ ) . '/private/acf-json';
+//
+//	// return
+//	return $paths;
+//}
 
 /* Remove admin bar for editors */
 add_action( 'after_setup_theme', 'remove_admin_bar' );
@@ -251,7 +251,8 @@ function fn_enqueue_styles() {
 	}
 	// 'Vendor Profile' Styles
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+		wp_register_style( 'animate', '//cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.0/animate.min.css');
+		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile.css', __FILE__ ), array( 'animate' ), FRIDAY_NEXT_EXTRAS_VERSION );
 		wp_enqueue_style( 'vendor_profile_style' );
 	}
 	// Homepage
@@ -278,9 +279,11 @@ function fn_enqueue_scripts() {
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper.min.js' );
+		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js' );
+		wp_register_script( 'animated_modal', plugins_url('public/js/animatedModal.min.js'));
 		wp_register_script( 'sticky_bits', plugins_url( 'public/js/jquery.stickybits.min.js', __FILE__ ), array(
 			'swiper_slider',
+			'animated_modal',
 			'jquery-ui-tabs'
 		), FRIDAY_NEXT_EXTRAS_VERSION );
 		wp_enqueue_script( 'sticky_bits' );
@@ -308,6 +311,14 @@ function acf_reqs() {
 	// TODO: Check to see if admin page, then add this!
 	acf_form_head();
 }
+
+/**
+ * Enable unfiltered_html capability for Editors.
+ */
+function allow_editors_to_html( $allow_unfiltered_html) {
+    return true;
+}
+add_filter('acf/allow_unfiltered_html', 'allow_editors_to_html');
 
 // Login Redirect
 function my_login_redirect( $redirect_to, $request, $user ) {
@@ -1052,7 +1063,8 @@ function vendor_admin_form_func( $atts ) {
 			'post_id'               => $vendor_id,
 			'post_title'            => true,
 			'updated_message'       => 'Advertiser successfully updated!',
-			'instruction_placement' => 'field'
+			'instruction_placement' => 'field',
+            'kses'                  => false
 		);
 		$html      = '<h2>' . get_the_title( $vendor_id ) . '</h1>';
 		ob_start();
@@ -1122,9 +1134,10 @@ function acf_vendor_permalinks( $value, $post_id, $field ) {
 				'post_name' => $new_slug,
 			)
 		);
+		return $new_slug;
 	}
 	
-	return $new_slug;
+	return $value;
 }
 
 add_filter( 'acf/update_value/name=permalink_title', 'acf_vendor_permalinks', 10, 3 );
@@ -1959,7 +1972,7 @@ function render_local_fave_grid() {
         'posts_per_page' => 12
 	);
 	$local_faves = get_posts( $args );
-	$html = '<div class="swiper-container">';
+	$html = '<div class="swiper-faves-container">';
 	$html .= '<div class="local-faves-container swiper-wrapper">';
 	foreach ( $local_faves as $local_fave ) {
 		$html .= '<div class="individual-fave swiper-slide">';
@@ -1974,7 +1987,20 @@ function render_local_fave_grid() {
 		$html .= '</div>'; // END .individual-fave
 	}
 	$html .= '</div>'; // END .local-faves-container
+    $html .= '<div class="swiper-pagination"></div>';
     $html .= '</div>';
+    
+    /* Swiper JS Script */
+    $html .= '<script type="text/javascript">
+                var swiper = new Swiper(".swiper-faves-container", {
+                    slidesPerView: 4,
+                    spaceBetween: "1.6%",
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true
+                    }
+                });
+              </script>';
 	
 	return $html;
 }

@@ -92,7 +92,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                                     $phone_text = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
                                 }
                                 ?>
-                                <?php /* TODO: Change this to be a Trello link for SMS capability! */ ?>
+                                <?php /* TODO: Change this to be a Twilio link for SMS capability! */ ?>
                                 <div class="vendor-phone-text-text"><a href="#">Text Us Now</a></div>
                             </div>
 
@@ -117,8 +117,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                     $text_color_class = et_divi_get_post_text_color();
 
                     $inline_style = et_divi_get_post_bg_inline_style();
-
-
+                    
                     ?>
                 </div> <!-- .et_post_meta_wrapper -->
 
@@ -135,7 +134,6 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                         <li class="nav-item"><a href="#comparison-guides">Comparison Guide</a></li>
                         <li class="nav-item"><a href="#360-tours">360° Tour</a></li>
                     </ul>
-
                 </div>
 
 
@@ -331,7 +329,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                                                             <?php echo get_the_title($vendor_post->ID); ?>
                                                         </h2>
                                                         <div class="read-more saw-button">
-                                                            <a href="#">Read More <i
+                                                            <a href="<?php echo get_permalink($vendor_post->ID); ?>">Read More <i
                                                                 class="fa fa-angle-double-right pl-lg-2 pl-1"
                                                                 aria-hidden="true"></i></a>
                                                         </div>
@@ -340,9 +338,9 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                                                         <div class="press-social-slider">
                                                             <div class="share-tab">Share</div>
                                                             <div class="icon-container">
-                                                                <img class="facebook-share" src="<?php echo esc_url( plugins_url( '../assets/img/Social-Media-Icons-SAW-FB.png', __FILE__ ) ); ?>" alt="facebook-share">
-                                                                <img class="instagram-share" src="<?php echo esc_url( plugins_url( '../assets/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ); ?>" alt="instagram-share">
-                                                                <img class="pinterest-share" src="<?php echo esc_url( plugins_url( '../assets/img/Social-Media-Icons-SAW-Pinterest.png', __FILE__ ) ); ?>" alt="pinterest-share">
+                                                                <img class="facebook-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-FB.png', __FILE__ ) ); ?>" alt="facebook-share">
+                                                                <img class="instagram-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ); ?>" alt="instagram-share">
+                                                                <img class="pinterest-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-Pinterest.png', __FILE__ ) ); ?>" alt="pinterest-share">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -371,7 +369,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                                     if( $url_360 = get_field('360-virtual-tour', get_the_ID()) ) { ?>
                                         <h2 id="360-tours"><span class="vendor-header-triangle"></span>360° Virtual Tours of <?php echo get_the_title(); ?></h2>
                                         <?php $url_360 = get_field('360-virtual-tour', get_the_ID()); ?>
-                                        <a href="<?php echo $url_360; ?>"><img src="<?php echo esc_url( plugins_url( '../assets/img/San-Antonio-Weddings-360-Virtual-Tour-Animated.gif', __FILE__ ) ); ?>" width="100%" height="auto" /></a>
+                                        <a href="<?php echo $url_360; ?>"><img src="<?php echo esc_url( plugins_url( '../public/img/San-Antonio-Weddings-360-Virtual-Tour-Animated.gif', __FILE__ ) ); ?>" width="100%" height="auto" /></a>
                                     <?php } else {
                                         // no 360 tour for this vendor
 

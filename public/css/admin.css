@@ -5,3 +5,6 @@
 .admin-save-button:hover {
   margin-right: 10px;
 }
+.acf-form-submit {
+  display: none;
+}
