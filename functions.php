@@ -1971,10 +1971,11 @@ function render_local_fave_grid() {
 		'post_type'  => 'vendor_profile',
 		'meta_key'   => 'local_fave_homepage',
 		'meta_value' => 'yes',
-        'posts_per_page' => 12
+        'posts_per_page' => 12,
+        'orderby'      => 'rand'
 	);
 	$local_faves = get_posts( $args );
-	$html = '<div class="swiper-faves-container">';
+	$html = '<div class="swiper-container swiper-faves-container">';
 	$html .= '<div class="local-faves-container swiper-wrapper">';
 	foreach ( $local_faves as $local_fave ) {
 		$html .= '<div class="individual-fave swiper-slide">';
@@ -1989,17 +1990,23 @@ function render_local_fave_grid() {
 		$html .= '</div>'; // END .individual-fave
 	}
 	$html .= '</div>'; // END .local-faves-container
-    $html .= '<div class="swiper-pagination"></div>';
+    $html .= '<div class="swiper-pagination swiper-pagination-faves"></div>';
+    $html .= '<div class="swiper-button-next"></div>
+              <div class="swiper-button-prev"></div>';
     $html .= '</div>';
     
     /* Swiper JS Script */
     $html .= '<script type="text/javascript">
                 var swiper = new Swiper(".swiper-faves-container", {
-                    slidesPerView: 4,
-                    spaceBetween: "1.6%",
+                    slidesPerView:4,
+                    spaceBetween: "2.5%",
                     pagination: {
-                        el: ".swiper-pagination",
+                        el: ".swiper-pagination-faves",
                         clickable: true
+                    },
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev"
                     }
                 });
               </script>';
