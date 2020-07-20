@@ -247,7 +247,9 @@
 
 .swiper-faves-container {
   padding-bottom: 30px;
-  overflow-y: visible;
+  padding-left: 30px;
+  padding-right: 30px;
+  width: 100%;
 }
 .swiper-faves-container .swiper-pagination {
   bottom: 0;
@@ -269,13 +271,22 @@
 .swiper-faves-container .swiper-button-next, .swiper-faves-container .swiper-button-prev {
   color: var(--red-color);
 }
+.swiper-faves-container .swiper-button-next {
+  right: 0;
+}
+.swiper-faves-container .swiper-button-prev {
+  left: 0;
+}
 
 .local-faves-container {
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  width: calc(100% - 60px);
   height: 100%;
   padding-top: calc(1300px * .016);
+}
+.local-faves-container.home-buzz, .local-faves-container.spotlight {
+  width: 100%;
 }
 .local-faves-container .individual-fave {
   background: var(--charcoal-color);

@@ -47,6 +47,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                                 $address_string .= !empty($address['city']) ? ', ' . $address['city'] : '';
                                 $address_string .= !empty($address['state']) ? ', ' . $address['state'] : '';
                                 $address_string .= !empty($address['zip']) ? ', ' . $address['zip'] : '';
+                                
                             ?>
                             <div class="vendor-address-text"><?php echo $address_string; ?></div>
                         </div>
@@ -123,16 +124,42 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
 
                 <?php // **** Add a sticky nav bar that will work all the way down the page ***** // ?>
 
-                <?php  /* TODO: Do a check to see if these sections need to exist, then print their links and related sections */ ?>
+                
+                <?php
+                    /* TODO: Do a check to see if these sections need to exist, then print their links and related sections */
+                    $vendor_gallery = get_field('photo_gallery');
+                    $video_gallery = get_field('videos');
+                    $about_vendor = get_field('about_this_vendor');
+                    $special_offers = get_posts( array(
+                        'post_type' => 'special_offers',
+                        'meta_key'  => 'vendor',
+                        'meta_value' => get_the_ID() // ensures we're only getting special offers for this vendor
+                    ));
+                    $reviews = get_field('wedding_wire_reviews_html');
+                    $vendor_posts = get_posts( array(
+                        'post_type' => array(
+                            'spotlight',
+                            'styled_shoot',         // this query is "in the press"
+                            'wedding_story'
+                        ),
+                        'meta_key' => 'vendor',
+                        'meta_value' => get_the_ID()
+                    ));
+                    // TODO: Create a check for Comparison Guides! (Just hide it altogether for now)
+                    $url_360 = get_field('360-virtual-tour');
+                    
+                ?>
+                
+                
                 <div class="vendor-sticky-nav">
                     <ul class="vendor-page-nav">
-                        <li class="nav-item"><a href="#vendor-gallery">Gallery</a></li>
-                        <li class="nav-item"><a href="#about-vendor">About</a></li>
-                        <li class="nav-item"><a href="#special-offers">Offers/Events</a></li>
-                        <li class="nav-item"><a href="#vendor-reviews">Reviews</a></li>
-                        <li class="nav-item"><a href="#in-the-press">In the Press</a></li>
-                        <li class="nav-item"><a href="#comparison-guides">Comparison Guide</a></li>
-                        <li class="nav-item"><a href="#360-tours">360° Tour</a></li>
+                        <?php if($vendor_gallery) : ?><li class="nav-item"><a href="#vendor-gallery">Gallery</a></li><?php endif; ?>
+                        <?php if($about_vendor) : ?><li class="nav-item"><a href="#about-vendor">About</a></li><?php endif; ?>
+	                    <?php if($special_offers) : ?><li class="nav-item"><a href="#special-offers">Offers/Events</a></li><?php endif; ?>
+                        <?php if($reviews) : ?><li class="nav-item"><a href="#vendor-reviews">Reviews</a></li><?php endif; ?>
+                        <?php if($vendor_posts) : ?><li class="nav-item"><a href="#in-the-press">In the Press</a></li><?php endif; ?>
+				        <?php if(false)  : //TODO: UPDATE ?><li class="nav-item"><a href="#comparison-guides">Comparison Guide</a></li><?php endif; ?>
+					    <?php if($url_360) : ?><li class="nav-item"><a href="#360-tours">360° Tour</a></li><?php endif; ?>
                     </ul>
                 </div>
 
@@ -155,227 +182,213 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                                 do_action('et_before_content');
 
                                 // Insert the photo gallery, and video gallery
-                                $photo_gallery = get_field("photo_gallery", get_the_ID());
-                                $size = "full";
-                                if( $photo_gallery ) :
-                                $total = sizeof($photo_gallery); ?>
-                                <div id="vendor-gallery" class="swiper-container">
-                                    <div class="swiper-wrapper">
-                                        <?php foreach ($photo_gallery as $image_id): ?>
-                                            <div class="swiper-slide">
-                                                <?php echo wp_get_attachment_image($image_id, $size); ?>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    <div class="swiper-pagination"></div>
-
-                                    <div class="swiper-button-prev"></div>
-                                    <div class="swiper-button-next"></div>
-                                </div>
-                                <?php endif; ?>
-                                <script type="text/javascript">
-                                    var swiper = new Swiper('.swiper-container', {
-                                        slidesPerView: 'auto',
-                                        centeredSlides: true,
-                                        loop: false,
-                                        loopedSlides: <?php echo $total; ?>,
-                                        spaceBetween: 5,
-                                        navigation: {
-                                            nextEl: '.swiper-button-next',
-                                            prevEl: '.swiper-button-prev'
-                                        },
-                                        on: {
-                                            init: function() {
-                                                // find width of image and dynamically assign width of parent div (.swiper-slide)
-                                                // set widths of all parent div containers of images
-                                                jQuery('.swiper-slide').each(function (index, element) {
-                                                    // in each swiper-slide, get the child image's width to calculate this wrapper's width
-                                                    let imgWidth = jQuery(this).children().first().width();
-                                                    let imgHeight = jQuery(this).children().first().height();
-                                                    let wrapperHeight = jQuery('.swiper-wrapper').height();
-                                                    jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
-                                                    console.log("updated width: ");
-                                                    console.log(jQuery(this).width());
-                                                });
-                                                // var $img_height = jQuery('.swiper-slide-active img').height();
-                                                // var $img_width = jQuery('.swiper-slide-active img').width();
-                                                // var $container_height = jQuery('.swiper-container').height();
-                                                // if($img_height > $container_height) {
-                                                //     $new_img_width = $container_height * $img_width / $img_height;
-                                                //     jQuery('.swiper-slide-active').width($new_img_width);
-                                                //     jQuery('.swiper-slide-active').height('auto');
-                                                // }
-                                            }//,
-                                        //     slideChange: function () {
-                                        //         // do the same, but when the slides change
-                                        //         var $img_height = jQuery('.swiper-slide-active img').height();
-                                        //         var $img_width = jQuery('.swiper-slide-active img').width();
-                                        //         var $container_height = jQuery('.swiper-container').height();
-                                        //         if($img_height > $container_height) {
-                                        //             // do $container_height * $img_width / $img_height - for new image width
-                                        //             var $new_img_width = $container_height * $img_width / $img_height;
-                                        //             jQuery('.swiper-slide-active').width($new_img_width);
-                                        //             jQuery('.swiper-slide-active img').width($new);
-                                        //         }
-                                        //         var $prev_img_height = jQuery('.swiper-slide-prev img').height();
-                                        //         var $prev_img_width = jQuery('.swiper-slide-prev img').width();
-                                        //         if($prev_img_height > $container_height) {
-                                        //             var $new_img_width = $container_height * $prev_img_width / $prev_img_height;
-                                        //             jQuery('.swiper-slide-prev').width($new_img_width);
-                                        //             jQuery('.swiper-slide-prev').height('');
-                                        //         }
-                                        //         var $next_img_height = jQuery('.swiper-slide-next img').height();
-                                        //         var $next_img_width = jQuery('.swiper-slide-next img').height();
-                                        //         if($next_img_height > $container_height) {
-                                        //             var $new_img_width = $container_height * $next_img_width / $next_img_height;
-                                        //             jQuery('.swiper-slide-next').width($new_img_width);
-                                        //             jQuery('.swiper-slide-next').height('100%');
-                                        //         }
-                                        //     }
-                                        //
-                                        },
-                                    });
-                                </script>
-
-                                <h2 id="about-vendor"><span class="vendor-header-triangle"></span>About <?php echo get_the_title(); ?></h2>
-                                <?php
-                                the_field("about_this_vendor", get_the_ID());
-
-                                /******************** Special Offers & Events ********************/ ?>
-                                <h2 id="special-offers"><span class="vendor-header-triangle"></span>Special Offers & Events</h2>
-                                <?php
-
-                                    $special_offers = get_posts( array(
-                                        'post_type' => 'special_offers',
-                                        'meta_key'  => 'vendor',
-                                        'meta_value' => get_the_ID() // ensures we're only getting special offers for this vendor
-                                    ));
-                                    if($special_offers) {
-                                        // we have some matches - let's grab them ?>
-                                        <div class="special-offer-container">
-
-                                            <?php foreach ($special_offers as $offer) {
-                                                if($end_date = get_field('offer_end_date', $offer->ID)) {
-                                                    $end_date = "Offer Ends: " . get_field('offer_end_date', $offer->ID);
-                                                } else {
-                                                    $end_date = "Permanent Promotion";
-                                                }
-                                                ?>
-                                                <div class="special-offer">
-                                                    <h4><?php echo get_the_title($offer->ID); ?></h4>
-                                                    <span class="offer-timeline"><?php echo $end_date; ?></span>
-                                                    <p><?php echo $offer->post_content; ?></p>
-                                                    <div class="saw-button right">
-                                                        <a href="#">Tell Me More <i
-                                                                    class="fa fa-angle-double-right pl-lg-2 pl-1"
-                                                                    aria-hidden="true"></i></a>
-                                                    </div>
+                                if($vendor_gallery) :
+                                    $size = "full";
+                                    
+                                    $total = sizeof($vendor_gallery); ?>
+                                    <div id="vendor-gallery" class="swiper-container">
+                                        <div class="swiper-wrapper">
+                                            <?php foreach ($vendor_gallery as $image_id): ?>
+                                                <div class="swiper-slide">
+                                                    <?php echo wp_get_attachment_image($image_id, $size); ?>
                                                 </div>
-                                            <?php } ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <div class="swiper-pagination"></div>
+    
+                                        <div class="swiper-button-prev"></div>
+                                        <div class="swiper-button-next"></div>
+                                    </div>
+                              
+                                    <script type="text/javascript">
+                                        var swiper = new Swiper('.swiper-container', {
+                                            slidesPerView: 'auto',
+                                            centeredSlides: true,
+                                            loop: false,
+                                            loopedSlides: <?php echo $total; ?>,
+                                            spaceBetween: 5,
+                                            navigation: {
+                                                nextEl: '.swiper-button-next',
+                                                prevEl: '.swiper-button-prev'
+                                            },
+                                            on: {
+                                                init: function() {
+                                                    // find width of image and dynamically assign width of parent div (.swiper-slide)
+                                                    // set widths of all parent div containers of images
+                                                    jQuery('.swiper-slide').each(function (index, element) {
+                                                        // in each swiper-slide, get the child image's width to calculate this wrapper's width
+                                                        let imgWidth = jQuery(this).children().first().width();
+                                                        let imgHeight = jQuery(this).children().first().height();
+                                                        let wrapperHeight = jQuery('.swiper-wrapper').height();
+                                                        jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
+                                                        console.log("updated width: ");
+                                                        console.log(jQuery(this).width());
+                                                    });
+                                                    // var $img_height = jQuery('.swiper-slide-active img').height();
+                                                    // var $img_width = jQuery('.swiper-slide-active img').width();
+                                                    // var $container_height = jQuery('.swiper-container').height();
+                                                    // if($img_height > $container_height) {
+                                                    //     $new_img_width = $container_height * $img_width / $img_height;
+                                                    //     jQuery('.swiper-slide-active').width($new_img_width);
+                                                    //     jQuery('.swiper-slide-active').height('auto');
+                                                    // }
+                                                }//,
+                                            //     slideChange: function () {
+                                            //         // do the same, but when the slides change
+                                            //         var $img_height = jQuery('.swiper-slide-active img').height();
+                                            //         var $img_width = jQuery('.swiper-slide-active img').width();
+                                            //         var $container_height = jQuery('.swiper-container').height();
+                                            //         if($img_height > $container_height) {
+                                            //             // do $container_height * $img_width / $img_height - for new image width
+                                            //             var $new_img_width = $container_height * $img_width / $img_height;
+                                            //             jQuery('.swiper-slide-active').width($new_img_width);
+                                            //             jQuery('.swiper-slide-active img').width($new);
+                                            //         }
+                                            //         var $prev_img_height = jQuery('.swiper-slide-prev img').height();
+                                            //         var $prev_img_width = jQuery('.swiper-slide-prev img').width();
+                                            //         if($prev_img_height > $container_height) {
+                                            //             var $new_img_width = $container_height * $prev_img_width / $prev_img_height;
+                                            //             jQuery('.swiper-slide-prev').width($new_img_width);
+                                            //             jQuery('.swiper-slide-prev').height('');
+                                            //         }
+                                            //         var $next_img_height = jQuery('.swiper-slide-next img').height();
+                                            //         var $next_img_width = jQuery('.swiper-slide-next img').height();
+                                            //         if($next_img_height > $container_height) {
+                                            //             var $new_img_width = $container_height * $next_img_width / $next_img_height;
+                                            //             jQuery('.swiper-slide-next').width($new_img_width);
+                                            //             jQuery('.swiper-slide-next').height('100%');
+                                            //         }
+                                            //     }
+                                            //
+                                            },
+                                        });
+                                    </script>
+                                <?php endif; ?>
 
-                                        </div> <!-- END .special-offer-container -->
-                                    <?php }
-                                ?>
-
-                                <?php /******************** Reviews ********************/ ?>
-                                <h2 id="vendor-reviews"><span class="vendor-header-triangle"></span>Reviews</h2>
-                                <?php echo get_field('wedding_wire_reviews_html', get_the_ID()); ?>
-
-                                <?php /******************** In the Press ********************/ ?>
-                                <h2 id="in-the-press"><span class="vendor-header-triangle"></span>In the Press</h2>
-                                <div class="in-the-press">
+                                <?php if($about_vendor) : ?>
+                                <h2 id="about-vendor"><span class="vendor-header-triangle"></span>About <?php echo get_the_title(); ?></h2>
                                     <?php
-                                    // check each post type to see that the vendor meta_key is equal to this vendor's post ID
-                                    $press_args = array(
-                                        'post_type' => array(
-                                            'spotlight',
-                                            'styled_shoot',
-                                            'wedding_story'
-                                        ),
-                                        'meta_key' => 'vendor',
-                                        'meta_value' => get_the_ID()
-                                    );
+                                    the_field("about_this_vendor", get_the_ID());
+                                endif;
 
-                                    $vendor_posts = query_posts( $press_args );
-
-                                    $post_types = ['spotlight', 'styled_shoot', 'wedding_story'];
-                                    foreach ( $post_types as $this_type ) {
-                                        foreach ( $vendor_posts as $vendor_post ) {
-                                            if ( $vendor_post->post_type == $this_type) { ?>
-                                                <div class="individual-press-post <?php echo $this_type; ?>">
-                                                    <div class="left-half">
-                                                        <div class="press-type">
-                                                            <?php switch ($this_type) {
-                                                                case 'spotlight':
-                                                                    echo 'Featured Spotlight';
-                                                                    break;
-                                                                case 'styled_shoot':
-                                                                    echo 'Styled Shoot';
-                                                                    break;
-                                                                case 'wedding_story':
-                                                                    echo 'Our Wedding Story';
-                                                                    break;
-                                                                default:
-                                                                    echo 'Blog Article';
-                                                                    break;
-                                                            }?>
-                                                        </div>
-                                                        <div class="featured-image">
-                                                            <?php echo get_the_post_thumbnail($vendor_post->ID); ?>
-                                                        </div>
-                                                    </div>
-                                                    <div class="right-half">
-                                                        <h2 class="press-title">
-                                                            <?php echo get_the_title($vendor_post->ID); ?>
-                                                        </h2>
-                                                        <div class="read-more saw-button">
-                                                            <a href="<?php echo get_permalink($vendor_post->ID); ?>">Read More <i
+                                /******************** Special Offers & Events ********************/
+                                if($special_offers) : ?>
+                                    <h2 id="special-offers"><span class="vendor-header-triangle"></span>Special Offers & Events</h2>
+                                    <?php
+                                    // $special_offers is gotten at the top of this page, to determine whether or not its sticky menu item should show
+                                    // we have some matches - let's grab them ?>
+                                    <div class="special-offer-container">
+                                        <?php foreach ($special_offers as $offer) {
+                                            if($end_date = get_field('offer_end_date', $offer->ID)) {
+                                                $end_date = "Offer Ends: " . get_field('offer_end_date', $offer->ID);
+                                            } else {
+                                                $end_date = "Permanent Promotion";
+                                            }
+                                            ?>
+                                            <div class="special-offer">
+                                                <h4><?php echo get_the_title($offer->ID); ?></h4>
+                                                <span class="offer-timeline"><?php echo $end_date; ?></span>
+                                                <p><?php echo $offer->post_content; ?></p>
+                                                <div class="saw-button right">
+                                                    <a href="#">Tell Me More <i
                                                                 class="fa fa-angle-double-right pl-lg-2 pl-1"
                                                                 aria-hidden="true"></i></a>
+                                                </div>
+                                            </div>
+                                        <?php } ?>
+                                    </div> <!-- END .special-offer-container -->
+                                <?php endif;
+                                
+                                /******************** Reviews ********************/
+                                if($reviews) : ?>
+                                    <h2 id="vendor-reviews"><span class="vendor-header-triangle"></span>Reviews</h2>
+                                    <?php echo get_field('wedding_wire_reviews_html', get_the_ID());
+                                endif;
+                                
+                                /******************** In the Press ********************/
+                                if(sizeof($vendor_posts) > 0) : ?>
+                                    <h2 id="in-the-press"><span class="vendor-header-triangle"></span>In the Press</h2>
+                                    <div class="in-the-press">
+                                        <?php
+                                        // check each post type to see that the vendor meta_key is equal to this vendor's post ID
+                                        
+                                        // $vendor_posts is created at the top of this page while checking for nav bar menu items to display
+    
+                                        $post_types = ['spotlight', 'styled_shoot', 'wedding_story'];
+                                        foreach ( $post_types as $this_type ) {
+                                            foreach ( $vendor_posts as $vendor_post ) {
+                                                if ( $vendor_post->post_type == $this_type) { ?>
+                                                    <div class="individual-press-post <?php echo $this_type; ?>">
+                                                        <div class="left-half">
+                                                            <div class="press-type">
+                                                                <?php switch ($this_type) {
+                                                                    case 'spotlight':
+                                                                        echo 'Featured Spotlight';
+                                                                        break;
+                                                                    case 'styled_shoot':
+                                                                        echo 'Styled Shoot';
+                                                                        break;
+                                                                    case 'wedding_story':
+                                                                        echo 'Our Wedding Story';
+                                                                        break;
+                                                                    default:
+                                                                        echo 'Blog Article';
+                                                                        break;
+                                                                }?>
+                                                            </div>
+                                                            <div class="featured-image">
+                                                                <?php echo get_the_post_thumbnail($vendor_post->ID); ?>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="third-half">
-                                                        <div class="press-social-slider">
-                                                            <div class="share-tab">Share</div>
-                                                            <div class="icon-container">
-                                                                <img class="facebook-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-FB.png', __FILE__ ) ); ?>" alt="facebook-share">
-                                                                <img class="instagram-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ); ?>" alt="instagram-share">
-                                                                <img class="pinterest-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-Pinterest.png', __FILE__ ) ); ?>" alt="pinterest-share">
+                                                        <div class="right-half">
+                                                            <h2 class="press-title">
+                                                                <?php echo get_the_title($vendor_post->ID); ?>
+                                                            </h2>
+                                                            <div class="read-more saw-button">
+                                                                <a href="<?php echo get_permalink($vendor_post->ID); ?>">Read More <i
+                                                                    class="fa fa-angle-double-right pl-lg-2 pl-1"
+                                                                    aria-hidden="true"></i></a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="third-half">
+                                                            <div class="press-social-slider">
+                                                                <div class="share-tab">Share</div>
+                                                                <div class="icon-container">
+                                                                    <img class="facebook-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-FB.png', __FILE__ ) ); ?>" alt="facebook-share">
+                                                                    <img class="instagram-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ); ?>" alt="instagram-share">
+                                                                    <img class="pinterest-share" src="<?php echo esc_url( plugins_url( '../public/img/Social-Media-Icons-SAW-Pinterest.png', __FILE__ ) ); ?>" alt="pinterest-share">
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            <?php }
-                                        }
-                                    }
-                                    wp_reset_query();
-
-                                    ?>
-                                    <script type="text/javascript">
-                                        jQuery(".press-social-slider .share-tab").click( function () {
-                                                jQuery(this).parent().toggleClass("visible");
+                                                <?php }
                                             }
-                                        );
-                                    </script>
-                                </div>
+                                        }
+                                        wp_reset_query();
+    
+                                        ?>
+                                        <script type="text/javascript">
+                                            jQuery(".press-social-slider .share-tab").click( function () {
+                                                    jQuery(this).parent().toggleClass("visible");
+                                                }
+                                            );
+                                        </script>
+                                    </div>
+                                <?php endif; ?>
 
                                 <?php /******************** Comparison Guides ********************/
                                         /************** TODO: If musician, this won't be here, but it will be musical samples ************/ ?>
-                                <h2 id="comparison-guides"><span class="vendor-header-triangle"></span>Comparison Guides</h2>
-
-                                <?php /******************** 360° Virtual Tours ********************/ ?>
-
-                                <?php
-                                    if( $url_360 = get_field('360-virtual-tour', get_the_ID()) ) { ?>
-                                        <h2 id="360-tours"><span class="vendor-header-triangle"></span>360° Virtual Tours of <?php echo get_the_title(); ?></h2>
-                                        <?php $url_360 = get_field('360-virtual-tour', get_the_ID()); ?>
-                                        <a href="<?php echo $url_360; ?>"><img src="<?php echo esc_url( plugins_url( '../public/img/San-Antonio-Weddings-360-Virtual-Tour-Animated.gif', __FILE__ ) ); ?>" width="100%" height="auto" /></a>
-                                    <?php } else {
-                                        // no 360 tour for this vendor
-
-                                    }
-
-                                ?>
+                                <?php if(false) : // TODO: CHANGE THIS WHEN WE ACTUALLY HAVE COMPARISON GUIDES ?>
+                                    <h2 id="comparison-guides"><span class="vendor-header-triangle"></span>Comparison Guides</h2>
+                                <?php endif; ?>
+                                
+                                <?php /******************** 360° Virtual Tours ********************/
+                                if( $url_360 ) : ?>
+                                    <h2 id="360-tours"><span class="vendor-header-triangle"></span>360° Virtual Tours of <?php echo get_the_title(); ?></h2>
+                                    <?php $url_360 = get_field('360-virtual-tour', get_the_ID()); ?>
+                                    <a href="<?php echo $url_360; ?>"><img src="<?php echo esc_url( plugins_url( '../public/img/San-Antonio-Weddings-360-Virtual-Tour-Animated.gif', __FILE__ ) ); ?>" width="100%" height="auto" /></a>
+                                <?php endif; ?>
+                                
 
                                 <?php wp_link_pages(array('before' => '<div class="page-links">' . esc_html__('Pages:', 'Divi'), 'after' => '</div>'));
                                 ?>

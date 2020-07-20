@@ -66,12 +66,13 @@
     font-size: 16px;
     padding-top: 3px;
     padding-bottom: 3px;
-    background: var(--red-color);
+    background: #FFF;
+    border: 2px solid var(--red-color);
 }
 .vendor-login-form form button:hover {
     font-size: 16px;
     padding: 3px 2em 3px 0.7em !important;
-
+    background: var(--red-color);
 }
 .vendor-login-form form p.et_pb_contact_form_field input, .vendor-login-form form p.et_pb_contact_form_field input[type="password"] {
     /*padding-top: 15px !important;*/

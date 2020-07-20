@@ -146,3 +146,46 @@
 .spotlight-vendor-info-container .vendor-address svg {
     margin-right: 16px;
 }
+/* ******** SHARE SLIDER ********* */
+.press-social-slider {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    transition: 0.3s all ease-in-out;
+    height: 100%;
+    right: -52px;
+    /*width: calc(2.2em + 90px);*/
+}
+.press-social-slider.visible {
+    transition: 0.3s all ease-in-out;
+    right: 22px;
+}
+.press-social-slider .share-tab {
+    position: absolute;
+    top: -20px;
+    right: 100%;
+    height: 2.2em;
+    line-height: 2.2em;
+    transform: rotate(-90deg);
+
+    transform-origin: bottom right;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background: var(--main-teal-color);
+    padding-left: 25px;
+    padding-right: 25px;
+    text-transform: uppercase;
+    color: white;
+    cursor: pointer;
+}
+.press-social-slider .icon-container {
+    background: var(--light-gray-color);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding: 10px;
+}
+.press-social-slider .icon-container img {
+    max-width: 55px;
+}

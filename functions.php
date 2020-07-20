@@ -29,12 +29,9 @@ define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.1' );
 //}
 
 /* Remove admin bar for editors */
-add_action( 'after_setup_theme', 'remove_admin_bar' );
-function remove_admin_bar() {
-	if ( ! current_user_can( 'administrator' ) && ! is_admin() ) {
-		show_admin_bar( false );
-	}
-}
+
+
+show_admin_bar( false );
 
 add_action( 'wp_print_styles', 'fn_enqueue_styles' );
 add_action( 'wp_enqueue_scripts', 'fn_enqueue_scripts' );
@@ -1109,7 +1106,8 @@ function vendor_admin_add_form_func( $atts ) {
 		),
 		'submit_value'          => 'Create new Advertiser',
 		'instruction_placement' => 'field',
-		'return'                => '/saw-admin/edit-advertiser?ven_id=%post_id%'
+		'return'                => '/saw-admin/edit-advertiser?ven_id=%post_id%',
+		'uploader'              => 'basic'
 	);
 	ob_start();
 	acf_form( $args );
@@ -1724,6 +1722,10 @@ function render_article_header_image() {
 		
 		return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
 	} else {
+	    $header_img = get_field('header_image');
+	    if ($header_img) {
+		    return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
+        }
 		return '';
 	}
 }
@@ -1999,7 +2001,7 @@ function render_local_fave_grid() {
     $html .= '<script type="text/javascript">
                 var swiper = new Swiper(".swiper-faves-container", {
                     slidesPerView:4,
-                    spaceBetween: "2.5%",
+                    spaceBetween: "2.7%",
                     pagination: {
                         el: ".swiper-pagination-faves",
                         clickable: true
@@ -2026,7 +2028,7 @@ function render_blog_buzz() {
 	);
 	$blog_posts = get_posts( $args );
 	
-	$html = '<div class="local-faves-container">';
+	$html = '<div class="local-faves-container home-buzz">';
 	foreach ( $blog_posts as $post ) {
 		$html  .= '<div class="individual-fave blog-buzz">';
 		$html  .= '<div class="local-fave-image">';
@@ -2056,10 +2058,10 @@ function render_homepage_spotlights() {
 	);
 	$spotlights = get_posts( $args );
 	$count      = 0;
-	$html       = '<div class="local-faves-container">';
+	$html       = '<div class="local-faves-container spotlight">';
 	foreach ( $spotlights as $spotlight ) {
 		if ( $count % 4 == 0 ) {
-			$html .= '</div><div class="local-faves-container">';
+			$html .= '</div><div class="local-faves-container spotlight">';
 		}
 		$html .= '<div class="individual-fave spotlight">';
 		$html .= '<div class="local-fave-image">';
@@ -2746,11 +2748,38 @@ function render_stay_connected_footer() {
                         </script>
                     </div>
                 </div> <!-- END .vendor-social-sidebar-content -->
-            </div>'; // END #footer-stay-connected
+            </div>
+            <script type="text/javascript">
+                jQuery(".press-social-slider .share-tab").on("click", function () {
+                        jQuery(this).parent().toggleClass("visible");
+                    }
+                );
+            </script>'; // END #footer-stay-connected
 	
 	return $html;
 }
 
+add_shortcode('share_slide_out', 'render_share_slide_out');
+function render_share_slide_out() {
+	$html = '<div class="press-social-slider">
+        <div class="share-tab">Share</div>
+        <div class="icon-container">
+            <img class="facebook-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-FB.png', __FILE__ ) ) . '" alt="facebook-share">
+            <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share">
+            <img class="pinterest-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Pinterest.png', __FILE__ ) ) . '" alt="pinterest-share">
+        </div>
+    </div>';
+	return $html;
+}
 
+add_shortcode("prev_next_navigation", "render_prev_next_navigation");
+function render_prev_next_navigation() {
+    $html = '<a href="' . get_previous_post_link() . '">\<Previous</a>';
+	$html .= ' <a href="' . get_next_post_link() . '">Next\></a>';
+    return $html;
+}
 
-
+add_shortcode('logout_button', 'render_logout_button');
+function render_logout_button() {
+    return '<a class="logout-button" href="' . wp_logout_url('/') . '" alt="Logout">Logout</a>';
+}

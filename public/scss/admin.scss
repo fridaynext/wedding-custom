@@ -5,3 +5,16 @@
     margin-right: 10px;
   }
 }
+.logout-button {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 2px solid var(--red-color);
+  float: right;
+  margin-top: 10px;
+  transition: 0.2s all;
+  &:hover {
+    background: var(--red-color);
+    color: #FFF;
+    transition: 0.2s all;
+  }
+}
