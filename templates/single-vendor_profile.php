@@ -24,34 +24,60 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
                     ?>
                     <!-- Generator: Adobe Illustrator 24.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
                     <div class="vendor-meta">
-
-                        <div class="vendor-address">
-                            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-                                 xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                 viewBox="0 0 21 28" style="enable-background:new 0 0 21 28;"
-                                 xml:space="preserve">
-                                                    <style type="text/css">
-                                                        .st0 {
-                                                            fill: #8CBCBF;
-                                                        }
-                                                    </style>
-                                <path class="st0" d="M10.64,0.38c-5.5,0-9.96,4.55-9.96,10.17c0,5.61,9.96,16.92,9.96,16.92s9.96-11.31,9.96-16.92
-            C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
-            C14.36,11.99,12.69,13.69,10.63,13.69z"/>
-                                                </svg>
-                            <?php
-                                $address = get_field('address');
-                                $address_string = '';
-                                $address_string .= !empty($address['address_line_1']) ? $address['address_line_1'] : '';
-                                $address_string .= !empty($address['address_line_2']) ? ', ' . $address['address_line_2'] : '';
-                                $address_string .= !empty($address['city']) ? ', ' . $address['city'] : '';
-                                $address_string .= !empty($address['state']) ? ', ' . $address['state'] : '';
-                                $address_string .= !empty($address['zip']) ? ', ' . $address['zip'] : '';
+                        <?php $address = get_field('address'); if( $address ) : ?>
+                            <div class="vendor-address">
+                                <svg data-micromodal-trigger="map-modal-1" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                     viewBox="0 0 21 28" style="enable-background:new 0 0 21 28;"
+                                     xml:space="preserve">
+                                                        <style type="text/css">
+                                                            .st0 {
+                                                                fill: #8CBCBF;
+                                                            }
+                                                        </style>
+                                    <path class="st0" d="M10.64,0.38c-5.5,0-9.96,4.55-9.96,10.17c0,5.61,9.96,16.92,9.96,16.92s9.96-11.31,9.96-16.92
+                C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
+                C14.36,11.99,12.69,13.69,10.63,13.69z"/>
+                                                    </svg>
                                 
-                            ?>
-                            <div class="vendor-address-text"><?php echo $address_string; ?></div>
-                        </div>
-
+                                <?php
+                                    $address = get_field('address');
+                                    $address_string = '';
+                                    $address_string .= !empty($address['address_line_1']) ? $address['address_line_1'] : '';
+                                    $address_string .= !empty($address['address_line_2']) ? ', ' . $address['address_line_2'] : '';
+                                    $address_string .= !empty($address['city']) ? ', ' . $address['city'] : '';
+                                    $address_string .= !empty($address['state']) ? ', ' . $address['state'] : '';
+                                    $address_string .= !empty($address['zip']) ? ' ' . $address['zip'] : '';
+                                    
+                                ?>
+                                <div class="vendor-address-text"><?php echo $address_string; ?></div>
+                            </div>
+                        <?php if(get_field('vendor_google_map')) : ?>
+                        <? // set up the MicroModal for beautiful popup ?>
+                            <div id="map-modal-1" class="modal micromodal-slide" aria-hidden="true">
+                                <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+                                    <div role="dialog" class="modal__container" aria-modal="true" aria-labelledby="map-modal-1" >
+                                        <header class="modal__header">
+                                            <div id="map-modal-1-title" class="modal__title">
+                                                <p><?php echo get_the_title(); ?><br />
+                                                    <span style="font-size:.8em;font-weight:300;text-transform:none;"><?php echo $address_string; ?></span></p>
+                                            </div>
+					                        <?php $location = get_field('vendor_google_map'); ?>
+                                            <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo $location['lat'] .','. $location['lng']; ?>" class="directions" target="_blank">Get Directions</a>
+                                            <button aria-label="Close modal" class="modal__close" data-micromodal-close></button>
+                                        </header>
+                                        <div id="map-modal-1-content" class="acf-map modal__content" data-zoom="16">
+                                            <div class="marker" data-lat="<?php echo esc_attr($location['lat']); ?>" data-lng="<?php echo esc_attr($location['lng']); ?>"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script type="text/javascript">
+                                MicroModal.init();
+                            </script>
+                        <?php endif; ?>
+                        <?php endif; ?>
+                        
                         <?php // website
                         ?>
                         <div class="vendor-meta-second-line">
@@ -433,6 +459,149 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
             </div> <!-- #content-area -->
         </div> <!-- .container -->
     </div> <!-- #main-content -->
+
+
+    <?php //********************* JS for Google Map *********************// ?>
+    <style type="text/css">
+        .acf-map {
+            width: 100%;
+            height: 400px;
+            border: #ccc solid 1px;
+            margin: 20px 0;
+        }
+
+        /* Fixes potential theme css conflict. */
+           .acf-map img {
+               max-width: inherit !important;
+           }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1SQ_pAK657gUt1SrStTNFIuIiwgf5I3w"></script>
+    <script type="text/javascript">
+        (function( $ ) {
+
+            /**
+             * initMap
+             *
+             * Renders a Google Map onto the selected jQuery element
+             *
+             * @date    22/10/19
+             * @since   5.8.6
+             *
+             * @param   jQuery $el The jQuery element.
+             * @return  object The map instance.
+             */
+            function initMap( $el ) {
+
+                // Find marker elements within map.
+                var $markers = $el.find('.marker');
+
+                // Create gerenic map.
+                var mapArgs = {
+                    zoom        : $el.data('zoom') || 16,
+                    mapTypeId   : google.maps.MapTypeId.ROADMAP
+                };
+                var map = new google.maps.Map( $el[0], mapArgs );
+
+                // Add markers.
+                map.markers = [];
+                $markers.each(function(){
+                    initMarker( $(this), map );
+                });
+
+                // Center map based on markers.
+                centerMap( map );
+
+                // Return map instance.
+                return map;
+            }
+
+            /**
+             * initMarker
+             *
+             * Creates a marker for the given jQuery element and map.
+             *
+             * @date    22/10/19
+             * @since   5.8.6
+             *
+             * @param   jQuery $el The jQuery element.
+             * @param   object The map instance.
+             * @return  object The marker instance.
+             */
+            function initMarker( $marker, map ) {
+
+                // Get position from marker.
+                var lat = $marker.data('lat');
+                var lng = $marker.data('lng');
+                var latLng = {
+                    lat: parseFloat( lat ),
+                    lng: parseFloat( lng )
+                };
+
+                // Create marker instance.
+                var marker = new google.maps.Marker({
+                    position : latLng,
+                    map: map
+                });
+
+                // Append to reference for later use.
+                map.markers.push( marker );
+
+                // If marker contains HTML, add it to an infoWindow.
+                if( $marker.html() ){
+
+                    // Create info window.
+                    var infowindow = new google.maps.InfoWindow({
+                        content: $marker.html()
+                    });
+
+                    // Show info window when marker is clicked.
+                    google.maps.event.addListener(marker, 'click', function() {
+                        infowindow.open( map, marker );
+                    });
+                }
+            }
+
+            /**
+             * centerMap
+             *
+             * Centers the map showing all markers in view.
+             *
+             * @date    22/10/19
+             * @since   5.8.6
+             *
+             * @param   object The map instance.
+             * @return  void
+             */
+            function centerMap( map ) {
+
+                // Create map boundaries from all map markers.
+                var bounds = new google.maps.LatLngBounds();
+                map.markers.forEach(function( marker ){
+                    bounds.extend({
+                        lat: marker.position.lat(),
+                        lng: marker.position.lng()
+                    });
+                });
+
+                // Case: Single marker.
+                if( map.markers.length == 1 ){
+                    map.setCenter( bounds.getCenter() );
+
+                    // Case: Multiple markers.
+                } else{
+                    map.fitBounds( bounds );
+                }
+            }
+
+            // Render maps on page load.
+            $(document).ready(function(){
+                $('.acf-map').each(function(){
+                    var map = initMap( $(this) );
+                });
+            });
+
+        })(jQuery);
+    </script>
 
 <?php
 

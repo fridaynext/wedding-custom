@@ -28,9 +28,7 @@ define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.1' );
 //	return $paths;
 //}
 
-/* Remove admin bar for editors */
-
-
+/* Remove admin bar for editors (Actually, EVERYONE - need to do a check later for only editors) */
 show_admin_bar( false );
 
 add_action( 'wp_print_styles', 'fn_enqueue_styles' );
@@ -277,13 +275,15 @@ function fn_enqueue_scripts() {
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js' );
-		wp_register_script( 'animated_modal', plugins_url('public/js/animatedModal.min.js'));
+		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js');
+		wp_register_script( 'animated_modal', plugins_url('public/js/animatedModal.min.js', __FILE__));
+		wp_register_script( 'micromodal', plugins_url('public/js/micromodal.min.js', __FILE__));
 		wp_register_script( 'sticky_bits', plugins_url( 'public/js/jquery.stickybits.min.js', __FILE__ ), array(
 			'swiper_slider',
 			'animated_modal',
+			'micromodal',
 			'jquery-ui-tabs'
-		), FRIDAY_NEXT_EXTRAS_VERSION );
+		), FRIDAY_NEXT_EXTRAS_VERSION);
 		wp_enqueue_script( 'sticky_bits' );
 	}
 	
@@ -1539,18 +1539,28 @@ function process_row( $field_key, $post_id ) {
  */
 //
 function social_media_tab_func( $atts ) {
+	$fb_url = get_field( "facebook" );
+	$pin_url = get_field( "pinterest" );
+	$ig_url = get_field( "instagram" );
+	
 	$html   = '<div class="all-tabs-container">';
 	$html   .= '<div id="social-tabs">';
 	$html   .= '<span class="social-tabs-triangle"></span>
-                <ul>
-                    <li><a href="#facebook">Facebook</a></li>
-                    <li><a href="#pinterest">Pinterest</a></li>
-                    <li><a href="#instagram">Instagram</a></li>        
-                </ul>';
-	$fb_url = get_field( "facebook", get_the_ID() );
-	$html   .= '<div id="facebook" class="social-share-div"><div class="fb-page" data-href="' . $fb_url . '" data-tabs="timeline" data-width="" data-height="360" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="' . $fb_url . '" class="fb-xfbml-parse-ignore"><a href="' . $fb_url . '">' . get_the_title() . '</a></blockquote></div></div>';
-	$html   .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="250" data-pin-scale-width="80" href="' . get_field( 'pinterest', get_the_ID() ) . '"></a></div>';
-	$html   .= '<div id="instagram" class="social-share-div">Instagram content here.<br>And a new line.<br>Another.</div>';
+                <ul>';
+    if( $fb_url ) { $html .= '<li><a href="#facebook">Facebook</a></li>'; }
+    if( $pin_url ) { $html .= '<li><a href="#pinterest">Pinterest</a></li>'; }
+    if( $ig_url ) { $html .= '<li><a href="#instagram">Instagram</a></li>'; }
+                $html .= '</ul>';
+	
+	if( $fb_url ) {
+        $html   .= '<div id="facebook" class="social-share-div"><div class="fb-page" data-href="' . $fb_url . '" data-tabs="timeline" data-width="" data-height="360" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="' . $fb_url . '" class="fb-xfbml-parse-ignore"><a href="' . $fb_url . '">' . get_the_title() . '</a></blockquote></div></div>';
+    }
+	if( $pin_url ) {
+        $html   .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
+    }
+	if( $ig_url ) {
+        $html   .= '<div id="instagram" class="social-share-div">Instagram content here.<br>And a new line.<br>Another.</div>';
+    }
 	$html   .= '</div></div>';
 	$html   .= '<script type="text/javascript">
                 jQuery( function() {
