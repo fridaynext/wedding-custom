@@ -247,7 +247,7 @@ function fn_enqueue_styles() {
 	// 'Vendor Profile' Styles
 	if ( get_post_type() == 'vendor_profile' ) {
 		wp_register_style( 'animate', '//cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.0/animate.min.css');
-		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile.css', __FILE__ ), array( 'animate' ), FRIDAY_NEXT_EXTRAS_VERSION );
+		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile-min.css', __FILE__ ), array( 'animate' ), FRIDAY_NEXT_EXTRAS_VERSION );
 		wp_enqueue_style( 'vendor_profile_style' );
 	}
 	// Homepage

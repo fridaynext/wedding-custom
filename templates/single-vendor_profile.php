@@ -381,10 +381,29 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                 <h4><?php echo get_the_title( $offer->ID ); ?></h4>
                                                 <span class="offer-timeline"><?php echo $end_date; ?></span>
                                                 <p><?php echo $offer->post_content; ?></p>
-                                                <div class="saw-button right">
-                                                    <a href="#">Tell Me More <i
-                                                                class="fa fa-angle-double-right pl-lg-2 pl-1"
-                                                                aria-hidden="true"></i></a>
+                                                <div class="saw-button right" onclick="event.preventDefault();MicroModal.show('special-offer-modal',{awaitCloseAnimation:true})">
+                                                    <a href="#">Tell Me More <i class="fa fa-angle-double-right pl-lg-2 pl-1"
+                                                                                aria-hidden="true"></i></a>
+                                                </div>
+                                            </div>
+											<? // Special Offer Contact Form Modal ?>
+                                            <div id="special-offer-modal" class="modal micromodal-slide" aria-hidden="true">
+                                                <div class="modal__overlay" tabindex="-1" data-custom-close="special-offer-modal">
+                                                    <div role="dialog" class="modal__container" aria-modal="true"
+                                                         aria-labelledby="special-offer-modal">
+                                                        <header class="modal__header">
+                                                            <div id="special-offer-modal-title" class="modal__title">
+                                                                Special Offers & Events from <?php echo get_the_title(); ?>
+                                                            </div>
+                                                            <button aria-label="Close modal" class="modal__close"
+                                                                    data-custom-close="special-offer-modal" onclick="MicroModal.close('special-offer-modal',{awaitCloseAnimation:true})"></button>
+                                                        </header>
+                                                        <div id="special-offer-modal-content" class="modal__content" data-zoom="16">
+                                                            <p>I am interested in <span style="color:var(--main-teal-color);font-size:1.2em;"><?php echo get_the_title($offer->ID); ?></span></p>
+                                                            <p>Please fill out this form, and we will contact you with all the information you need.</p>
+	                                                        <?php gravity_form(5, false, false, false, array('vendor_email' => get_field('reply_email', $offer->ID), 'special_offer_title' => get_the_title($offer->ID) . ' - Contact from SA Weddings'), true); ?>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 										<?php } ?>

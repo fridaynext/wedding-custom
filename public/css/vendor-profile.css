@@ -194,6 +194,9 @@ span.vendor-header-triangle {
     padding: 25px;
     margin-bottom: 10px;
 }
+.special-offer-container .saw-button.right:hover {
+    cursor: pointer;
+}
 .special-offer h4 {
     padding-bottom: 5px;
     color: var(--black-color);
@@ -465,11 +468,11 @@ div.saw-button a:hover svg {
     text-align: center;
 }
 
-/**************************************** MAP MODAL ***********************************/
+/**************************************** MICRO MODAL MODALS ***********************************/
 #map-modal-1-content {
     height: 80%;
 }
-#map-modal-1, #phone-modal, #phone-text-modal {
+#map-modal-1, #phone-modal, #phone-text-modal, #special-offer-modal {
     display: none;
 }
 #map-modal-1 .directions {
@@ -479,7 +482,7 @@ div.saw-button a:hover svg {
 #map-modal-1 .directions:hover {
     cursor: pointer;
 }
-#map-modal-1.is-open, #phone-modal.is-open, #phone-text-modal.is-open {
+#map-modal-1.is-open, #phone-modal.is-open, #phone-text-modal.is-open, #special-offer-modal.is-open {
     display: block;
 }
 
@@ -489,7 +492,7 @@ div.saw-button a:hover svg {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.6);
+    background: #475b5ccc;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -523,6 +526,11 @@ div.saw-button a:hover svg {
 #phone-modal .modal__header, #phone-text-modal .modal__header {
     justify-content: space-around;
 }
+#special-offer-modal .modal__header {
+    border-bottom: 1px solid var(--main-teal-color);
+    margin-bottom: 20px;
+    font-family: "Encode Sans", sans-serif;
+}
 #phone-text-modal-content .gform_footer .gform_button {
     padding-top: 0;
     padding-bottom: 0;
@@ -534,6 +542,15 @@ div.saw-button a:hover svg {
 #phone-text-modal-content .gform_footer .gform_button:hover {
     background-color: var(--main-teal-color) !important;
     color: #FFF;
+}
+#special-offer-modal-content {
+    font-family: "Encode Sans", sans-serif;
+}
+#special-offer-modal-content .gform_fields {
+    padding-left: 0;
+}
+#special-offer-modal-content .first-last-name {
+    width: 70%;
 }
 .modal__title {
     margin-top: 0;
@@ -575,7 +592,7 @@ div.saw-button a:hover svg {
     line-height: 1.5;
     color: rgba(0,0,0,.8);
 }
-#phone-modal-content {
+#phone-modal-content, #special-offer-modal-content {
     margin-top: 0;
 }
 #phone-modal-content .phone-number {
@@ -675,19 +692,31 @@ div.saw-button a:hover svg {
     from { transform: translateY(0); }
     to { transform: translateY(-10%); }
 }
-#map-modal-1[aria-hidden="false"] .modal__overlay, #phone-modal[aria-hidden="false"] .modal__overlay, #phone-text-modal[aria-hidden="false"] .modal__overlay {
+#map-modal-1[aria-hidden="false"] .modal__overlay,
+#phone-modal[aria-hidden="false"] .modal__overlay,
+#phone-text-modal[aria-hidden="false"] .modal__overlay,
+#special-offer-modal[aria-hidden="false"] .modal__overlay {
     animation: mmfadeIn .3s cubic-bezier(0.0, 0.0, 0.2, 1);
 }
 
-#map-modal-1[aria-hidden="false"] .modal__container, #phone-modal[aria-hidden="false"] .modal__container, #phone-text-modal[aria-hidden="false"] .modal__container {
+#map-modal-1[aria-hidden="false"] .modal__container,
+#phone-modal[aria-hidden="false"] .modal__container,
+#phone-text-modal[aria-hidden="false"] .modal__container,
+#special-offer-modal[aria-hidden="false"] .modal__container {
     animation: mmslideIn .3s cubic-bezier(0, 0, .2, 1);
 }
 
-#map-modal-1[aria-hidden="true"] .modal__overlay, #phone-modal[aria-hidden="true"] .modal__overlay, #phone-text-modal[aria-hidden="true"] .modal__overlay {
+#map-modal-1[aria-hidden="true"] .modal__overlay,
+#phone-modal[aria-hidden="true"] .modal__overlay,
+#phone-text-modal[aria-hidden="true"] .modal__overlay,
+#special-offer-modal[aria-hidden="true"] .modal__overlay {
     animation: mmfadeOut .3s cubic-bezier(0.0, 0.0, 0.2, 1);
 }
 
-#map-modal-1[aria-hidden="true"] .modal__container, #phone-modal[aria-hidden="true"] .modal__container, #phone-text-modal[aria-hidden="true"] .modal__container {
+#map-modal-1[aria-hidden="true"] .modal__container,
+#phone-modal[aria-hidden="true"] .modal__container,
+#phone-text-modal[aria-hidden="true"] .modal__container,
+#special-offer-modal[aria-hidden="true"] .modal__container {
     animation: mmslideOut .3s cubic-bezier(0, 0, .2, 1);
 }
 
@@ -696,6 +725,8 @@ div.saw-button a:hover svg {
 #phone-modal .modal__container,
 #phone-modal .modal__overlay,
 #phone-text-modal .modal__container,
-#phone-text-modal .modal__overlay {
+#phone-text-modal .modal__overlay,
+#special-offer-modal .modal__container,
+#special-offer-modal .modal__overlay {
     will-change: transform;
 }
