@@ -276,13 +276,15 @@ function fn_enqueue_scripts() {
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
 	if ( get_post_type() == 'vendor_profile' ) {
 		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js');
+		wp_register_script('popper', '//unpkg.com/@popperjs/core@2');
 		wp_register_script( 'animated_modal', plugins_url('public/js/animatedModal.min.js', __FILE__));
 		wp_register_script( 'micromodal', plugins_url('public/js/micromodal.min.js', __FILE__));
 		wp_register_script( 'sticky_bits', plugins_url( 'public/js/jquery.stickybits.min.js', __FILE__ ), array(
 			'swiper_slider',
 			'animated_modal',
 			'micromodal',
-			'jquery-ui-tabs'
+			'jquery-ui-tabs',
+            'popper'
 		), FRIDAY_NEXT_EXTRAS_VERSION);
 		wp_enqueue_script( 'sticky_bits' );
 	}

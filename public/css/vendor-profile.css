@@ -34,6 +34,9 @@ div.vendor-meta {
 .vendor-meta .vendor-address-text, .vendor-meta .vendor-website-text, .vendor-meta .vendor-phone-call-text, .vendor-meta .vendor-phone-text-text {
     padding-left: 0.5em;
 }
+.vendor-address-text:hover, .vendor-phone-call:hover {
+    cursor: pointer;
+}
 .vendor-meta-second-line {
     /*padding-top: .5em;*/
     display: flex;
@@ -466,16 +469,17 @@ div.saw-button a:hover svg {
 #map-modal-1-content {
     height: 80%;
 }
-#map-modal-1 {
+#map-modal-1, #phone-modal, #phone-text-modal {
     display: none;
 }
 #map-modal-1 .directions {
     text-transform: none;
+    font-family: "Encode Sans",sans-serif;
 }
 #map-modal-1 .directions:hover {
     cursor: pointer;
 }
-#map-modal-1.is-open {
+#map-modal-1.is-open, #phone-modal.is-open, #phone-text-modal.is-open {
     display: block;
 }
 
@@ -495,37 +499,75 @@ div.saw-button a:hover svg {
 .modal__container {
     background-color: #fff;
     padding: 15px 15px 0;
-    width: 70%;
-    max-width: 800px;
-    height: 60vh;
-    max-height: 100vh;
+    width: 800px;
+    max-width: 95%;
+    height: 545px;
+    max-height: 95vh;
     border-radius: 4px;
     overflow-y: auto;
     box-sizing: border-box;
 }
-
+#phone-modal .modal__container {
+    width: 350px;
+    height: 250px;
+}
+#phone-text-modal .modal__container {
+    width: 400px;
+    height: 450px;
+}
 .modal__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
+#phone-modal .modal__header, #phone-text-modal .modal__header {
+    justify-content: space-around;
+}
+#phone-text-modal-content .gform_footer .gform_button {
+    padding-top: 0;
+    padding-bottom: 0;
+    width: 100%;
+    border-color: var(--main-teal-color);
+    color: #FFF;
+    background-color: var(--main-teal-color);
+}
+#phone-text-modal-content .gform_footer .gform_button:hover {
+    background-color: var(--main-teal-color) !important;
+    color: #FFF;
+}
 .modal__title {
     margin-top: 0;
     margin-bottom: 0;
     font-weight: 600;
     font-size: 1.25rem;
     line-height: 1.25;
-    color: #00449e;
     box-sizing: border-box;
 }
-
+#phone-modal-title, #phone-text-modal-title {
+    text-transform: none;
+    font-family: "Encode Sans Condensed", sans-serif;
+    text-align: center;
+}
+#phone-text-modal-content .twilio-text-input input::placeholder, #phone-text-modal-content .twilio-text-input textarea::placeholder {
+    text-align: center;
+    text-transform: uppercase;
+}
+#phone-text-modal-content .twilio-text-input input {
+    text-align: center;
+}
 .modal__close {
     background: transparent;
     border: 0;
 }
+.modal__close:hover {
+    cursor: pointer;
+}
 
-.modal__header .modal__close:before { content: "\2715"; }
+.modal__header .modal__close:before {
+    content: "\2715";
+    color: var(--medium-gray-color);
+    font-size: 1.8rem;
+}
 
 .modal__content {
     margin-top: 2rem;
@@ -533,7 +575,46 @@ div.saw-button a:hover svg {
     line-height: 1.5;
     color: rgba(0,0,0,.8);
 }
-
+#phone-modal-content {
+    margin-top: 0;
+}
+#phone-modal-content .phone-number {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    margin-top: 20px;
+    background: var(--lightest-gray-color);
+    font-size: 1.4em;
+    line-height: 1.4em;
+}
+#phone-modal-content .phone-number a {
+    padding-left: 10px;
+}
+#phone-modal-content .right-text {
+    text-align: right;
+    font-size: .7em;
+    color: var(--medium-gray-color);
+    padding-bottom: .5em;
+}
+#phone-modal-content .didnt-get-in-touch {
+    text-transform: none;
+    font-family: "Encode Sans Condensed", sans-serif;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.25;
+}
+#phone-modal-content .teal {
+    background: var(--main-teal-color);
+    text-align: center;
+    width: 100%;
+    padding: 5px;
+}
+#phone-modal-content .teal a {
+    color: #FFF;
+}
 .modal__btn {
     font-size: .875rem;
     padding-left: 1rem;
@@ -572,8 +653,6 @@ div.saw-button a:hover svg {
     color: #fff;
 }
 
-
-
 /**************************\
   Demo Animation Style
 \**************************/
@@ -596,32 +675,27 @@ div.saw-button a:hover svg {
     from { transform: translateY(0); }
     to { transform: translateY(-10%); }
 }
-
-.micromodal-slide {
-    display: none;
-}
-
-.micromodal-slide.is-open {
-    display: block;
-}
-
-.micromodal-slide[aria-hidden="false"] .modal__overlay {
+#map-modal-1[aria-hidden="false"] .modal__overlay, #phone-modal[aria-hidden="false"] .modal__overlay, #phone-text-modal[aria-hidden="false"] .modal__overlay {
     animation: mmfadeIn .3s cubic-bezier(0.0, 0.0, 0.2, 1);
 }
 
-.micromodal-slide[aria-hidden="false"] .modal__container {
+#map-modal-1[aria-hidden="false"] .modal__container, #phone-modal[aria-hidden="false"] .modal__container, #phone-text-modal[aria-hidden="false"] .modal__container {
     animation: mmslideIn .3s cubic-bezier(0, 0, .2, 1);
 }
 
-.micromodal-slide[aria-hidden="true"] .modal__overlay {
+#map-modal-1[aria-hidden="true"] .modal__overlay, #phone-modal[aria-hidden="true"] .modal__overlay, #phone-text-modal[aria-hidden="true"] .modal__overlay {
     animation: mmfadeOut .3s cubic-bezier(0.0, 0.0, 0.2, 1);
 }
 
-.micromodal-slide[aria-hidden="true"] .modal__container {
+#map-modal-1[aria-hidden="true"] .modal__container, #phone-modal[aria-hidden="true"] .modal__container, #phone-text-modal[aria-hidden="true"] .modal__container {
     animation: mmslideOut .3s cubic-bezier(0, 0, .2, 1);
 }
 
-.micromodal-slide .modal__container,
-.micromodal-slide .modal__overlay {
+#map-modal-1 .modal__container,
+#map-modal-1 .modal__overlay,
+#phone-modal .modal__container,
+#phone-modal .modal__overlay,
+#phone-text-modal .modal__container,
+#phone-text-modal .modal__overlay {
     will-change: transform;
 }

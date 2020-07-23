@@ -318,7 +318,7 @@ $(document).ready(function () {
 		e.preventDefault();
 	});
 	// class to give display: block; --> header-search-dropdown
-	// jQuery("#sidebar").stickybits();
+	// $("#sidebar").stickybits();
 
 	// Format callable phone number
 	// jQuery('.vendor-phone-call-text').text(function(i, text) {
@@ -326,8 +326,7 @@ $(document).ready(function () {
 	//     return '<a href="tel:' + $phone_formatted + '">' + $phone_formatted + '</a>';
 	// });
 	$('.spotlight-vendor-info-container .vendor-phone-number span a').text(function(i, text) {
-		$phone_formatted = text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-		return $phone_formatted;
+		return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
 	});
 
 	// var swiper = new Swiper('.swiper-container', {

@@ -269,7 +269,7 @@
   opacity: 1;
 }
 .swiper-faves-container .swiper-button-next, .swiper-faves-container .swiper-button-prev {
-  color: var(--red-color);
+  color: var(--medium-gray-color);
 }
 .swiper-faves-container .swiper-button-next {
   right: 0;
