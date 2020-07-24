@@ -153,7 +153,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								}
 								?>
 								<?php /* TODO: Change this to be a Twilio link for SMS capability! */ ?>
-                                <div class="vendor-phone-text-text"><a href="#" onclick="MicroModal.show('phone-text-modal', {awaitCloseAnimation:true})">Text Us Now</a></div>
+                                <div class="vendor-phone-text-text"><a href="#" onclick="event.preventDefault();MicroModal.show('phone-text-modal', {awaitCloseAnimation:true})">Text Us Now</a></div>
                             </div>
                             
                             <?php /********** PHONE TEXT MODAL **********/ ?>

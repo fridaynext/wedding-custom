@@ -396,6 +396,14 @@ div.in-the-press {
 .vendor-profile-sidebar-content ul li.gfield {
   margin-top: 0 !important;
   padding-right: 0 !important;
+  input[type="number"] {
+    border: 1px solid var(--light-gray-color);
+    border-radius: 2px;
+    font-size: smaller !important;
+    &::placeholder {
+      color: var(--charcoal-color);
+    }
+  }
 }
 .vendor-profile-sidebar-content .vendor-contact-notes textarea {
   margin-top: 12px !important;
@@ -618,7 +626,9 @@ div.saw-button a:hover svg {
           border: 1px solid var(--medium-gray-color);
           border-radius: 2px;
           margin-top: 0;
-
+          &::placeholder {
+            color: var(--charcoal-color);
+          }
         }
       }
     }
