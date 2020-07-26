@@ -63,10 +63,6 @@ div.vendor-meta {
 }
 
 /******************************* VENDOR STICKY NAV **************************************/
-#et-main-area {
-  /* For full-screen width nav bar */
-  overflow: hidden;
-}
 .vendor-sticky-nav {
   width: 100vw;
   margin-left: calc(-50vw + 50%);
@@ -74,12 +70,16 @@ div.vendor-meta {
   border-bottom: 1px solid var(--medium-gray-color);
   margin-top: 2em;
   margin-bottom: 2em;
+  position: sticky;
+  top: 0;
+  background: #FFF;
+  z-index: 1;
 }
 .vendor-sticky-nav .vendor-page-nav {
   display: flex;
   flex-wrap: wrap;
   max-width: calc(1117px + 2em);
-  justify-content: space-between;
+  justify-content: space-evenly;
   margin-left: auto;
   margin-right: auto;
 }
@@ -248,7 +248,7 @@ div.in-the-press {
   padding-top: 5px;
   padding-bottom: 5px;
   font-size: 1.3em;
-  z-index: 2;
+  z-index: 0;
 }
 .individual-press-post.spotlight .press-type {
   background: var(--red-color);
