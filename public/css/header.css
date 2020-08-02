@@ -3,14 +3,14 @@
     background-size: 80%;
 }
 #menu-header-top-menu-computer {
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 #menu-header-top-menu-computer .header-search {
     border-right: 1px #a0a0a0 solid;
-    padding-left: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    padding-left: 20px !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
 }
 #menu-header-top-menu-computer .header-search a::before {
     background: url("../img/header-search-icon.svg") no-repeat;
@@ -101,7 +101,7 @@
     padding-right: 15px;
 }
 #menu-header-top-menu-computer .vendor-login {
-    padding-right: 5px;
+    padding-right: 5px !important;
 }
 #menu-header-top-menu-computer li {
     margin-top: 0;
@@ -132,17 +132,17 @@
     padding-right: 20px;
 }
 #menu-header-top-menu-computer .header-search a, #menu-header-top-menu-computer .vendor-login a, #menu-header-top-menu-tablet .vendor-login a, #menu-home-header-top-menu .vendor-login a {
-    font-size: .8em;
+    font-size: .8em !important;
 }
 #menu-header-top-menu-computer .social-icon, #menu-header-top-menu-tablet .social-icon, #menu-home-header-top-menu .social-icon {
-    padding-left: 5px;
-    padding-right: 5px;
-    font-size: 1.5em;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    font-size: 1.5em !important;
 }
 #menu-header-top-menu-phone .social-icon {
-    padding-left: 1px;
-    padding-right: 5px;
-    font-size: 1.5em;
+    padding-left: 1px !important;
+    padding-right: 5px !important;
+    font-size: 1.5em !important;
 }
 /* Prevent the Hamburger Menu */
 @media screen and (max-width: 980px) {

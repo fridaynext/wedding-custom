@@ -293,7 +293,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                         var swiper = new Swiper('.swiper-container', {
                                             slidesPerView: 'auto',
                                             centeredSlides: true,
-                                            loop: false,
+                                            loop: true,
                                             loopedSlides: <?php echo $total; ?>,
                                             spaceBetween: 5,
                                             navigation: {

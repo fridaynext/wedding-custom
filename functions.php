@@ -1,32 +1,32 @@
 <?php
 /**
  * @package FN_Extras
- * @version 1.2.1
+ * @version 1.2.2
  */
 
-define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.1' );
+define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.2' );
 
 /********************* ACF JSON *********************/
-//add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
-//function my_acf_json_save_point( $path ) {
-//	// update path
-//	$path = dirname( __FILE__ ) . '/private/acf-json';
-//
-//	// return
-//	return $path;
-//}
-//
-//add_filter( 'acf/settings/load_json', 'my_acf_json_load_point' );
-//function my_acf_json_load_point( $paths ) {
-//	// remove original path (optional)
-//	unset( $paths[0] );
-//
-//	// append path
-//	$paths[] = dirname( __FILE__ ) . '/private/acf-json';
-//
-//	// return
-//	return $paths;
-//}
+add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
+function my_acf_json_save_point( $path ) {
+	// update path
+	$path = dirname( __FILE__ ) . '/private/acf-json';
+	
+	// return
+	return $path;
+}
+
+add_filter( 'acf/settings/load_json', 'my_acf_json_load_point' );
+function my_acf_json_load_point( $paths ) {
+	// remove original path (optional)
+	unset( $paths[0] );
+	
+	// append path
+	$paths[] = dirname( __FILE__ ) . '/private/acf-json';
+	
+	// return
+	return $paths;
+}
 
 /* Remove admin bar for editors (Actually, EVERYONE - need to do a check later for only editors) */
 show_admin_bar( false );
@@ -217,6 +217,8 @@ function fn_enqueue_styles() {
 	wp_enqueue_style( 'header_style' );
 	wp_register_style( 'footer_style', plugins_url( 'public/css/footer.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'footer_style' );
+	wp_register_style( 'archive_style', plugins_url( 'public/css/archive-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_enqueue_style( 'archive_style' );
 	wp_register_style( 'jquery-ui-style', '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'jquery-ui-style' );
 	
@@ -246,8 +248,7 @@ function fn_enqueue_styles() {
 	}
 	// 'Vendor Profile' Styles
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_style( 'animate', '//cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.0/animate.min.css');
-		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile-min.css', __FILE__ ), array( 'animate' ), FRIDAY_NEXT_EXTRAS_VERSION );
+		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 		wp_enqueue_style( 'vendor_profile_style' );
 	}
 	// Homepage
@@ -255,6 +256,8 @@ function fn_enqueue_styles() {
 		wp_register_style( 'homepage_style', plugins_url( 'public/css/homepage.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 		wp_enqueue_style( 'homepage_style' );
 	}
+	wp_register_style( 'jpopup', plugins_url( 'public/css/jpopup.min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_enqueue_style( 'jpopup' );
 }
 
 //*********************************  WP_ENQUEUE_SCRIPTS *******************************//
@@ -272,25 +275,31 @@ function fn_enqueue_scripts() {
 	wp_localize_script( 'datatables_script', 'datatablesajax', array( 'url' => admin_url( 'admin-ajax.php?action=article_datatables' ) ) );
 	wp_enqueue_script( 'datatables_script' );
 	wp_enqueue_script( 'datatables_buttons_script' );
+	wp_register_script( 'jpopup_modal', plugins_url( 'public/js/jpopup.min.js', __FILE__ ) );
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js');
-		wp_register_script('popper', '//unpkg.com/@popperjs/core@2');
-		wp_register_script( 'animated_modal', plugins_url('public/js/animatedModal.min.js', __FILE__));
-		wp_register_script( 'micromodal', plugins_url('public/js/micromodal.min.js', __FILE__));
+		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js' );
+		wp_register_script( 'popper', '//unpkg.com/@popperjs/core@2' );
+		wp_register_script( 'micromodal', plugins_url( 'public/js/micromodal.min.js', __FILE__ ) );
 		wp_register_script( 'sticky_bits', plugins_url( 'public/js/jquery.stickybits.min.js', __FILE__ ), array(
 			'swiper_slider',
-			'animated_modal',
 			'micromodal',
 			'jquery-ui-tabs',
-            'popper'
-		), FRIDAY_NEXT_EXTRAS_VERSION);
+			'popper'
+		), FRIDAY_NEXT_EXTRAS_VERSION );
 		wp_enqueue_script( 'sticky_bits' );
+	}
+	
+	// For all archive pages
+	if ( is_archive() ) {
+		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js' );
+		wp_enqueue_script( 'swiper_slider' );
 	}
 	
 	wp_register_script( 'fn_scripts', plugins_url( 'public/js/scripts.js', __FILE__ ), array(
 		'jquery',
+		'jpopup_modal',
 		'facebook_share',
 		'pinterest_share',
 		'jquery-ui-core',
@@ -307,7 +316,7 @@ function fn_enqueue_scripts() {
 	}
 }
 
-add_action( 'wp_head', 'acf_reqs' );
+add_action( 'get_header', 'acf_reqs' );
 function acf_reqs() {
 	// TODO: Check to see if admin page, then add this!
 	acf_form_head();
@@ -316,10 +325,11 @@ function acf_reqs() {
 /**
  * Enable unfiltered_html capability for Editors.
  */
-function allow_editors_to_html( $allow_unfiltered_html) {
-    return true;
+function allow_editors_to_html( $allow_unfiltered_html ) {
+	return true;
 }
-add_filter('acf/allow_unfiltered_html', 'allow_editors_to_html');
+
+add_filter( 'acf/allow_unfiltered_html', 'allow_editors_to_html' );
 
 // Login Redirect
 function my_login_redirect( $redirect_to, $request, $user ) {
@@ -1065,7 +1075,7 @@ function vendor_admin_form_func( $atts ) {
 			'post_title'            => true,
 			'updated_message'       => 'Advertiser successfully updated!',
 			'instruction_placement' => 'field',
-            'kses'                  => false
+			'kses'                  => false
 		);
 		$html      = '<h2>' . get_the_title( $vendor_id ) . '</h1>';
 		ob_start();
@@ -1136,6 +1146,7 @@ function acf_vendor_permalinks( $value, $post_id, $field ) {
 				'post_name' => $new_slug,
 			)
 		);
+		
 		return $new_slug;
 	}
 	
@@ -1541,30 +1552,36 @@ function process_row( $field_key, $post_id ) {
  */
 //
 function social_media_tab_func( $atts ) {
-	$fb_url = get_field( "facebook" );
+	$fb_url  = get_field( "facebook" );
 	$pin_url = get_field( "pinterest" );
-	$ig_url = get_field( "instagram" );
+	$ig_url  = get_field( "instagram" );
 	
-	$html   = '<div class="all-tabs-container">';
-	$html   .= '<div id="social-tabs">';
-	$html   .= '<span class="social-tabs-triangle"></span>
+	$html = '<div class="all-tabs-container">';
+	$html .= '<div id="social-tabs">';
+	$html .= '<span class="social-tabs-triangle"></span>
                 <ul>';
-    if( $fb_url ) { $html .= '<li><a href="#facebook">Facebook</a></li>'; }
-    if( $pin_url ) { $html .= '<li><a href="#pinterest">Pinterest</a></li>'; }
-    if( $ig_url ) { $html .= '<li><a href="#instagram">Instagram</a></li>'; }
-                $html .= '</ul>';
+	if ( $fb_url ) {
+		$html .= '<li><a href="#facebook">Facebook</a></li>';
+	}
+	if ( $pin_url ) {
+		$html .= '<li><a href="#pinterest">Pinterest</a></li>';
+	}
+	if ( $ig_url ) {
+		$html .= '<li><a href="#instagram">Instagram</a></li>';
+	}
+	$html .= '</ul>';
 	
-	if( $fb_url ) {
-        $html   .= '<div id="facebook" class="social-share-div"><div class="fb-page" data-href="' . $fb_url . '" data-tabs="timeline" data-width="" data-height="360" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="' . $fb_url . '" class="fb-xfbml-parse-ignore"><a href="' . $fb_url . '">' . get_the_title() . '</a></blockquote></div></div>';
-    }
-	if( $pin_url ) {
-        $html   .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
-    }
-	if( $ig_url ) {
-        $html   .= '<div id="instagram" class="social-share-div">Instagram content here.<br>And a new line.<br>Another.</div>';
-    }
-	$html   .= '</div></div>';
-	$html   .= '<script type="text/javascript">
+	if ( $fb_url ) {
+		$html .= '<div id="facebook" class="social-share-div"><div class="fb-page" data-href="' . $fb_url . '" data-tabs="timeline" data-width="" data-height="360" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="' . $fb_url . '" class="fb-xfbml-parse-ignore"><a href="' . $fb_url . '">' . get_the_title() . '</a></blockquote></div></div>';
+	}
+	if ( $pin_url ) {
+		$html .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
+	}
+	if ( $ig_url ) {
+		$html .= '<div id="instagram" class="social-share-div">Instagram content here.<br>And a new line.<br>Another.</div>';
+	}
+	$html .= '</div></div>';
+	$html .= '<script type="text/javascript">
                 jQuery( function() {
                     jQuery("#social-tabs").tabs({
                         event: "mouseover"
@@ -1734,10 +1751,11 @@ function render_article_header_image() {
 		
 		return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
 	} else {
-	    $header_img = get_field('header_image');
-	    if ($header_img) {
-		    return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
-        }
+		$header_img = get_field( 'header_image' );
+		if ( $header_img ) {
+			return '<img src="' . esc_url( $header_img['url'] ) . '" alt="' . esc_url( $header_img['alt'] ) . '" style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;" width="auto" />';
+		}
+		
 		return '';
 	}
 }
@@ -1910,7 +1928,7 @@ function render_home_hero_slider() {
 		$background_image = get_field( 'background_image', $slider->ID );
 		$html             .= '<div class="swiper-slide slide hero-slide-' . $count . ' slide-type-' . $slide_type . '">';
 		$html             .= '<div class="slide-content">'; // flex-column - THIS can get the background
-		$html             .= '<div class="bg-image-layer" style="background-image:url(' . esc_url( $background_image['url'] ) . ');background-size:cover;">';
+		$html             .= '<div class="bg-image-layer" style="background-image:url(' . esc_url( $background_image['url'] ) . ');background-size:contain;background-size: cover;background-repeat: no-repeat;background-position: right center;">';
 		$html             .= ( $slide_type == 2 ? '<div class="alpha-overlay">' : '' );
 		// if slide type 1, add in the orange left side
 		$html .= '<div class="left-side' . ( $slide_type == 1 ? ' orange-bg' : '' ) . '">';
@@ -1982,15 +2000,15 @@ add_shortcode( 'homepage_local_faves', 'render_local_fave_grid' );
 function render_local_fave_grid() {
 	// get all Vendors who should be featured in this section
 	$args        = array(
-		'post_type'  => 'vendor_profile',
-		'meta_key'   => 'local_fave_homepage',
-		'meta_value' => 'yes',
-        'posts_per_page' => 12,
-        'orderby'      => 'rand'
+		'post_type'      => 'vendor_profile',
+		'meta_key'       => 'local_fave_homepage',
+		'meta_value'     => 'yes',
+		'posts_per_page' => 12,
+		'orderby'        => 'rand'
 	);
 	$local_faves = get_posts( $args );
-	$html = '<div class="swiper-container swiper-faves-container">';
-	$html .= '<div class="local-faves-container swiper-wrapper">';
+	$html        = '<div class="swiper-container swiper-faves-container">';
+	$html        .= '<div class="local-faves-container swiper-wrapper">';
 	foreach ( $local_faves as $local_fave ) {
 		$html .= '<div class="individual-fave swiper-slide">';
 		$html .= '<div class="local-fave-image">';
@@ -2004,13 +2022,13 @@ function render_local_fave_grid() {
 		$html .= '</div>'; // END .individual-fave
 	}
 	$html .= '</div>'; // END .local-faves-container
-    $html .= '<div class="swiper-pagination swiper-pagination-faves"></div>';
-    $html .= '<div class="swiper-button-next"></div>
+	$html .= '<div class="swiper-pagination swiper-pagination-faves"></div>';
+	$html .= '<div class="swiper-button-next"></div>
               <div class="swiper-button-prev"></div>';
-    $html .= '</div>';
-    
-    /* Swiper JS Script */
-    $html .= '<script type="text/javascript">
+	$html .= '</div>';
+	
+	/* Swiper JS Script */
+	$html .= '<script type="text/javascript">
                 var swiper = new Swiper(".swiper-faves-container", {
                     slidesPerView:4,
                     spaceBetween: "2.7%",
@@ -2035,8 +2053,8 @@ function render_blog_buzz() {
 	$args       = array(
 		'post_type'      => 'post',
 		'posts_per_page' => 4,
-        'order_by'       => 'date',
-        'order'          => 'DESC'
+		'order_by'       => 'date',
+		'order'          => 'DESC'
 	);
 	$blog_posts = get_posts( $args );
 	
@@ -2685,8 +2703,10 @@ function render_vendors_footer() {
         INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
         INNER JOIN $wpdb->term_relationships AS r ON r.term_taxonomy_id = tt.term_taxonomy_id
         INNER JOIN $wpdb->posts AS p ON p.ID = r.object_id
-        WHERE p.post_type = 'vendor_profile' AND tt.taxonomy = 'category'
-        GROUP BY t.term_id"
+        WHERE p.post_type = %s AND tt.taxonomy = %s
+        GROUP BY t.term_id ORDER BY t.name",
+		'vendor_profile',
+		'category'
 	);
 	$vendor_categories = $wpdb->get_results( $query );
 //	print_r($vendor_categories);die();
@@ -2710,6 +2730,7 @@ function render_vendors_footer() {
 	$html .= '</ul>
             </div> <!-- END .vendor-list-container -->
         </div>'; // END #vendor-footer-menu
+	wp_reset_query();
 	
 	return $html;
 }
@@ -2771,7 +2792,7 @@ function render_stay_connected_footer() {
 	return $html;
 }
 
-add_shortcode('share_slide_out', 'render_share_slide_out');
+add_shortcode( 'share_slide_out', 'render_share_slide_out' );
 function render_share_slide_out() {
 	$html = '<div class="press-social-slider">
         <div class="share-tab">Share</div>
@@ -2781,17 +2802,211 @@ function render_share_slide_out() {
             <img class="pinterest-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Pinterest.png', __FILE__ ) ) . '" alt="pinterest-share">
         </div>
     </div>';
+	
 	return $html;
 }
 
-add_shortcode("prev_next_navigation", "render_prev_next_navigation");
+add_shortcode( "prev_next_navigation", "render_prev_next_navigation" );
 function render_prev_next_navigation() {
-    $html = '<a href="' . get_previous_post_link() . '">\<Previous</a>';
+	$html = '<a href="' . get_previous_post_link() . '">\<Previous</a>';
 	$html .= ' <a href="' . get_next_post_link() . '">Next\></a>';
-    return $html;
+	
+	return $html;
 }
 
-add_shortcode('logout_button', 'render_logout_button');
+add_shortcode( 'logout_button', 'render_logout_button' );
 function render_logout_button() {
-    return '<a class="logout-button" href="' . wp_logout_url('/') . '" alt="Logout">Logout</a>';
+	return '<a class="logout-button" href="' . wp_logout_url( '/' ) . '" alt="Logout">Logout</a>';
+}
+
+/***************************** HOMEPAGE MID-NAVBAR VENDOR DROPDOWN MENU *********************************/
+add_shortcode( 'home_midnav_vendor_menu', 'mid_nav_vendors' );
+function mid_nav_vendors() {
+	// Only get vendor categories that currently have something in them - don't want pages showing up with no results!
+	global $wpdb;
+	
+	$query             = $wpdb->prepare(
+		"SELECT t.*, COUNT(*) from $wpdb->terms AS t
+        INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
+        INNER JOIN $wpdb->term_relationships AS r ON r.term_taxonomy_id = tt.term_taxonomy_id
+        INNER JOIN $wpdb->posts AS p ON p.ID = r.object_id
+        WHERE p.post_type = %s AND tt.taxonomy = %s
+        GROUP BY t.term_id ORDER BY t.name",
+		'vendor_profile',
+		'category'
+	);
+	$vendor_categories = $wpdb->get_results( $query );
+//	print_r($vendor_categories);die();
+	
+	$html = '<div class="midnav-vendor-list">
+                <ul class="vendor-mega-menu">
+                <p>Choose a Vendor Category</p>';
+	// render each individual vendor
+	foreach ( $vendor_categories as $vendor_category ) {
+		$category_name = $vendor_category->name;
+		$html          .= '<li>';
+		$html          .= '<a href="/category/' . $vendor_category->slug . '" alt="' . $category_name . '">' . $category_name . '</a>';
+		$html          .= '</li>';
+	}
+	$html .= '</ul></div>'; // END .vendor-list-container
+	wp_reset_query();
+	
+	return $html;
+}
+
+add_shortcode( 'home_midnav_vendor_menu_tablet', 'render_tablet_vendors' );
+function render_tablet_vendors() {
+	// Only get vendor categories that currently have something in them - don't want pages showing up with no results!
+	global $wpdb;
+	
+	$query             = $wpdb->prepare(
+		"SELECT t.*, COUNT(*) from $wpdb->terms AS t
+        INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
+        INNER JOIN $wpdb->term_relationships AS r ON r.term_taxonomy_id = tt.term_taxonomy_id
+        INNER JOIN $wpdb->posts AS p ON p.ID = r.object_id
+        WHERE p.post_type = %s AND tt.taxonomy = %s
+        GROUP BY t.term_id ORDER BY t.name",
+		'vendor_profile',
+		'category'
+	);
+	$vendor_categories = $wpdb->get_results( $query );
+//	print_r($vendor_categories);die();
+	
+	$html = '<div class="midnav-vendor-list-tablet">
+                <ul class="vendor-mega-menu">
+                <p>Choose a Vendor Category</p>';
+	// render each individual vendor
+	$html_ven_list = '';
+	foreach ( $vendor_categories as $vendor_category ) {
+		$category_name = $vendor_category->name;
+		$html_ven_list .= '<li>';
+		$html_ven_list .= '<a href="/category/' . $vendor_category->slug . '" alt="' . $category_name . '">' . $category_name . '</a>';
+		$html_ven_list .= '</li>';
+	}
+	$html .= $html_ven_list;
+	$html .= '</ul></div>'; // END .vendor-list-container
+	
+	$html .= '<script>/*** DEMO js ***/
+            var demoContent = "<div>\
+            <strong>Vendor List</strong>\
+            <p>The list of vendors will go here.</p>\
+            </div>";
+
+            var jPopupDemo = new jPopup({
+                content: demoContent,
+                transition: \'fade\',
+                onOpen: function ($popupEl) {
+                    console.log($popupEl, \'open\');
+                },
+                onClose: function ($popupEl) {
+                    console.log($popupEl, \'close\');
+                }
+            });
+            </script>';
+	
+	wp_reset_query();
+	
+	return $html;
+}
+
+/********************************** HEADER LOGIN DROPDOWN WHEN LOGGED IN ALREADY ****************************************/
+add_shortcode( 'show_logged_in_options', 'render_login_options' );
+function render_login_options() {
+	$html = '';
+	
+	return $html;
+}
+
+/********************************** ARCHIVE PAGE SLIDER ****************************************/
+add_shortcode( 'archive_slider', 'render_archive_slider' );
+function render_archive_slider( $atts ) {
+	$post_type = $atts['type'];
+	$html      = '';
+	// If this is a Spotlight or (the other one that is similar) - render it one way. Otherwise, render another way
+	if ( $post_type == 'spotlight' ) {
+		// Grab the 5 newest Spotlights to be displayed in the slider
+		$args              = array(
+			'post_type'      => 'spotlight',
+			'posts_per_page' => 5,
+			'post_status'    => 'publish'
+		);
+		$slider_spotlights = get_posts( $args );
+		$html              .= '<div id="archive-slider">
+            <div class="swiper-container">
+                <div class="swiper-wrapper">';
+		// Get each of the slides that need to be displayed, and add them to the Slider
+		foreach ( $slider_spotlights as $slider_spotlight ) {
+		    $text_title = '';
+		    // Make sure there is a linked vendor, and use their name as the "title"
+		    if (get_field('vendor', $slider_spotlight)) {
+		        $text_title = get_the_title(get_field('vendor', $slider_spotlight));
+            } else {
+		        // otherwise, just use the article title as a last resort
+		        $text_title = get_the_title($slider_spotlight);
+            }
+		    
+		    $bg_text = '';
+		    // Check to see if the Archive Page slider image is present in the spotlight
+		    if (get_field('landing_page_image', $slider_spotlight->ID)) {
+		        $bg_image = get_field('landing_page_image', $slider_spotlight->ID);
+		        $bg_text = 'style="background: url(' . esc_url($bg_image['url']) . ');"';
+            } else {
+		        // if it isn't, just display a white background
+                $bg_text = '#FFF';
+            }
+			$html .= '<div class="swiper-slide">
+                            <div class="bg-overlay"></div>
+                            <div class="bg-image" ' . $bg_text . '></div>
+                            <div class="archive-text">
+                                <h2 class="archive-title">Spotlight</h2><br />
+                                <p>' . $text_title . '</p>
+                            </div>
+                        </div>';
+			
+		}
+		$html .= '</div>
+                <!-- Add Arrows -->
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <!-- Add Pagination -->
+                <div class="swiper-pagination"></div>
+              </div>
+          </div>';
+	}
+	
+	// Add in the <script> tag to initialize
+	$html .= '<script>
+        var swiper = new Swiper(".swiper-container", {
+          autoplay: {
+            delay: 7500,
+            disableOnInteraction: false,
+            grabCursor: true,
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true
+          },
+          keyboard: true,
+          on: {
+                  slideChangeTransitionEnd: function() {
+                      setTimeout( function() {
+                          jQuery(".swiper-slide-active .archive-text").addClass("visible");
+                      }, 400);
+                      jQuery("#archive-slider .swiper-wrapper").children().eq(swiper.previousIndex).children().eq(2).removeClass("visible");
+                  },
+                  init: function() {
+                      setTimeout( function() {
+                          jQuery(".swiper-slide-active .archive-text").addClass("visible");
+                      }, 300);
+                  }
+          }
+        });
+      </script>';
+	
+	// All is added - let's return it
+	return $html;
 }

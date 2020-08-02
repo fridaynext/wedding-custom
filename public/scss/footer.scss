@@ -1,5 +1,8 @@
-#menu-footer-menu-computer .bridal-buzz {
-  padding-right: 110px;
+ul#menu-footer-menu-computer {
+  margin-right: -30px !important;
+  .bridal-buzz {
+    padding-right: 110px !important;
+  }
 }
 
 .footer-tablet-menu-left {
@@ -74,8 +77,7 @@
       list-style-type: none;
 
       li {
-        padding-left: 5px;
-        padding-right: 5px;
+        padding: 5px;
         text-align: center;
         font-weight: 300;
         background: var(--main-teal-color);

@@ -22,6 +22,7 @@ div.dt-button-collection {
     display: none;
 }
 
+
 .visible .vmenu-dropdown {
     z-index: 99;
     display: block;
@@ -30,6 +31,10 @@ div.dt-button-collection {
     padding: 10px;
     position: absolute;
     right: 0;
+}
+
+.visible .vmenu-dropdown li:hover {
+    background: var(--lightest-gray-color);
 }
 
 /* Button Color on Tables */

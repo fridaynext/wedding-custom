@@ -59,6 +59,24 @@
 		"oF": 0,
 		"oS": 3
 		},
+	"/public/css/archive-min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/css/archive-min-min.css",
+		"oF": 0,
+		"oS": 3
+		},
+	"/public/css/archive-min.css.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/public/css/archive-min.css.map",
+		"oF": 0
+		},
 	"/public/css/article-min.css": {
 		"aP": 1,
 		"bl": 0,
@@ -155,6 +173,16 @@
 		"oAP": "/public/css/homepage.css.map",
 		"oF": 0
 		},
+	"/public/css/jpopup.min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/css/jpopup.min-min.css",
+		"oF": 0,
+		"oS": 3
+		},
 	"/public/css/table-min.css": {
 		"aP": 1,
 		"bl": 0,
@@ -218,6 +246,16 @@
 		"miP": 0,
 		"oA": 2,
 		"oAP": "/public/img/arrows-up.svg",
+		"oF": 0,
+		"opt": 0,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/public/img/hamburger-menu@2x.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 2,
+		"oAP": "/public/img/hamburger-menu@2x.svg",
 		"oF": 0,
 		"opt": 0,
 		"plM": 52780316221407,
@@ -394,13 +432,13 @@
 		"sC": 3,
 		"tS": 0
 		},
-	"/public/js/animatedModal.min.js": {
+	"/public/js/jpopup.min.js": {
 		"bF": 0,
 		"ft": 64,
 		"ma": 0,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "/public/js/animatedModal.min-min.js",
+		"oAP": "/public/js/jpopup.min-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -470,6 +508,29 @@
 		"oS": 0,
 		"sct": 0
 		},
+	"/public/scss/archive.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/scss/archive-min.css",
+		"oF": 0,
+		"oS": 3
+		},
+	"/public/scss/archive.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 1,
+		"oA": 0,
+		"oAP": "/public/css/archive-min.css",
+		"oF": 2,
+		"oS": 3,
+		"sct": 0
+		},
 	"/public/scss/footer.scss": {
 		"aP": 1,
 		"bl": 0,
@@ -480,7 +541,7 @@
 		"oA": 0,
 		"oAP": "/public/css/footer.css",
 		"oF": 2,
-		"oS": 0,
+		"oS": 3,
 		"sct": 0
 		},
 	"/public/scss/homepage.css": {
@@ -526,6 +587,14 @@
 		"oF": 2,
 		"oS": 3,
 		"sct": 0
+		},
+	"/public/testy.html": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/public/testy.html",
+		"oF": 0
 		},
 	"/public/vendor_data.csv": {
 		"cB": 0,

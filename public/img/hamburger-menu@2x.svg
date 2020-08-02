@@ -1,0 +1,15 @@
+<svg id="Hamburger_Menu" data-name="Hamburger Menu" xmlns="http://www.w3.org/2000/svg" width="80.557" height="59.909" viewBox="0 0 27.188 20.219">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #383738;
+        fill-opacity: 0;
+        stroke: #c8c8c8;
+        stroke-width: 1.5px;
+      }
+    </style>
+  </defs>
+  <rect id="Rectangle_3_copy_2" data-name="Rectangle 3 copy 2" class="cls-1" x="0.75" y="14.344" width="25.688" height="5.125" rx="2.563" ry="2.563"/>
+  <rect id="Rectangle_3_copy" data-name="Rectangle 3 copy" class="cls-1" x="0.75" y="7.375" width="25.688" height="5.156" rx="2.578" ry="2.578"/>
+  <rect class="cls-1" x="0.75" y="0.75" width="25.688" height="5.125" rx="2.563" ry="2.563"/>
+</svg>

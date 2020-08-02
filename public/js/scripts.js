@@ -21,9 +21,10 @@ $(document).ready(function () {
 			let heading = $(textContent + ' .head-2').wrap('<span/>').parent().html();
 			returnHtml += heading;
 			$(textContent + ' .head-2').unwrap();
-			let quote = $(textContent + ' .subhead').wrap('<span/>').parent().html();
+			let quote = $(textContent + ' .head-1').wrap('<span/>').parent().html();
 			returnHtml += quote;
-			$(textContent + ' .subhead').unwrap();
+			$(textContent + ' .head-1').unwrap();
+
 			let readMore = $(textContent + ' .read-more.saw-button').wrap('<span/>').parent().html();
 			returnHtml += readMore;
 			$(textContent + ' .read-more.saw-button').unwrap();
@@ -259,22 +260,22 @@ $(document).ready(function () {
 		$.post(fnajax.ajax_url, data, function (response) {
 			// do something once the post has been deactivated!
 			// maybe redraw the tables?
-			if(response.post_type == 'vendor_profile') {
+			if(response.post_type === 'vendor_profile') {
 				alert("Vendor Profile Activated!");
 				vendorTable.draw('page');
-			} else if (response.post_type == 'post' || response.post_type == 'styled_shoot' || response.post_type == 'spotlight' || response.post_type == 'wedding_story') {
+			} else if (response.post_type === 'post' || response.post_type === 'styled_shoot' || response.post_type === 'spotlight' || response.post_type === 'wedding_story') {
 				alert("Article Activated!");
 				articleTable.draw('page');
-			} else if (response.post_type == 'category') {
+			} else if (response.post_type === 'category') {
 				alert("Category Activated!");
 				categoryTable.draw('page');
-			} else if (response.post_type == 'home_slide') {
+			} else if (response.post_type === 'home_slide') {
 				alert("Home Slider Activated!");
 				homeSlideTable.draw('page');
-			} else if (response.post_type == 'banner') {
+			} else if (response.post_type === 'banner') {
 				alert("Banner Ad Activated!");
 				bannerTable.draw('page');
-			} else if (response.post_type == 'special_offers') {
+			} else if (response.post_type === 'special_offers') {
 				alert("Special Offer Activated!");
 				specialOfferTable.draw('page');
 			}
@@ -301,14 +302,34 @@ $(document).ready(function () {
 		resizeThumbnails($('.wedding-story-blog-square .et_pb_image_container'));
 	}
 	function resizeThumbnails ($container) {
-		$images = $container.find('img'); // Get all the images inside your $container
+		let images = $container.find('img'); // Get all the images inside your $container
 
-		$images.each (function (index, element) {
-			$src = $(element).attr('src'); // Get the image's source
-			$(element).attr('src', $src.replace('-400x250', '')); // Remove the thumbnail size portion from the source and replace it
+		images.each (function (index, element) {
+			let src = $(element).attr('src'); // Get the image's source
+			$(element).attr('src', src.replace('-400x250', '')); // Remove the thumbnail size portion from the source and replace it
 		});
 	}
 
+	// ********* HOMEPAGE MID-NAV BAR VENDOR DROPDOWN MENU ************** //
+	$('#home-mid-nav-right li.vendor-dropdown').on('click', function (e) {
+		$('div.midnav-vendor-list').toggleClass('visible');
+		e.preventDefault();
+	});
+
+
+	// dropdown for tablet/phone widths
+	$('a#vendor-tablet-link').on('click', function(e) {
+		if ($(window).width() < 768) {
+			// phone width, so do full-screen modal
+			jPopupDemo.open();
+		} else {
+			// tablet width, so do tablet normal dropdown
+			$('div.midnav-vendor-list-tablet').toggleClass('visible');
+		}
+		e.preventDefault();
+	});
+
+	// ********* FOOTER VENDOR MENU AND STAY CONNECTED POPUP ************** //
 	$('a.hamburger-click').on('click', function (e) {
 		$('div.vendor-list-container').toggleClass('visible');
 		e.preventDefault();
