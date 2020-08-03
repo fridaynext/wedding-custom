@@ -307,7 +307,11 @@ function fn_enqueue_scripts() {
 		'datatables_script',
 		'datatables_buttons_script'
 	), FRIDAY_NEXT_EXTRAS_VERSION, true );
-	wp_localize_script( 'fn_scripts', 'fnajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+	$fn_nonce = wp_create_nonce( 'fn_noncy' );
+	wp_localize_script( 'fn_scripts', 'fnajax', array(
+	        'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce'    => $fn_nonce,
+    ));
 	wp_enqueue_script( 'fn_scripts' );
 	
 	if ( is_page( 'home' ) ) {
@@ -2936,30 +2940,30 @@ function render_archive_slider( $atts ) {
                 <div class="swiper-wrapper">';
 		// Get each of the slides that need to be displayed, and add them to the Slider
 		foreach ( $slider_spotlights as $slider_spotlight ) {
-		    $text_title = '';
-		    // Make sure there is a linked vendor, and use their name as the "title"
-		    if (get_field('vendor', $slider_spotlight)) {
-		        $text_title = get_the_title(get_field('vendor', $slider_spotlight));
-            } else {
-		        // otherwise, just use the article title as a last resort
-		        $text_title = get_the_title($slider_spotlight);
-            }
-		    
-		    $bg_text = '';
-		    // Check to see if the Archive Page slider image is present in the spotlight
-		    if (get_field('landing_page_image', $slider_spotlight->ID)) {
-		        $bg_image = get_field('landing_page_image', $slider_spotlight->ID);
-		        $bg_text = 'style="background: url(' . esc_url($bg_image['url']) . ');"';
-            } else {
-		        // if it isn't, just display a white background
-                $bg_text = '#FFF';
-            }
+			$text_title = '';
+			// Make sure there is a linked vendor, and use their name as the "title"
+			if ( get_field( 'vendor', $slider_spotlight ) ) {
+				$text_title = get_the_title( get_field( 'vendor', $slider_spotlight ) );
+			} else {
+				// otherwise, just use the article title as a last resort
+				$text_title = get_the_title( $slider_spotlight );
+			}
+			
+			$bg_text = '';
+			// Check to see if the Archive Page slider image is present in the spotlight
+			if ( get_field( 'landing_page_image', $slider_spotlight->ID ) ) {
+				$bg_image = get_field( 'landing_page_image', $slider_spotlight->ID );
+				$bg_text  = 'style="background: url(' . esc_url( $bg_image['url'] ) . ');"';
+			} else {
+				// if it isn't, just display a white background
+				$bg_text = '#FFF';
+			}
 			$html .= '<div class="swiper-slide">
                             <div class="bg-overlay"></div>
                             <div class="bg-image" ' . $bg_text . '></div>
                             <div class="archive-text">
                                 <h2 class="archive-title">Spotlight</h2><br />
-                                <p>' . $text_title . '</p>
+                                <p><a href="' . get_the_permalink( $slider_spotlight->ID ) . '" alt="' . get_the_title( $slider_spotlight->ID ) . '" title="' . get_the_title( $slider_spotlight->ID ) . '">' . $text_title . '</a></p>
                             </div>
                         </div>';
 			
@@ -2992,21 +2996,93 @@ function render_archive_slider( $atts ) {
           },
           keyboard: true,
           on: {
-                  slideChangeTransitionEnd: function() {
-                      setTimeout( function() {
-                          jQuery(".swiper-slide-active .archive-text").addClass("visible");
-                      }, 400);
-                      jQuery("#archive-slider .swiper-wrapper").children().eq(swiper.previousIndex).children().eq(2).removeClass("visible");
-                  },
-                  init: function() {
-                      setTimeout( function() {
-                          jQuery(".swiper-slide-active .archive-text").addClass("visible");
-                      }, 300);
-                  }
+              slideChangeTransitionEnd: function() {
+                  setTimeout( function() {
+                      jQuery(".swiper-slide-active .archive-text").addClass("visible");
+                  }, 400);
+                  jQuery("#archive-slider .swiper-wrapper").children().eq(swiper.previousIndex).children().eq(2).removeClass("visible");
+              },
+              init: function() {
+                  setTimeout( function() {
+                      jQuery(".swiper-slide-active .archive-text").addClass("visible");
+                  }, 200);
+              }
           }
         });
       </script>';
 	
 	// All is added - let's return it
+	return $html;
+}
+
+/****************************** ARCHIVE PAGE AJAX POSTS ************************************/
+
+// 2 actions to be used for doing AJAX calls
+add_action( 'wp_ajax_archive_moreposts', 'render_archive_ajax' );
+add_action( 'wp_ajax_nopriv_archive_moreposts', 'render_archive_ajax' );
+
+add_shortcode( 'archive_ajax', 'render_archive_ajax' );
+function render_archive_ajax( $atts ) {
+	// TODO: could possibly pass in 'offset' when calling this function from AJAX, so that I don't have to write it again
+	$request = $_GET;
+    $post_type = '';
+	$html      = '';
+	$offset    = 0;
+	$append    = false; // If we have an offset, let's append these results
+	
+	if (isset($request['offset']) && $request['offset'] != 0) {
+	    $offset = $request['offset'];
+	    $append = true;
+	    print_r("Setting append to TRUE:");
+    }
+	if ( ! is_null( $atts['type'] ) ) {
+		$post_type = $atts['type'] == 'spotlight' ? 'spotlight' : '';
+	}
+	if ( $post_type == 'spotlight' ) {
+	    $posts_per_page = 5;
+		// here's where we get all our Spotlights to display in beautiful flex boxes
+		$args          = array(
+			'post_type'      => 'spotlight',
+			'posts_per_page' => $posts_per_page,
+            'offset'         => $offset,
+            'orderby'        => 'rand'
+		);
+		$archive_posts = get_posts( $args );
+		$html          .= $append == false ? '<div id="post-archive-list">' : '';
+		foreach ( $archive_posts as $archive_post ) {
+			// 1. Get the Featured Image (square) to be displayed on the left
+			// 2. Get the Vendor Name to be used as the link title
+			// 3. Get the excerpt (or a specific number of words, followed by ellipsis) under Title
+			
+			// Featured Image
+			$feat_img = get_the_post_thumbnail( $archive_post->ID );
+			$html     .= '<div class="archive-row" onclick="window.location = \'' . get_the_permalink($archive_post->ID) . '\'">';
+			$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+			
+			// Vendor Name
+			$html .= '<div class="vendor-name">
+                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . get_the_title( get_field( 'vendor', $archive_post->ID ) ) . '" title="' . get_the_title( get_field( 'vendor', $archive_post->ID ) ) . '">' . get_the_title( get_field( 'vendor', $archive_post->ID ) ) . '</a></h4>';
+			$html .= '<p>' . get_field('meta_description', $archive_post->ID ) . '</p>
+            </div>'; // END .vendor-name
+			$html .= '</div>'; // END .archive-row++
+		}
+		$html .= $append == false ? '</div>' : ''; // END #post-archive-list
+        
+        // The Load More Ajax Button
+        if ($append == false) {
+		    $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+        } else {
+            // we're appending, so we don't need the button printed again
+            // send back the resulting HTML to the AJAX call, and add it in via JS
+	        $resp = array(
+		        'newhtml'  => $html
+	        );
+	        $json_stuff = json_encode($resp);
+	        echo $json_stuff;
+//	        wp_send_json( $resp );
+	        echo "This is painfully not working";
+        }
+	}
+	
 	return $html;
 }

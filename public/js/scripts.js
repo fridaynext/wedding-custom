@@ -350,6 +350,28 @@ $(document).ready(function () {
 		return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
 	});
 
+	// Set up the offset so it can be updated while the page is live
+	let offset = 0;
+	$('#archive-more-button a').on('click', function(e) {
+		offset += $(this).data('offset');
+		// Want to set the offset based on how many articles are currently showing
+		$.ajax({
+			type: "post",
+			dataType: "json",
+			url: fnajax.ajax_url,
+			data: {
+				'_ajax_nonce': fnajax.nonce,
+				'action': 'archive_moreposts',
+				'offset': offset
+			},
+			success: function (response) {
+				// can pass messages back via 'response' if I want to check to see if everything worked
+				console.log(response);
+			}
+		});
+		e.preventDefault();
+	});
+
 	// var swiper = new Swiper('.swiper-container', {
 	//     slidesPerView: 'auto',
 	//     centeredSlides: true,

@@ -57,6 +57,14 @@
         p {
           font-weight: 300;
           line-height: 1.5em;
+          a {
+            color: #FFF;
+            transition: 0.2s all;
+            &:hover {
+              font-size: 103%;
+              transition: 0.2s all;
+            }
+          }
         }
       }
     }
@@ -77,5 +85,51 @@
   }
   .swiper-button-next, .swiper-button-prev {
     color: var(--medium-gray-color);
+  }
+}
+/******* ARCHIVE POST LIST (AJAX) ********/
+#post-archive-list {
+  .archive-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 200px;
+    background: #FFF;
+    border: 1px solid var(--medium-gray-color);
+    margin-bottom: 10px;
+    &:hover {
+      background: var(--lightest-gray-color);
+      cursor: pointer;
+    }
+    .thumbnail {
+      height: 100%;
+      width: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      img {
+        height: 100% !important;
+        width: auto !important;
+        max-width: unset;
+      }
+    }
+    .vendor-name {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: start;
+      padding-left: 20px;
+      h4 a {
+        color: var(--red-color);
+      }
+    }
+  }
+}
+#archive-more-button {
+  text-align: center;
+  margin-top: 30px;
+  a:hover {
+    color: #FFF !important;
   }
 }
