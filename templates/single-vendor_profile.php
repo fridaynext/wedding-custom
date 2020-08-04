@@ -84,8 +84,77 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 						<?php endif; ?>
 						<?php endif; ?>
 						
-						<?php // website
-						?>
+                        <?php /******************** IF ADDITIONAL ADDRESSES, LIST THEM HERE ********************/ ?>
+                        <?php if( have_rows('addresses') ) {
+                            // there is at least one additional address, so loop through all the results
+                            $modal_id = 2;
+	                        while( have_rows('addresses') ) : the_row(); ?>
+		                        <div class="vendor-address">
+                                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                     viewBox="0 0 21 28" style="enable-background:new 0 0 21 28;"
+                                     xml:space="preserve">
+                                                        <style type="text/css">
+                                                            .st0 {
+                                                                fill: #8CBCBF;
+                                                            }
+                                                        </style>
+                                    <path class="st0" d="M10.64,0.38c-5.5,0-9.96,4.55-9.96,10.17c0,5.61,9.96,16.92,9.96,16.92s9.96-11.31,9.96-16.92
+                C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
+                C14.36,11.99,12.69,13.69,10.63,13.69z"/>
+                                                    </svg>
+								
+								<?php
+								$address        = get_sub_field( 'address' );
+								$address_string = '';
+								$address_string .= ! empty( $address['address_line_1'] ) ? $address['address_line_1'] : '';
+								$address_string .= ! empty( $address['address_line_2'] ) ? ', ' . $address['address_line_2'] : '';
+								$address_string .= ! empty( $address['city'] ) ? ', ' . $address['city'] : '';
+								$address_string .= ! empty( $address['state'] ) ? ', ' . $address['state'] : '';
+								$address_string .= ! empty( $address['zip'] ) ? ' ' . $address['zip'] : '';
+								
+								$map_modal_id = 'map-modal-' . $modal_id;
+								
+								?>
+                                <div class="vendor-address-text" data-micromodal-trigger="<?php echo $map_modal_id; ?>" onclick="MicroModal.show('<?php echo $map_modal_id; ?>', {awaitCloseAnimation:true})">
+                                    <?php echo $address_string; ?>
+                                </div>
+                            </div>
+                            <?php /******************** IF ADDITIONAL Google Map, LIST THEM HERE ********************/ ?>
+		                        <?php if ( get_sub_field( 'vendor_google_map' ) ) : ?>
+			                        <? // set up the MicroModal for beautiful popup ?>
+                                    <div id="<?php echo $map_modal_id; ?>" class="modal micromodal-slide" aria-hidden="true">
+                                        <div class="modal__overlay" tabindex="-1" data-custom-close="<?php echo $map_modal_id; ?>">
+                                            <div role="dialog" class="modal__container" aria-modal="true"
+                                                 aria-labelledby="<?php echo $map_modal_id; ?>">
+                                                <header class="modal__header">
+                                                    <div id="<?php echo $map_modal_id; ?>-title" class="modal__title">
+                                                        <p><?php echo get_the_title(); ?><br/>
+                                                            <span style="font-size:.8em;font-weight:400;text-transform:none;font-family:'Encode Sans Condensed',sans-serif;">
+                                                                <?php $address_string .= ! empty( $address['business_phone_number'] ) ? '<br />' . $address['business_phone_number'] : ''; echo $address_string; ?>
+                                                            </span>
+                                                        </p>
+                                                    </div>
+							                        <?php $location = get_field( 'vendor_google_map' ); ?>
+                                                    <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo $location['lat'] . ',' . $location['lng']; ?>"
+                                                       class="directions" target="_blank">Get Directions</a>
+                                                    <button aria-label="Close modal" class="modal__close"
+                                                            data-custom-close="<?php echo $map_modal_id; ?>" onclick="MicroModal.close('<?php echo $map_modal_id; ?>',{awaitCloseAnimation:true})"></button>
+                                                </header>
+                                                <div id="<?php echo $map_modal_id; ?>-content" class="acf-map modal__content" data-zoom="16">
+                                                    <div class="marker" data-lat="<?php echo esc_attr( $location['lat'] ); ?>"
+                                                         data-lng="<?php echo esc_attr( $location['lng'] ); ?>"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+		
+		                        <?php endif; ?>
+                            <?php $modal_id++; ?>
+                            <? endwhile; ?>
+                        <?php } // end of if statement ?>
+						<?php // website ?>
+						
                         <div class="vendor-meta-second-line">
 
                             <div class="vendor-website meta-item">
@@ -236,19 +305,19 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                 <div class="vendor-sticky-nav">
                     <ul class="vendor-page-nav">
 						<?php if ( $vendor_gallery ) : ?>
-                            <li class="nav-item"><a href="#vendor-gallery">Gallery</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#vendor-gallery">Gallery</a></li><?php endif; ?>
 						<?php if ( $about_vendor ) : ?>
-                            <li class="nav-item"><a href="#about-vendor">About</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#about-vendor">About</a></li><?php endif; ?>
 						<?php if ( $special_offers ) : ?>
-                            <li class="nav-item"><a href="#special-offers">Offers/Events</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#special-offers">Offers/Events</a></li><?php endif; ?>
 						<?php if ( $reviews ) : ?>
-                            <li class="nav-item"><a href="#vendor-reviews">Reviews</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#vendor-reviews">Reviews</a></li><?php endif; ?>
 						<?php if ( $vendor_posts ) : ?>
-                            <li class="nav-item"><a href="#in-the-press">In the Press</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#in-the-press">In the Press</a></li><?php endif; ?>
 						<?php if ( false )  : //TODO: UPDATE ?>
-                            <li class="nav-item"><a href="#comparison-guides">Comparison Guide</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#comparison-guides">Comparison Guide</a></li><?php endif; ?>
 						<?php if ( $url_360 ) : ?>
-                            <li class="nav-item"><a href="#360-tours">360° Tour</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#360-tours">360° Tour</a></li><?php endif; ?>
                     </ul>
                 </div>
 
@@ -275,7 +344,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 									$size = "full";
 									
 									$total = sizeof( $vendor_gallery ); ?>
-                                    <div id="vendor-gallery" class="swiper-container">
+                                    <div class="swiper-container">
+                                        <span id="vendor-gallery" class="sticky-top"></span>
                                         <div class="swiper-wrapper">
 											<?php foreach ( $vendor_gallery as $image_id ): ?>
                                                 <div class="swiper-slide">
@@ -290,7 +360,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                     </div>
 
                                     <script type="text/javascript">
-                                        var swiper = new Swiper('.swiper-container', {
+                                        let swiper = new Swiper('.swiper-container', {
                                             slidesPerView: 'auto',
                                             centeredSlides: true,
                                             loop: true,
@@ -301,70 +371,52 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                 prevEl: '.swiper-button-prev'
                                             },
                                             on: {
-                                                init: function () {
-                                                    // find width of image and dynamically assign width of parent div (.swiper-slide)
-                                                    // set widths of all parent div containers of images
-                                                    jQuery('.swiper-slide').each(function (index, element) {
-                                                        // in each swiper-slide, get the child image's width to calculate this wrapper's width
-                                                        let imgWidth = jQuery(this).children().first().width();
-                                                        let imgHeight = jQuery(this).children().first().height();
-                                                        let wrapperHeight = jQuery('.swiper-wrapper').height();
-                                                        jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
-                                                        console.log("updated width: ");
-                                                        console.log(jQuery(this).width());
-                                                    });
-                                                    // var $img_height = jQuery('.swiper-slide-active img').height();
-                                                    // var $img_width = jQuery('.swiper-slide-active img').width();
-                                                    // var $container_height = jQuery('.swiper-container').height();
-                                                    // if($img_height > $container_height) {
-                                                    //     $new_img_width = $container_height * $img_width / $img_height;
-                                                    //     jQuery('.swiper-slide-active').width($new_img_width);
-                                                    //     jQuery('.swiper-slide-active').height('auto');
-                                                    // }
-                                                }//,
-                                                //     slideChange: function () {
-                                                //         // do the same, but when the slides change
-                                                //         var $img_height = jQuery('.swiper-slide-active img').height();
-                                                //         var $img_width = jQuery('.swiper-slide-active img').width();
-                                                //         var $container_height = jQuery('.swiper-container').height();
-                                                //         if($img_height > $container_height) {
-                                                //             // do $container_height * $img_width / $img_height - for new image width
-                                                //             var $new_img_width = $container_height * $img_width / $img_height;
-                                                //             jQuery('.swiper-slide-active').width($new_img_width);
-                                                //             jQuery('.swiper-slide-active img').width($new);
-                                                //         }
-                                                //         var $prev_img_height = jQuery('.swiper-slide-prev img').height();
-                                                //         var $prev_img_width = jQuery('.swiper-slide-prev img').width();
-                                                //         if($prev_img_height > $container_height) {
-                                                //             var $new_img_width = $container_height * $prev_img_width / $prev_img_height;
-                                                //             jQuery('.swiper-slide-prev').width($new_img_width);
-                                                //             jQuery('.swiper-slide-prev').height('');
-                                                //         }
-                                                //         var $next_img_height = jQuery('.swiper-slide-next img').height();
-                                                //         var $next_img_width = jQuery('.swiper-slide-next img').height();
-                                                //         if($next_img_height > $container_height) {
-                                                //             var $new_img_width = $container_height * $next_img_width / $next_img_height;
-                                                //             jQuery('.swiper-slide-next').width($new_img_width);
-                                                //             jQuery('.swiper-slide-next').height('100%');
-                                                //         }
-                                                //     }
-                                                //
-                                            },
+                                                init: function() {
+                                                    calculateDimensions();
+                                                },
+                                                resize: function() {
+                                                    calculateDimensions();
+                                                }
+                                            }
                                         });
+                                        
+                                        // find width of image and dynamically assign width of parent div (.swiper-slide)
+                                        // set widths of all parent div containers of images
+                                        function calculateDimensions() {
+                                            // in each swiper-slide, get the child image's width to calculate this wrapper's width
+                                            jQuery('.swiper-slide').each(function (index, element) {
+                                                let imgWidth = jQuery(this).children().first().width();
+                                                let imgHeight = jQuery(this).children().first().height();
+                                                let wrapperHeight = jQuery('.swiper-wrapper').height();
+                                                jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
+                                            });
+                                            jQuery('.swiper-slide-duplicate').each(function (index, element) {
+                                                let imgWidth = jQuery(this).children().first().width();
+                                                let imgHeight = jQuery(this).children().first().height();
+                                                let wrapperHeight = jQuery('.swiper-wrapper').height();
+                                                jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
+                                            });
+                                        }
+                                        jQuery(window).on('load', function() {
+                                            // Resize refreshes sliders
+                                            swiper.slideTo(<?php echo $total; ?>,0);
+                                        });
+                                        
                                     </script>
 								<?php endif; ?>
 								
 								<?php if ( $about_vendor ) : ?>
-                                    <h2 id="about-vendor"><span
+                                    <h2><span id="about-vendor" class="sticky-top"></span><span
                                                 class="vendor-header-triangle"></span>About <?php echo get_the_title(); ?>
                                     </h2>
-									<?php
-									the_field( "about_this_vendor", get_the_ID() );
-								endif;
+                                    <div class="about-vendor-container">
+                                        <?php the_field( "about_this_vendor", get_the_ID() );?>
+                                    </div>
+								<?php endif;
 								
 								/******************** Special Offers & Events ********************/
 								if ( $special_offers ) : ?>
-                                    <h2 id="special-offers"><span class="vendor-header-triangle"></span>Special Offers &
+                                    <h2><span id="special-offers" class="sticky-top"></span><span class="vendor-header-triangle"></span>Special Offers &
                                         Events</h2>
 									<?php
 									// $special_offers is gotten at the top of this page, to determine whether or not its sticky menu item should show
@@ -412,13 +464,13 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								
 								/******************** Reviews ********************/
 								if ( $reviews ) : ?>
-                                    <h2 id="vendor-reviews"><span class="vendor-header-triangle"></span>Reviews</h2>
+                                    <h2><span id="vendor-reviews" class="sticky-top"></span><span class="vendor-header-triangle"></span>Reviews</h2>
 									<?php echo get_field( 'wedding_wire_reviews_html', get_the_ID() );
 								endif;
 								
 								/******************** In the Press ********************/
 								if ( sizeof( $vendor_posts ) > 0 ) : ?>
-                                    <h2 id="in-the-press"><span class="vendor-header-triangle"></span>In the Press</h2>
+                                    <h2><span id="in-the-press" class="sticky-top"></span><span class="vendor-header-triangle"></span>In the Press</h2>
                                     <div class="in-the-press">
 										<?php
 										// check each post type to see that the vendor meta_key is equal to this vendor's post ID
@@ -497,16 +549,16 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								<?php /******************** Comparison Guides ********************/
 								/************** TODO: If musician, this won't be here, but it will be musical samples ************/ ?>
 								<?php if ( false ) : // TODO: CHANGE THIS WHEN WE ACTUALLY HAVE COMPARISON GUIDES ?>
-                                    <h2 id="comparison-guides"><span class="vendor-header-triangle"></span>Comparison
+                                    <h2><span id="comparison-guides" class="sticky-top"></span><span class="vendor-header-triangle"></span>Comparison
                                         Guides</h2>
 								<?php endif; ?>
 								
 								<?php /******************** 360° Virtual Tours ********************/
 								if ( $url_360 ) : ?>
-                                    <h2 id="360-tours"><span class="vendor-header-triangle"></span>360° Virtual Tours
+                                    <h2><span id="360-tours" class="sticky-top"></span><span class="vendor-header-triangle"></span>360° Virtual Tours
                                         of <?php echo get_the_title(); ?></h2>
 									<?php $url_360 = get_field( '360-virtual-tour', get_the_ID() ); ?>
-                                    <a href="<?php echo $url_360; ?>"><img
+                                    <a target="_blank" href="<?php echo $url_360; ?>"><img
                                                 src="<?php echo esc_url( plugins_url( '../public/img/San-Antonio-Weddings-360-Virtual-Tour-Animated.gif', __FILE__ ) ); ?>"
                                                 width="100%" height="auto"/></a>
 								<?php endif; ?>

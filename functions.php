@@ -248,7 +248,7 @@ function fn_enqueue_styles() {
 	}
 	// 'Vendor Profile' Styles
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+		wp_register_style( 'vendor_profile_style', plugins_url( 'public/css/vendor-profile.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 		wp_enqueue_style( 'vendor_profile_style' );
 	}
 	// Homepage
@@ -800,7 +800,12 @@ function render_vendors() {
 			}
 			$nestedData[] = join( ', ', $cat_array );
 			$nestedData[] = get_post_field( 'post_name' );
-			$nestedData[] = get_field( 'group' ); // TODO: filter out individual taxonomy
+			$group_text = '';
+			if (get_field('group')) {
+			    $group = get_field('group');
+			    $group_text = esc_html($group->name);
+            }
+			$nestedData[] = $group_text; // TODO: filter out individual taxonomy
 			$nestedData[] = ''; // TODO: premium level for each category
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
@@ -1588,7 +1593,7 @@ function social_media_tab_func( $atts ) {
 	$html .= '<script type="text/javascript">
                 jQuery( function() {
                     jQuery("#social-tabs").tabs({
-                        event: "mouseover"
+                        event: "click"
                     });
                     jQuery(".all-tabs-container").parent().parent().addClass("social-sidebar-tabs");
                 });
@@ -2778,7 +2783,7 @@ function render_stay_connected_footer() {
                         <script type="text/javascript">
                             jQuery( function() {
                                 jQuery("#footer-social-tabs").tabs({
-                                    event: "mouseover"
+                                    event: "click"
                                 });
                                 jQuery(".all-tabs-container").parent().addClass("social-sidebar-tabs");
                             });

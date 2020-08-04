@@ -203,24 +203,6 @@
 		"oF": 0,
 		"oS": 3
 		},
-	"/public/css/vendor-profile-min.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/public/css/vendor-profile-min-min.css",
-		"oF": 0,
-		"oS": 3
-		},
-	"/public/css/vendor-profile-min.css.map": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/public/css/vendor-profile-min.css.map",
-		"oF": 0
-		},
 	"/public/css/vendor-profile.css": {
 		"aP": 1,
 		"bl": 0,
@@ -230,6 +212,14 @@
 		"oAP": "/public/css/vendor-profile-min.css",
 		"oF": 0,
 		"oS": 3
+		},
+	"/public/css/vendor-profile.css.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/public/css/vendor-profile.css.map",
+		"oF": 0
 		},
 	"/public/css/vendor-style.css": {
 		"aP": 1,
@@ -487,6 +477,17 @@
 		"sC": 3,
 		"tS": 0
 		},
+	"/public/js/swiper-bundle.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 0,
+		"oAP": "/public/js/swiper-bundle-min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
 	"/public/sawimport.csv": {
 		"cB": 0,
 		"ft": 8192,
@@ -583,7 +584,7 @@
 		"ft": 4,
 		"ma": 1,
 		"oA": 0,
-		"oAP": "/public/css/vendor-profile-min.css",
+		"oAP": "/public/css/vendor-profile.css",
 		"oF": 2,
 		"oS": 3,
 		"sct": 0
