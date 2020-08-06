@@ -263,9 +263,9 @@ function fn_enqueue_styles() {
 //*********************************  WP_ENQUEUE_SCRIPTS *******************************//
 function fn_enqueue_scripts() {
 	// Scripts
-	wp_register_script( 'facebook_share', 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0' );
+	wp_register_script( 'facebook_share', 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0', array(), null, true );
 //    wp_enqueue_script( 'facebook_share' );
-	wp_register_script( 'pinterest_share', 'https://assets.pinterest.com/js/pinit.js' );
+	wp_register_script( 'pinterest_share', '//assets.pinterest.com/js/pinit.js', array(), null, true );
 //    wp_enqueue_script( 'pinterest_share' );
 	
 	// For jQuery Tables on Admin pages
@@ -279,20 +279,20 @@ function fn_enqueue_scripts() {
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
 	if ( get_post_type() == 'vendor_profile' ) {
-		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js' );
-		wp_register_script( 'popper', '//unpkg.com/@popperjs/core@2' );
-		wp_register_script( 'micromodal', plugins_url( 'public/js/micromodal.min.js', __FILE__ ) );
+		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js', array(), null, false );
+		wp_register_script( 'popper', '//unpkg.com/@popperjs/core@2', array(), null, true );
+		wp_register_script( 'micromodal', plugins_url( 'public/js/micromodal.min.js', __FILE__ ), array(), null, true );
 		wp_register_script( 'sticky_bits', plugins_url( 'public/js/jquery.stickybits.min.js', __FILE__ ), array(
 			'swiper_slider',
 			'micromodal',
 			'jquery-ui-tabs',
 			'popper'
-		), FRIDAY_NEXT_EXTRAS_VERSION );
+		), FRIDAY_NEXT_EXTRAS_VERSION, true );
 		wp_enqueue_script( 'sticky_bits' );
 	}
 	
 	// For all archive pages
-	if ( is_archive() ) {
+	if ( is_archive() || is_home()) {
 		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js' );
 		wp_enqueue_script( 'swiper_slider' );
 	}
@@ -315,7 +315,7 @@ function fn_enqueue_scripts() {
 	wp_enqueue_script( 'fn_scripts' );
 	
 	if ( is_page( 'home' ) ) {
-		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/swiper-bundle.min.js' );
+		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/swiper-bundle.min.js', array(), null, true );
 		wp_enqueue_script( 'swiper_slider' );
 	}
 }
@@ -379,13 +379,12 @@ add_action( 'login_enqueue_scripts', 'saw_login_logo' );
 
 // add async / defer to facebook script
 function add_async_attribute( $tag, $handle ) {
-	if ( ( 'facebook_share' !== $handle ) || ( 'pinterest_share' !== $handle ) ) {
-		return $tag;
+	if ( ( 'facebook_share' == $handle ) || ( 'pinterest_share' == $handle ) ) {
+		return str_replace( ' src', ' async="async" defer="defer" crossorigin="anonymous" src', $tag );
 	}
 	
-	return str_replace( ' src', ' async defer crossorigin="anonymous" nonce="Szqdsx5f" src', $tag );
+	return $tag;
 }
-
 add_filter( 'script_loader_tag', 'add_async_attribute', 10, 2 );
 
 // Vendor Profile Sidebar
@@ -1127,8 +1126,7 @@ function vendor_admin_add_form_func( $atts ) {
 		),
 		'submit_value'          => 'Create new Advertiser',
 		'instruction_placement' => 'field',
-		'return'                => '/saw-admin/edit-advertiser?ven_id=%post_id%',
-		'uploader'              => 'basic'
+		'return'                => '/saw-admin/edit-advertiser?ven_id=%post_id%'
 	);
 	ob_start();
 	acf_form( $args );
@@ -1584,16 +1582,50 @@ function social_media_tab_func( $atts ) {
 		$html .= '<div id="facebook" class="social-share-div"><div class="fb-page" data-href="' . $fb_url . '" data-tabs="timeline" data-width="" data-height="360" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="' . $fb_url . '" class="fb-xfbml-parse-ignore"><a href="' . $fb_url . '">' . get_the_title() . '</a></blockquote></div></div>';
 	}
 	if ( $pin_url ) {
-		$html .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
+		$html .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="280" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
 	}
 	if ( $ig_url ) {
-		$html .= '<div id="instagram" class="social-share-div">Instagram content here.<br>And a new line.<br>Another.</div>';
+	    $config = new includes\Config\SawConfig();
+	    $regex = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
+		// Verify valid Instagram URL
+		if ( preg_match( $regex, $ig_url, $matches ) ) {
+			$ig_username = $matches[1];
+			
+			$ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
+			
+//            print_r($this_feed);
+    		$html .= '<div id="instagram" class="social-share-div">
+                        <div class="ig-header">
+                            <div class="ig-profile-photo">
+                                <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
+                            </div>
+                            <div class="ig-title">' . $ig_feed->title . '</div>
+                        </div>
+                        <div class="ig-photos">';
+                            $flex_count = 0;
+                            $html .= '<div class="ig-photo-row">';
+                            foreach ($ig_feed->images as $image) {
+                                $flex_count++;
+                                $html .= $image;
+                                if ($flex_count % 3 == 0) {
+                                    if ($flex_count == sizeof($ig_feed->images)) {
+	                                    break;
+                                    } else {
+                                        $html .= '</div><div class="ig-photo-row">';
+                                    }
+                                }
+                            }
+                            $html .= '</div>';
+                        $html .= '</div>
+                        <a class="ig-follow" href="' . $ig_url . '" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
+                      </div>';
+        }
 	}
 	$html .= '</div></div>';
 	$html .= '<script type="text/javascript">
                 jQuery( function() {
                     jQuery("#social-tabs").tabs({
-                        event: "click"
+                        event: "mouseover"
                     });
                     jQuery(".all-tabs-container").parent().parent().addClass("social-sidebar-tabs");
                 });
@@ -2777,13 +2809,46 @@ function render_stay_connected_footer() {
                             <div id="pinterest" class="social-share-div">
                                 <a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="242" data-pin-scale-width="80" href="https://www.pinterest.com/sanantonioweddings/"></a>
                             </div>
-                            <div id="instagram" class="social-share-div">Instagram content here.<br>And a new line.<br>Another.</div>
-                            </div>
+                            <div id="instagram" class="social-share-div">';
+                            $config = new includes\Config\SawConfig();
+                            $regex = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
+                            // Verify valid Instagram URL
+                            
+                            $ig_username = 'sanantonio.weddings';
+                            $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
+                            
+                            $html .= '<div id="instagram" class="social-share-div">
+                                <div class="ig-header">
+                                    <div class="ig-profile-photo">
+                                        <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
+                                    </div>
+                                    <div class="ig-title">' . $ig_feed->title . '</div>
+                                </div>
+                                <div class="ig-photos">';
+                                    $flex_count = 0;
+                                    $html .= '<div class="ig-photo-row">';
+                                    foreach ($ig_feed->images as $image) {
+                                        $flex_count++;
+                                        $html .= $image;
+                                        if ($flex_count % 3 == 0) {
+                                            if ($flex_count == sizeof($ig_feed->images)) {
+                                                break;
+                                            } else {
+                                                $html .= '</div><div class="ig-photo-row">';
+                                            }
+                                        }
+                                    }
+                                    $html .= '</div>';
+                                $html .= '</div>
+                                <a class="ig-follow" href="https://www.instagram.com/sanantonio.weddings/" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
+                              </div>';
+                              
+                            $html .= '</div>
                         </div>
                         <script type="text/javascript">
                             jQuery( function() {
                                 jQuery("#footer-social-tabs").tabs({
-                                    event: "click"
+                                    event: "mouseover"
                                 });
                                 jQuery(".all-tabs-container").parent().addClass("social-sidebar-tabs");
                             });
@@ -2932,32 +2997,34 @@ function render_archive_slider( $atts ) {
 	$post_type = $atts['type'];
 	$html      = '';
 	// If this is a Spotlight or (the other one that is similar) - render it one way. Otherwise, render another way
-	if ( $post_type == 'spotlight' ) {
+	if ( $post_type == 'spotlight' || $post_type == 'post') {
 		// Grab the 5 newest Spotlights to be displayed in the slider
 		$args              = array(
-			'post_type'      => 'spotlight',
+			'post_type'      => $post_type,
 			'posts_per_page' => 5,
-			'post_status'    => 'publish'
+			'post_status'    => 'publish',
+            'meta_key'       => 'is_active',
+            'meta_value'     => true
 		);
-		$slider_spotlights = get_posts( $args );
+		$slider_posts = get_posts( $args );
 		$html              .= '<div id="archive-slider">
             <div class="swiper-container">
                 <div class="swiper-wrapper">';
 		// Get each of the slides that need to be displayed, and add them to the Slider
-		foreach ( $slider_spotlights as $slider_spotlight ) {
+		foreach ( $slider_posts as $slider_post ) {
 			$text_title = '';
 			// Make sure there is a linked vendor, and use their name as the "title"
-			if ( get_field( 'vendor', $slider_spotlight ) ) {
-				$text_title = get_the_title( get_field( 'vendor', $slider_spotlight ) );
+			if ( get_field( 'vendor', $slider_post ) ) {
+				$text_title = get_the_title( get_field( 'vendor', $slider_post ) );
 			} else {
-				// otherwise, just use the article title as a last resort
-				$text_title = get_the_title( $slider_spotlight );
+				// otherwise, just use the article title as a last resort (or for Blog posts)
+				$text_title = get_the_title( $slider_post );
 			}
 			
 			$bg_text = '';
 			// Check to see if the Archive Page slider image is present in the spotlight
-			if ( get_field( 'landing_page_image', $slider_spotlight->ID ) ) {
-				$bg_image = get_field( 'landing_page_image', $slider_spotlight->ID );
+			if ( get_field( 'landing_page_image', $slider_post->ID ) ) {
+				$bg_image = get_field( 'landing_page_image', $slider_post->ID );
 				$bg_text  = 'style="background: url(' . esc_url( $bg_image['url'] ) . ');"';
 			} else {
 				// if it isn't, just display a white background
@@ -2967,8 +3034,8 @@ function render_archive_slider( $atts ) {
                             <div class="bg-overlay"></div>
                             <div class="bg-image" ' . $bg_text . '></div>
                             <div class="archive-text">
-                                <h2 class="archive-title">Spotlight</h2><br />
-                                <p><a href="' . get_the_permalink( $slider_spotlight->ID ) . '" alt="' . get_the_title( $slider_spotlight->ID ) . '" title="' . get_the_title( $slider_spotlight->ID ) . '">' . $text_title . '</a></p>
+                                <h2 class="archive-title">' . ($post_type == 'spotlight' ?  "Spotlight" : "Blog") . '</h2><br />
+                                <p><a href="' . get_the_permalink( $slider_post->ID ) . '" alt="' . get_the_title( $slider_post->ID ) . '" title="' . get_the_title( $slider_post->ID ) . '">' . $text_title . '</a></p>
                             </div>
                         </div>';
 			
@@ -2985,34 +3052,36 @@ function render_archive_slider( $atts ) {
 	
 	// Add in the <script> tag to initialize
 	$html .= '<script>
-        var swiper = new Swiper(".swiper-container", {
-          autoplay: {
-            delay: 7500,
-            disableOnInteraction: false,
-            grabCursor: true,
-          },
-          navigation: {
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-          },
-          pagination: {
-            el: ".swiper-pagination",
-            clickable: true
-          },
-          keyboard: true,
-          on: {
-              slideChangeTransitionEnd: function() {
-                  setTimeout( function() {
-                      jQuery(".swiper-slide-active .archive-text").addClass("visible");
-                  }, 400);
-                  jQuery("#archive-slider .swiper-wrapper").children().eq(swiper.previousIndex).children().eq(2).removeClass("visible");
+        jQuery(document).on("ready", function() {
+            var swiper = new Swiper(".swiper-container", {
+              autoplay: {
+                delay: 7500,
+                disableOnInteraction: false,
+                grabCursor: true,
               },
-              init: function() {
-                  setTimeout( function() {
-                      jQuery(".swiper-slide-active .archive-text").addClass("visible");
-                  }, 200);
+              navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+              },
+              pagination: {
+                el: ".swiper-pagination",
+                clickable: true
+              },
+              keyboard: true,
+              on: {
+                  slideChangeTransitionEnd: function() {
+                      setTimeout( function() {
+                          jQuery(".swiper-slide-active .archive-text").addClass("visible");
+                      }, 400);
+                      jQuery("#archive-slider .swiper-wrapper").children().eq(swiper.previousIndex).children().eq(2).removeClass("visible");
+                  },
+                  init: function() {
+                      setTimeout( function() {
+                          jQuery(".swiper-slide-active .archive-text").addClass("visible");
+                      }, 200);
+                  }
               }
-          }
+            });
         });
       </script>';
 	
@@ -3029,28 +3098,32 @@ add_action( 'wp_ajax_nopriv_archive_moreposts', 'render_archive_ajax' );
 add_shortcode( 'archive_ajax', 'render_archive_ajax' );
 function render_archive_ajax( $atts ) {
 	// TODO: could possibly pass in 'offset' when calling this function from AJAX, so that I don't have to write it again
-	$request = $_GET;
+	$request = $_POST;
     $post_type = '';
 	$html      = '';
 	$offset    = 0;
 	$append    = false; // If we have an offset, let's append these results
 	
-	if (isset($request['offset']) && $request['offset'] != 0) {
+	if (isset($request['offset']) && $request['offset'] !== 0) {
 	    $offset = $request['offset'];
 	    $append = true;
-	    print_r("Setting append to TRUE:");
     }
-	if ( ! is_null( $atts['type'] ) ) {
-		$post_type = $atts['type'] == 'spotlight' ? 'spotlight' : '';
+	if ( isset($request['post_type']) ) {
+		$post_type = $request['post_type'];
+	} elseif ( isset( $atts['type'] ) ) {
+	    $post_type = $atts['type']; // == 'spotlight' ? 'spotlight' : '';
 	}
-	if ( $post_type == 'spotlight' ) {
+ 
+	if ( $post_type == 'spotlight' || $post_type == 'post') {
 	    $posts_per_page = 5;
 		// here's where we get all our Spotlights to display in beautiful flex boxes
 		$args          = array(
-			'post_type'      => 'spotlight',
+			'post_type'      => $post_type,
 			'posts_per_page' => $posts_per_page,
+            'meta_key'       => 'is_active',
+            'meta_value'     => true,
             'offset'         => $offset,
-            'orderby'        => 'rand'
+            'orderby'        => ($post_type == 'spotlight' ? 'rand(' . get_random_post() . ')' : 'date')
 		);
 		$archive_posts = get_posts( $args );
 		$html          .= $append == false ? '<div id="post-archive-list">' : '';
@@ -3065,8 +3138,9 @@ function render_archive_ajax( $atts ) {
 			$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 			
 			// Vendor Name
+            $post_title = $post_type == 'vendor' ? get_the_title( get_field( 'vendor', $archive_post->ID ) ) : get_the_title($archive_post->ID);
 			$html .= '<div class="vendor-name">
-                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . get_the_title( get_field( 'vendor', $archive_post->ID ) ) . '" title="' . get_the_title( get_field( 'vendor', $archive_post->ID ) ) . '">' . get_the_title( get_field( 'vendor', $archive_post->ID ) ) . '</a></h4>';
+                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>';
 			$html .= '<p>' . get_field('meta_description', $archive_post->ID ) . '</p>
             </div>'; // END .vendor-name
 			$html .= '</div>'; // END .archive-row++
@@ -3075,19 +3149,33 @@ function render_archive_ajax( $atts ) {
         
         // The Load More Ajax Button
         if ($append == false) {
-		    $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+		    $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
         } else {
             // we're appending, so we don't need the button printed again
             // send back the resulting HTML to the AJAX call, and add it in via JS
-	        $resp = array(
+            $resp = array(
 		        'newhtml'  => $html
 	        );
-	        $json_stuff = json_encode($resp);
-	        echo $json_stuff;
+	        wp_send_json($resp);
+	        wp_die();
+	        
 //	        wp_send_json( $resp );
-	        echo "This is painfully not working";
+//	        echo "This is painfully not working";
         }
 	}
 	
 	return $html;
+}
+// Create a session so we can store the already retrieved posts, so there are no dupes
+function prefix_start_session() {
+	if( !session_id() ) {
+		session_start();
+	}
+}
+add_action( 'init', 'prefix_start_session' );
+function get_random_post() {
+	if ( !isset( $_SESSION['random'] ) ) {
+		$_SESSION['random'] = rand();
+	}
+	return $_SESSION['random'];
 }

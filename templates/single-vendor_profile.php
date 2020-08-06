@@ -24,64 +24,65 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 					?>
                     <!-- Generator: Adobe Illustrator 24.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
                     <div class="vendor-meta">
-						<?php $address = get_field( 'address' );
-						if ( $address ) : ?>
-                            <div class="vendor-address">
-                                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                     viewBox="0 0 21 28" style="enable-background:new 0 0 21 28;"
-                                     xml:space="preserve">
-                                                        <style type="text/css">
-                                                            .st0 {
-                                                                fill: #8CBCBF;
-                                                            }
-                                                        </style>
-                                    <path class="st0" d="M10.64,0.38c-5.5,0-9.96,4.55-9.96,10.17c0,5.61,9.96,16.92,9.96,16.92s9.96-11.31,9.96-16.92
-                C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
-                C14.36,11.99,12.69,13.69,10.63,13.69z"/>
-                                                    </svg>
-								
-								<?php
-								$address        = get_field( 'address' );
-								$address_string = '';
-								$address_string .= ! empty( $address['address_line_1'] ) ? $address['address_line_1'] : '';
-								$address_string .= ! empty( $address['address_line_2'] ) ? ', ' . $address['address_line_2'] : '';
-								$address_string .= ! empty( $address['city'] ) ? ', ' . $address['city'] : '';
-								$address_string .= ! empty( $address['state'] ) ? ', ' . $address['state'] : '';
-								$address_string .= ! empty( $address['zip'] ) ? ' ' . $address['zip'] : '';
-								
-								?>
-                                <div class="vendor-address-text" data-micromodal-trigger="map-modal-1" onclick="MicroModal.show('map-modal-1', {awaitCloseAnimation:true})">
-                                    <?php echo $address_string; ?>
+						<?php if ( get_field('address') ) :
+                            $address = get_field('address');
+                            if (! empty( $address['address_line_1'] ) && ! empty( $address['city'] ) && ! empty( $address['state'] )) :
+                                ?>
+                                <div class="vendor-address">
+                                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                         xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                         viewBox="0 0 21 28" style="enable-background:new 0 0 21 28;"
+                                         xml:space="preserve">
+                                                            <style type="text/css">
+                                                                .st0 {
+                                                                    fill: #8CBCBF;
+                                                                }
+                                                            </style>
+                                        <path class="st0" d="M10.64,0.38c-5.5,0-9.96,4.55-9.96,10.17c0,5.61,9.96,16.92,9.96,16.92s9.96-11.31,9.96-16.92
+                    C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
+                    C14.36,11.99,12.69,13.69,10.63,13.69z"/>
+                                                        </svg>
+                                    
+                                    <?php
+                                    $address_string = '';
+                                    $address_string .= ! empty( $address['address_line_1'] ) ? $address['address_line_1'] : '';
+                                    $address_string .= ! empty( $address['address_line_2'] ) ? ', ' . $address['address_line_2'] : '';
+                                    $address_string .= ! empty( $address['city'] ) ? ', ' . $address['city'] : '';
+                                    $address_string .= ! empty( $address['state'] ) ? ', ' . $address['state'] : '';
+                                    $address_string .= ! empty( $address['zip'] ) ? ' ' . $address['zip'] : '';
+                                    
+                                    ?>
+                                    <div class="vendor-address-text" data-micromodal-trigger="map-modal-1" onclick="MicroModal.show('map-modal-1', {awaitCloseAnimation:true})">
+                                        <?php echo $address_string; ?>
+                                    </div>
                                 </div>
-                            </div>
-						<?php if ( get_field( 'vendor_google_map' ) ) : ?>
-						<? // set up the MicroModal for beautiful popup ?>
-                            <div id="map-modal-1" class="modal micromodal-slide" aria-hidden="true">
-                                <div class="modal__overlay" tabindex="-1" data-custom-close="map-modal-1">
-                                    <div role="dialog" class="modal__container" aria-modal="true"
-                                         aria-labelledby="map-modal-1">
-                                        <header class="modal__header">
-                                            <div id="map-modal-1-title" class="modal__title">
-                                                <p><?php echo get_the_title(); ?><br/>
-                                                    <span style="font-size:.8em;font-weight:400;text-transform:none;font-family:'Encode Sans Condensed',sans-serif;"><?php echo $address_string; ?></span>
-                                                </p>
+                            <?php if ( get_field( 'vendor_google_map' ) ) : ?>
+                            <? // set up the MicroModal for beautiful popup ?>
+                                <div id="map-modal-1" class="modal micromodal-slide" aria-hidden="true">
+                                    <div class="modal__overlay" tabindex="-1" data-custom-close="map-modal-1">
+                                        <div role="dialog" class="modal__container" aria-modal="true"
+                                             aria-labelledby="map-modal-1">
+                                            <header class="modal__header">
+                                                <div id="map-modal-1-title" class="modal__title">
+                                                    <p><?php echo get_the_title(); ?><br/>
+                                                        <span style="font-size:.8em;font-weight:400;text-transform:none;font-family:'Encode Sans Condensed',sans-serif;"><?php echo $address_string; ?></span>
+                                                    </p>
+                                                </div>
+                                                <?php $location = get_field( 'vendor_google_map' ); ?>
+                                                <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo $location['lat'] . ',' . $location['lng']; ?>"
+                                                   class="directions" target="_blank">Get Directions</a>
+                                                <button aria-label="Close modal" class="modal__close"
+                                                        data-custom-close="map-modal-1" onclick="MicroModal.close('map-modal-1',{awaitCloseAnimation:true})"></button>
+                                            </header>
+                                            <div id="map-modal-1-content" class="acf-map modal__content" data-zoom="16">
+                                                <div class="marker" data-lat="<?php echo esc_attr( $location['lat'] ); ?>"
+                                                     data-lng="<?php echo esc_attr( $location['lng'] ); ?>"></div>
                                             </div>
-											<?php $location = get_field( 'vendor_google_map' ); ?>
-                                            <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo $location['lat'] . ',' . $location['lng']; ?>"
-                                               class="directions" target="_blank">Get Directions</a>
-                                            <button aria-label="Close modal" class="modal__close"
-                                                    data-custom-close="map-modal-1" onclick="MicroModal.close('map-modal-1',{awaitCloseAnimation:true})"></button>
-                                        </header>
-                                        <div id="map-modal-1-content" class="acf-map modal__content" data-zoom="16">
-                                            <div class="marker" data-lat="<?php echo esc_attr( $location['lat'] ); ?>"
-                                                 data-lng="<?php echo esc_attr( $location['lng'] ); ?>"></div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-						<?php endif; ?>
+                                <?php endif; ?>
+                            <?php endif; ?>
 						<?php endif; ?>
 						
                         <?php /******************** IF ADDITIONAL ADDRESSES, LIST THEM HERE ********************/ ?>
@@ -244,9 +245,11 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                 </div>
                             </div>
                             <script type="text/javascript">
-                                MicroModal.init({
-                                    awaitCloseAnimation: true
-                                });
+                                jQuery(document).on('load', function() {
+                                    MicroModal.init({
+                                        awaitCloseAnimation: true
+                                    });
+                                })
                             </script>
                         </div>
                     </div>
@@ -401,7 +404,6 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                             // Resize refreshes sliders
                                             swiper.slideTo(<?php echo $total; ?>,0);
                                         });
-                                        
                                     </script>
 								<?php endif; ?>
 								

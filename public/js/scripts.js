@@ -354,20 +354,19 @@ $(document).ready(function () {
 	let offset = 0;
 	$('#archive-more-button a').on('click', function(e) {
 		offset += $(this).data('offset');
+		let post_type = $(this).data('post_type');
+		console.log("Clicked Archive More");
+		console.log(offset);
 		// Want to set the offset based on how many articles are currently showing
-		$.ajax({
-			type: "post",
-			dataType: "json",
-			url: fnajax.ajax_url,
-			data: {
-				'_ajax_nonce': fnajax.nonce,
-				'action': 'archive_moreposts',
-				'offset': offset
-			},
-			success: function (response) {
-				// can pass messages back via 'response' if I want to check to see if everything worked
-				console.log(response);
-			}
+		let data = {
+			'action': 'archive_moreposts',
+			'offset': offset,
+			'post_type': post_type
+		};
+		$.post(fnajax.ajax_url, data, function (response) {
+			// can pass messages back via 'response' if I want to check to see if everything worked
+			console.log("response is: " + JSON.stringify(response.newhtml));
+			$('#post-archive-list').append(response.newhtml);
 		});
 		e.preventDefault();
 	});
