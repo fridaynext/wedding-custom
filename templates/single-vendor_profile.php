@@ -363,6 +363,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                     </div>
 
                                     <script type="text/javascript">
+                                        
                                         let swiper = new Swiper('.swiper-container', {
                                             slidesPerView: 'auto',
                                             centeredSlides: true,
@@ -378,7 +379,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                     calculateDimensions();
                                                 },
                                                 resize: function() {
-                                                    calculateDimensions();
+                                                
                                                 }
                                             }
                                         });
@@ -389,15 +390,22 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                             // in each swiper-slide, get the child image's width to calculate this wrapper's width
                                             jQuery('.swiper-slide').each(function (index, element) {
                                                 let imgWidth = jQuery(this).children().first().width();
+                                                console.log("Image Width: " + imgWidth);
                                                 let imgHeight = jQuery(this).children().first().height();
+                                                console.log("Image Height: " + imgHeight);
                                                 let wrapperHeight = jQuery('.swiper-wrapper').height();
+                                                console.log("Wrapper Height: " + wrapperHeight);
                                                 jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
+                                                let newHeight = imgWidth * wrapperHeight / imgHeight;
+                                                console.log("This image " + index + " new width: " + newHeight);
                                             });
                                             jQuery('.swiper-slide-duplicate').each(function (index, element) {
                                                 let imgWidth = jQuery(this).children().first().width();
                                                 let imgHeight = jQuery(this).children().first().height();
                                                 let wrapperHeight = jQuery('.swiper-wrapper').height();
+                                                console.log("Duplicate Wrapper Height: " + wrapperHeight);
                                                 jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
+                                                console.log("Duplicate image " + index + " new width: " + (imgWidth * wrapperHeight / imgHeight));
                                             });
                                         }
                                         jQuery(window).on('load', function() {

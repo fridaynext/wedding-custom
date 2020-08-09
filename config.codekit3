@@ -105,6 +105,14 @@
 		"oF": 0,
 		"oS": 3
 		},
+	"/public/css/admin.css.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/public/css/admin.css.map",
+		"oF": 0
+		},
 	"/public/css/archive-min.css": {
 		"aP": 1,
 		"bl": 0,
@@ -191,15 +199,13 @@
 		"oF": 0,
 		"oS": 3
 		},
-	"/public/css/header.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
+	"/public/css/header-min.css.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
 		"oA": 0,
-		"oAP": "/public/css/header-min.css",
-		"oF": 0,
-		"oS": 3
+		"oAP": "/public/css/header-min.css.map",
+		"oF": 0
 		},
 	"/public/css/homepage.css": {
 		"aP": 1,
@@ -543,30 +549,20 @@
 		"oF": 0
 		},
 	"/public/scss/admin.scss": {
-		"aP": 0,
+		"aP": 1,
 		"bl": 0,
 		"dP": 10,
 		"ec": 1,
 		"ft": 4,
-		"ma": 0,
+		"ma": 1,
 		"oA": 0,
 		"oAP": "/public/css/admin.css",
 		"oF": 2,
-		"oS": 0,
+		"oS": 3,
 		"sct": 0
 		},
-	"/public/scss/archive.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/public/scss/archive-min.css",
-		"oF": 0,
-		"oS": 3
-		},
 	"/public/scss/archive.scss": {
-		"aP": 0,
+		"aP": 1,
 		"bl": 0,
 		"dP": 10,
 		"ec": 1,
@@ -591,23 +587,18 @@
 		"oS": 3,
 		"sct": 0
 		},
-	"/public/scss/homepage.css": {
+	"/public/scss/header.scss": {
 		"aP": 1,
 		"bl": 0,
-		"ft": 16,
-		"ma": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 1,
 		"oA": 0,
-		"oAP": "/public/scss/homepage-min.css",
-		"oF": 0,
-		"oS": 3
-		},
-	"/public/scss/homepage.css.map": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/public/scss/homepage.css.map",
-		"oF": 0
+		"oAP": "/public/css/header-min.css",
+		"oF": 2,
+		"oS": 3,
+		"sct": 0
 		},
 	"/public/scss/homepage.scss": {
 		"aP": 1,
@@ -619,7 +610,7 @@
 		"oA": 0,
 		"oAP": "/public/css/homepage.css",
 		"oF": 2,
-		"oS": 0,
+		"oS": 3,
 		"sct": 0
 		},
 	"/public/scss/vendor-profile.scss": {

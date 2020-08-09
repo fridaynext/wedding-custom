@@ -1,10 +1,10 @@
 <?php
 /**
  * @package FN_Extras
- * @version 1.2.2
+ * @version 1.2.3
  */
 
-define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.2' );
+define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.3' );
 
 /********************* ACF JSON *********************/
 add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
@@ -213,7 +213,7 @@ function fn_enqueue_styles() {
 	wp_enqueue_style( 'fn_default_styles' );
 	wp_register_style( 'swiper_style', 'https://unpkg.com/swiper/swiper-bundle.min.css', array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'swiper_style' );
-	wp_register_style( 'header_style', plugins_url( 'public/css/header.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_register_style( 'header_style', plugins_url( 'public/css/header-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'header_style' );
 	wp_register_style( 'footer_style', plugins_url( 'public/css/footer.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'footer_style' );
@@ -292,7 +292,7 @@ function fn_enqueue_scripts() {
 	}
 	
 	// For all archive pages
-	if ( is_archive() || is_home()) {
+	if ( is_archive() || is_home() || is_front_page() ) {
 		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js' );
 		wp_enqueue_script( 'swiper_slider' );
 	}
@@ -313,11 +313,6 @@ function fn_enqueue_scripts() {
             'nonce'    => $fn_nonce,
     ));
 	wp_enqueue_script( 'fn_scripts' );
-	
-	if ( is_page( 'home' ) ) {
-		wp_register_script( 'swiper_slider', 'https://unpkg.com/swiper/swiper-bundle.min.js', array(), null, true );
-		wp_enqueue_script( 'swiper_slider' );
-	}
 }
 
 add_action( 'get_header', 'acf_reqs' );
@@ -1588,38 +1583,38 @@ function social_media_tab_func( $atts ) {
 	    $config = new includes\Config\SawConfig();
 	    $regex = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
 		// Verify valid Instagram URL
-		if ( preg_match( $regex, $ig_url, $matches ) ) {
-			$ig_username = $matches[1];
-			
-			$ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
-			
-//            print_r($this_feed);
-    		$html .= '<div id="instagram" class="social-share-div">
-                        <div class="ig-header">
-                            <div class="ig-profile-photo">
-                                <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
-                            </div>
-                            <div class="ig-title">' . $ig_feed->title . '</div>
-                        </div>
-                        <div class="ig-photos">';
-                            $flex_count = 0;
-                            $html .= '<div class="ig-photo-row">';
-                            foreach ($ig_feed->images as $image) {
-                                $flex_count++;
-                                $html .= $image;
-                                if ($flex_count % 3 == 0) {
-                                    if ($flex_count == sizeof($ig_feed->images)) {
-	                                    break;
-                                    } else {
-                                        $html .= '</div><div class="ig-photo-row">';
-                                    }
-                                }
-                            }
-                            $html .= '</div>';
-                        $html .= '</div>
-                        <a class="ig-follow" href="' . $ig_url . '" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
-                      </div>';
-        }
+//		if ( preg_match( $regex, $ig_url, $matches ) ) {
+//			$ig_username = $matches[1];
+//
+//			$ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
+//
+////            print_r($this_feed);
+//    		$html .= '<div id="instagram" class="social-share-div">
+//                        <div class="ig-header">
+//                            <div class="ig-profile-photo">
+//                                <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
+//                            </div>
+//                            <div class="ig-title">' . $ig_feed->title . '</div>
+//                        </div>
+//                        <div class="ig-photos">';
+//                            $flex_count = 0;
+//                            $html .= '<div class="ig-photo-row">';
+//                            foreach ($ig_feed->images as $image) {
+//                                $flex_count++;
+//                                $html .= $image;
+//                                if ($flex_count % 3 == 0) {
+//                                    if ($flex_count == sizeof($ig_feed->images)) {
+//	                                    break;
+//                                    } else {
+//                                        $html .= '</div><div class="ig-photo-row">';
+//                                    }
+//                                }
+//                            }
+//                            $html .= '</div>';
+//                        $html .= '</div>
+//                        <a class="ig-follow" href="' . $ig_url . '" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
+//                      </div>';
+//        }
 	}
 	$html .= '</div></div>';
 	$html .= '<script type="text/javascript">
@@ -2814,37 +2809,37 @@ function render_stay_connected_footer() {
                             $regex = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
                             // Verify valid Instagram URL
                             
-                            $ig_username = 'sanantonio.weddings';
-                            $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
-                            
-                            $html .= '<div id="instagram" class="social-share-div">
-                                <div class="ig-header">
-                                    <div class="ig-profile-photo">
-                                        <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
-                                    </div>
-                                    <div class="ig-title">' . $ig_feed->title . '</div>
-                                </div>
-                                <div class="ig-photos">';
-                                    $flex_count = 0;
-                                    $html .= '<div class="ig-photo-row">';
-                                    foreach ($ig_feed->images as $image) {
-                                        $flex_count++;
-                                        $html .= $image;
-                                        if ($flex_count % 3 == 0) {
-                                            if ($flex_count == sizeof($ig_feed->images)) {
-                                                break;
-                                            } else {
-                                                $html .= '</div><div class="ig-photo-row">';
-                                            }
-                                        }
-                                    }
-                                    $html .= '</div>';
-                                $html .= '</div>
-                                <a class="ig-follow" href="https://www.instagram.com/sanantonio.weddings/" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
-                              </div>';
-                              
-                            $html .= '</div>
-                        </div>
+//                            $ig_username = 'sanantonio.weddings';
+//                            $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
+//
+//                            $html .= '<div id="instagram" class="social-share-div">
+//                                <div class="ig-header">
+//                                    <div class="ig-profile-photo">
+//                                        <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
+//                                    </div>
+//                                    <div class="ig-title">' . $ig_feed->title . '</div>
+//                                </div>
+//                                <div class="ig-photos">';
+//                                    $flex_count = 0;
+//                                    $html .= '<div class="ig-photo-row">';
+//                                    foreach ($ig_feed->images as $image) {
+//                                        $flex_count++;
+//                                        $html .= $image;
+//                                        if ($flex_count % 3 == 0) {
+//                                            if ($flex_count == sizeof($ig_feed->images)) {
+//                                                break;
+//                                            } else {
+//                                                $html .= '</div><div class="ig-photo-row">';
+//                                            }
+//                                        }
+//                                    }
+//                                    $html .= '</div>';
+//                                $html .= '</div>
+//                                <a class="ig-follow" href="https://www.instagram.com/sanantonio.weddings/" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
+//                              </div>';
+//
+                            $html .= '</div>';
+                        $html .= '</div>
                         <script type="text/javascript">
                             jQuery( function() {
                                 jQuery("#footer-social-tabs").tabs({
@@ -2997,14 +2992,15 @@ function render_archive_slider( $atts ) {
 	$post_type = $atts['type'];
 	$html      = '';
 	// If this is a Spotlight or (the other one that is similar) - render it one way. Otherwise, render another way
-	if ( $post_type == 'spotlight' || $post_type == 'post') {
+	if ( in_array($post_type, ['spotlight', 'post', 'wedding_story', 'styled_shoot']) ) {
 		// Grab the 5 newest Spotlights to be displayed in the slider
 		$args              = array(
 			'post_type'      => $post_type,
 			'posts_per_page' => 5,
 			'post_status'    => 'publish',
             'meta_key'       => 'is_active',
-            'meta_value'     => true
+            'meta_value'     => true,
+            'orderby'        => 'rand'
 		);
 		$slider_posts = get_posts( $args );
 		$html              .= '<div id="archive-slider">
@@ -3030,11 +3026,26 @@ function render_archive_slider( $atts ) {
 				// if it isn't, just display a white background
 				$bg_text = '#FFF';
 			}
+			$archive_title = '';
+			switch ($post_type) {
+                case 'spotlight':
+                    $archive_title = 'Spotlight';
+                    break;
+                case 'wedding_story':
+                    $archive_title = 'Our Wedding Story';
+                    break;
+                case 'styled_shoot':
+                    $archive_title = 'Styled Shoot';
+                    break;
+                case 'post':
+                    $archive_title = 'Blog';
+                    break;
+            }
 			$html .= '<div class="swiper-slide">
-                            <div class="bg-overlay"></div>
+                            <div class="bg-overlay ' . $post_type . '"></div>
                             <div class="bg-image" ' . $bg_text . '></div>
                             <div class="archive-text">
-                                <h2 class="archive-title">' . ($post_type == 'spotlight' ?  "Spotlight" : "Blog") . '</h2><br />
+                                <h2 class="archive-title">' . $archive_title . '</h2><br />
                                 <p><a href="' . get_the_permalink( $slider_post->ID ) . '" alt="' . get_the_title( $slider_post->ID ) . '" title="' . get_the_title( $slider_post->ID ) . '">' . $text_title . '</a></p>
                             </div>
                         </div>';
@@ -3126,27 +3137,37 @@ function render_archive_ajax( $atts ) {
             'orderby'        => ($post_type == 'spotlight' ? 'rand(' . get_random_post() . ')' : 'date')
 		);
 		$archive_posts = get_posts( $args );
-		$html          .= $append == false ? '<div id="post-archive-list">' : '';
-		foreach ( $archive_posts as $archive_post ) {
-			// 1. Get the Featured Image (square) to be displayed on the left
-			// 2. Get the Vendor Name to be used as the link title
-			// 3. Get the excerpt (or a specific number of words, followed by ellipsis) under Title
-			
-			// Featured Image
-			$feat_img = get_the_post_thumbnail( $archive_post->ID );
-			$html     .= '<div class="archive-row" onclick="window.location = \'' . get_the_permalink($archive_post->ID) . '\'">';
-			$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
-			
-			// Vendor Name
-            $post_title = $post_type == 'vendor' ? get_the_title( get_field( 'vendor', $archive_post->ID ) ) : get_the_title($archive_post->ID);
-			$html .= '<div class="vendor-name">
+		if (sizeof($archive_posts) > 0) {
+			$html .= $append == false ? '<div id="post-archive-list" class="rows">' : '';
+			foreach ( $archive_posts as $archive_post ) {
+				// 1. Get the Featured Image (square) to be displayed on the left
+				// 2. Get the Vendor Name to be used as the link title
+				// 3. Get the excerpt (or a specific number of words, followed by ellipsis) under Title
+				
+				// Featured Image
+				$feat_img = get_the_post_thumbnail( $archive_post->ID );
+				$html     .= '<div class="archive-row" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
+				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+				
+				// Vendor Name
+				$post_title = $post_type == 'spotlight' ? get_the_title( get_field( 'vendor', $archive_post->ID ) ) : get_the_title( $archive_post->ID );
+				$html       .= '<div class="vendor-name  ' . $post_type . '">
                         <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>';
-			$html .= '<p>' . get_field('meta_description', $archive_post->ID ) . '</p>
+				$html       .= '<p>' . get_field( 'meta_description', $archive_post->ID ) . '</p>
             </div>'; // END .vendor-name
-			$html .= '</div>'; // END .archive-row++
-		}
-		$html .= $append == false ? '</div>' : ''; // END #post-archive-list
-        
+				$html       .= '</div>'; // END .archive-row++
+			}
+			$html .= $append == false ? '</div>' : ''; // END #post-archive-list
+		} else {
+			$html .= '<script type="text/javascript">
+                jQuery("#archive-more-button").hide();
+            </script>';
+			$resp = array(
+				'newhtml'  => $html
+			);
+			wp_send_json($resp);
+			wp_die();
+        }
         // The Load More Ajax Button
         if ($append == false) {
 		    $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
@@ -3162,7 +3183,68 @@ function render_archive_ajax( $atts ) {
 //	        wp_send_json( $resp );
 //	        echo "This is painfully not working";
         }
-	}
+	} elseif( in_array($post_type, ['wedding_story', 'styled_shoot']) ) {
+		$posts_per_page = 6;
+		// here's where we get all our Spotlights to display in beautiful flex boxes
+		$args          = array(
+			'post_type'      => $post_type,
+			'posts_per_page' => $posts_per_page,
+			'meta_key'       => 'is_active',
+			'meta_value'     => true,
+			'offset'         => $offset,
+			'orderby'        => 'rand(' . get_random_post() . ')'
+		);
+		$archive_posts = get_posts( $args );
+		$html          .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
+		$col_count = 0;
+		if (sizeof($archive_posts) > 0) {
+//			$html .= '<div class="archive-row cols">';
+			foreach ( $archive_posts as $archive_post ) {
+				
+				
+				// Featured Image
+				$feat_img = get_the_post_thumbnail( $archive_post->ID );
+				$html     .= '<div class="archive-col" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
+				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+				
+				// Vendor Name
+				$post_title = get_the_title( $archive_post->ID );
+				$html       .= '<div class="post-name">
+                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
+            </div>'; // END .vendor-name
+				$html       .= '</div>'; // END .archive-col++
+				$col_count ++;
+				if ( $col_count >= sizeof( $archive_posts ) ) {
+//					$html .= '</div>'; // End of last .archive-row div
+				} elseif ( $col_count % 3 == 0 ) {
+//					$html .= '</div><div class="archive-row cols">'; // start a new .archive-row
+				}
+			}
+			$html .= $append == false ? '</div>' : ''; // END #post-archive-list
+		} else {
+		    $html .= '<script type="text/javascript">
+                jQuery("#archive-more-button").hide();
+            </script>';
+			$resp = array(
+				'newhtml'  => $html
+			);
+			wp_send_json($resp);
+			wp_die();
+        }
+		
+		// The Load More Ajax Button
+		if ($append == false) {
+			$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+		} else {
+			// we're appending, so we don't need the button printed again
+			// send back the resulting HTML to the AJAX call, and add it in via JS
+			$resp = array(
+				'newhtml'  => $html
+			);
+			wp_send_json($resp);
+			wp_die();
+		}
+    }
 	
 	return $html;
 }

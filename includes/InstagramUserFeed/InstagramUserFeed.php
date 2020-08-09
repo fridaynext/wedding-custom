@@ -31,12 +31,16 @@ class InstagramUserFeed {
 		try {
 			$api->login( $this->username, $this->password );
 		} catch ( GuzzleException $e ) {
+			return false;
 		} catch ( InstagramAuthException $e ) {
+			return false;
 		} catch ( InvalidArgumentException $e ) {
+			return false;
 		} // mandatory
 		try {
 			$profile = $api->getProfile( $this->profile_username );
 			$some_media = $profile->getMedias(); // first 12 photos
+			sleep(1);
 			
 			$images = array();
 			foreach ($some_media as $media) {
@@ -47,6 +51,7 @@ class InstagramUserFeed {
 			$this->images = $images;
 			$this->title = $profile->getFullName();
 		} catch ( InstagramException $e ) {
+			return false;
 		}
 		
 //		print_r($images);

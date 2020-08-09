@@ -365,7 +365,6 @@ $(document).ready(function () {
 		};
 		$.post(fnajax.ajax_url, data, function (response) {
 			// can pass messages back via 'response' if I want to check to see if everything worked
-			console.log("response is: " + JSON.stringify(response.newhtml));
 			$('#post-archive-list').append(response.newhtml);
 		});
 		e.preventDefault();
