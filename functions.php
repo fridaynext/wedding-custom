@@ -3021,7 +3021,7 @@ function render_archive_slider( $atts ) {
 			// Check to see if the Archive Page slider image is present in the spotlight
 			if ( get_field( 'landing_page_image', $slider_post->ID ) ) {
 				$bg_image = get_field( 'landing_page_image', $slider_post->ID );
-				$bg_text  = 'style="background: url(' . esc_url( $bg_image['url'] ) . ');"';
+				$bg_text  = 'style="background: url(' . esc_url( $bg_image['url'] ) . ') center center;"';
 			} else {
 				// if it isn't, just display a white background
 				$bg_text = '#FFF';
