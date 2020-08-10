@@ -309,9 +309,9 @@ function fn_enqueue_scripts() {
 	), FRIDAY_NEXT_EXTRAS_VERSION, true );
 	$fn_nonce = wp_create_nonce( 'fn_noncy' );
 	wp_localize_script( 'fn_scripts', 'fnajax', array(
-	        'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'nonce'    => $fn_nonce,
-    ));
+		'ajax_url' => admin_url( 'admin-ajax.php' ),
+		'nonce'    => $fn_nonce,
+	) );
 	wp_enqueue_script( 'fn_scripts' );
 }
 
@@ -380,6 +380,7 @@ function add_async_attribute( $tag, $handle ) {
 	
 	return $tag;
 }
+
 add_filter( 'script_loader_tag', 'add_async_attribute', 10, 2 );
 
 // Vendor Profile Sidebar
@@ -409,7 +410,7 @@ add_role(
 		'delete_published_posts' => true,
 		'edit_posts'             => true,
 		'publish_posts'          => true,
-		'upload_files'           => true,
+		'upload_files'            => true,
 		'edit_pages'             => true,
 		'edit_published_pages'   => true,
 		'publish_pages'          => true,
@@ -794,11 +795,11 @@ function render_vendors() {
 			}
 			$nestedData[] = join( ', ', $cat_array );
 			$nestedData[] = get_post_field( 'post_name' );
-			$group_text = '';
-			if (get_field('group')) {
-			    $group = get_field('group');
-			    $group_text = esc_html($group->name);
-            }
+			$group_text   = '';
+			if ( get_field( 'group' ) ) {
+				$group      = get_field( 'group' );
+				$group_text = esc_html( $group->name );
+			}
 			$nestedData[] = $group_text; // TODO: filter out individual taxonomy
 			$nestedData[] = ''; // TODO: premium level for each category
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
@@ -1580,8 +1581,8 @@ function social_media_tab_func( $atts ) {
 		$html .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="280" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
 	}
 	if ( $ig_url ) {
-	    $config = new includes\Config\SawConfig();
-	    $regex = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
+		$config = new includes\Config\SawConfig();
+		$regex  = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
 		// Verify valid Instagram URL
 //		if ( preg_match( $regex, $ig_url, $matches ) ) {
 //			$ig_username = $matches[1];
@@ -2774,7 +2775,7 @@ function render_vendors_footer() {
 /******************** STAY CONNECTED FOOTER MENU SHORTCODE ********************/
 add_shortcode( 'stay_connected', 'render_stay_connected_footer' );
 function render_stay_connected_footer() {
-	$html =
+	$html   =
 		'<div id="footer-stay-connected">
             <div class="red-container">
                 <img class="arrows-up" src="' . plugins_url( 'public/img/arrows-up.svg', __FILE__ ) . '" alt="Stay Connected" />
@@ -2805,10 +2806,10 @@ function render_stay_connected_footer() {
                                 <a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="242" data-pin-scale-width="80" href="https://www.pinterest.com/sanantonioweddings/"></a>
                             </div>
                             <div id="instagram" class="social-share-div">';
-                            $config = new includes\Config\SawConfig();
-                            $regex = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
-                            // Verify valid Instagram URL
-                            
+	$config = new includes\Config\SawConfig();
+	$regex  = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
+	// Verify valid Instagram URL
+
 //                            $ig_username = 'sanantonio.weddings';
 //                            $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
 //
@@ -2838,8 +2839,8 @@ function render_stay_connected_footer() {
 //                                <a class="ig-follow" href="https://www.instagram.com/sanantonio.weddings/" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
 //                              </div>';
 //
-                            $html .= '</div>';
-                        $html .= '</div>
+	$html .= '</div>';
+	$html .= '</div>
                         <script type="text/javascript">
                             jQuery( function() {
                                 jQuery("#footer-social-tabs").tabs({
@@ -2992,18 +2993,18 @@ function render_archive_slider( $atts ) {
 	$post_type = $atts['type'];
 	$html      = '';
 	// If this is a Spotlight or (the other one that is similar) - render it one way. Otherwise, render another way
-	if ( in_array($post_type, ['spotlight', 'post', 'wedding_story', 'styled_shoot']) ) {
+	if ( in_array( $post_type, [ 'spotlight', 'post', 'wedding_story', 'styled_shoot' ] ) ) {
 		// Grab the 5 newest Spotlights to be displayed in the slider
-		$args              = array(
+		$args         = array(
 			'post_type'      => $post_type,
 			'posts_per_page' => 5,
 			'post_status'    => 'publish',
-            'meta_key'       => 'is_active',
-            'meta_value'     => true,
-            'orderby'        => 'rand'
+			'meta_key'       => 'is_active',
+			'meta_value'     => true,
+			'orderby'        => 'rand'
 		);
 		$slider_posts = get_posts( $args );
-		$html              .= '<div id="archive-slider">
+		$html         .= '<div id="archive-slider">
             <div class="swiper-container">
                 <div class="swiper-wrapper">';
 		// Get each of the slides that need to be displayed, and add them to the Slider
@@ -3021,26 +3022,26 @@ function render_archive_slider( $atts ) {
 			// Check to see if the Archive Page slider image is present in the spotlight
 			if ( get_field( 'landing_page_image', $slider_post->ID ) ) {
 				$bg_image = get_field( 'landing_page_image', $slider_post->ID );
-				$bg_text  = 'style="background: url(' . esc_url( $bg_image['url'] ) . ') center center;"';
+				$bg_text  = 'style="background: url(' . esc_url( $bg_image['url'] ) . ');"';
 			} else {
 				// if it isn't, just display a white background
 				$bg_text = '#FFF';
 			}
 			$archive_title = '';
-			switch ($post_type) {
-                case 'spotlight':
-                    $archive_title = 'Spotlight';
-                    break;
-                case 'wedding_story':
-                    $archive_title = 'Our Wedding Story';
-                    break;
-                case 'styled_shoot':
-                    $archive_title = 'Styled Shoot';
-                    break;
-                case 'post':
-                    $archive_title = 'Blog';
-                    break;
-            }
+			switch ( $post_type ) {
+				case 'spotlight':
+					$archive_title = 'Spotlight';
+					break;
+				case 'wedding_story':
+					$archive_title = 'Our Wedding Story';
+					break;
+				case 'styled_shoot':
+					$archive_title = 'Styled Shoot';
+					break;
+				case 'post':
+					$archive_title = 'Blog';
+					break;
+			}
 			$html .= '<div class="swiper-slide">
                             <div class="bg-overlay ' . $post_type . '"></div>
                             <div class="bg-image" ' . $bg_text . '></div>
@@ -3109,35 +3110,36 @@ add_action( 'wp_ajax_nopriv_archive_moreposts', 'render_archive_ajax' );
 add_shortcode( 'archive_ajax', 'render_archive_ajax' );
 function render_archive_ajax( $atts ) {
 	// TODO: could possibly pass in 'offset' when calling this function from AJAX, so that I don't have to write it again
-	$request = $_POST;
-    $post_type = '';
+	$request   = $_POST;
+	$post_type = '';
 	$html      = '';
 	$offset    = 0;
 	$append    = false; // If we have an offset, let's append these results
 	
-	if (isset($request['offset']) && $request['offset'] !== 0) {
-	    $offset = $request['offset'];
-	    $append = true;
-    }
-	if ( isset($request['post_type']) ) {
+	if ( isset( $request['offset'] ) && $request['offset'] !== 0 ) {
+		$offset = $request['offset'];
+		$append = true;
+	}
+	
+	if ( isset( $request['post_type'] ) ) {
 		$post_type = $request['post_type'];
 	} elseif ( isset( $atts['type'] ) ) {
-	    $post_type = $atts['type']; // == 'spotlight' ? 'spotlight' : '';
+		$post_type = $atts['type']; // == 'spotlight' ? 'spotlight' : '';
 	}
- 
-	if ( $post_type == 'spotlight' || $post_type == 'post') {
-	    $posts_per_page = 5;
+	
+	if ( $post_type == 'spotlight' || $post_type == 'post' ) {
+		$posts_per_page = 5;
 		// here's where we get all our Spotlights to display in beautiful flex boxes
 		$args          = array(
 			'post_type'      => $post_type,
 			'posts_per_page' => $posts_per_page,
-            'meta_key'       => 'is_active',
-            'meta_value'     => true,
-            'offset'         => $offset,
-            'orderby'        => ($post_type == 'spotlight' ? 'rand(' . get_random_post() . ')' : 'date')
+			'meta_key'       => 'is_active',
+			'meta_value'     => true,
+			'offset'         => $offset,
+			'orderby'        => ( $post_type == 'spotlight' ? 'rand(' . get_random_post() . ')' : 'date' )
 		);
 		$archive_posts = get_posts( $args );
-		if (sizeof($archive_posts) > 0) {
+		if ( sizeof( $archive_posts ) > 0 ) {
 			$html .= $append == false ? '<div id="post-archive-list" class="rows">' : '';
 			foreach ( $archive_posts as $archive_post ) {
 				// 1. Get the Featured Image (square) to be displayed on the left
@@ -3163,28 +3165,28 @@ function render_archive_ajax( $atts ) {
                 jQuery("#archive-more-button").hide();
             </script>';
 			$resp = array(
-				'newhtml'  => $html
+				'newhtml' => $html
 			);
-			wp_send_json($resp);
+			wp_send_json( $resp );
 			wp_die();
-        }
-        // The Load More Ajax Button
-        if ($append == false) {
-		    $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-        } else {
-            // we're appending, so we don't need the button printed again
-            // send back the resulting HTML to the AJAX call, and add it in via JS
-            $resp = array(
-		        'newhtml'  => $html
-	        );
-	        wp_send_json($resp);
-	        wp_die();
-	        
+		}
+		// The Load More Ajax Button
+		if ( $append == false ) {
+			$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+		} else {
+			// we're appending, so we don't need the button printed again
+			// send back the resulting HTML to the AJAX call, and add it in via JS
+			$resp = array(
+				'newhtml' => $html
+			);
+			wp_send_json( $resp );
+			wp_die();
+
 //	        wp_send_json( $resp );
 //	        echo "This is painfully not working";
-        }
-	} elseif( in_array($post_type, ['wedding_story', 'styled_shoot']) ) {
-		$posts_per_page = 6;
+		}
+	} elseif ( in_array( $post_type, [ 'wedding_story', 'styled_shoot' ] ) ) {
+		$posts_per_page = 9;
 		// here's where we get all our Spotlights to display in beautiful flex boxes
 		$args          = array(
 			'post_type'      => $post_type,
@@ -3192,12 +3194,12 @@ function render_archive_ajax( $atts ) {
 			'meta_key'       => 'is_active',
 			'meta_value'     => true,
 			'offset'         => $offset,
-			'orderby'        => 'rand(' . get_random_post() . ')'
+			'orderby'        => ( $post_type == 'styled_shoot' ? 'rand(' . get_random_post() . ')' : 'date' )
 		);
 		$archive_posts = get_posts( $args );
 		$html          .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
-		$col_count = 0;
-		if (sizeof($archive_posts) > 0) {
+		$col_count     = 0;
+		if ( sizeof( $archive_posts ) > 0 ) {
 //			$html .= '<div class="archive-row cols">';
 			foreach ( $archive_posts as $archive_post ) {
 				
@@ -3222,42 +3224,254 @@ function render_archive_ajax( $atts ) {
 			}
 			$html .= $append == false ? '</div>' : ''; // END #post-archive-list
 		} else {
-		    $html .= '<script type="text/javascript">
+			$html .= '<script type="text/javascript">
                 jQuery("#archive-more-button").hide();
             </script>';
 			$resp = array(
-				'newhtml'  => $html
+				'newhtml' => $html
 			);
-			wp_send_json($resp);
+			wp_send_json( $resp );
 			wp_die();
-        }
+		}
 		
 		// The Load More Ajax Button
-		if ($append == false) {
+		if ( $append == false ) {
 			$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
 		} else {
 			// we're appending, so we don't need the button printed again
 			// send back the resulting HTML to the AJAX call, and add it in via JS
 			$resp = array(
-				'newhtml'  => $html
+				'newhtml' => $html
 			);
-			wp_send_json($resp);
+			wp_send_json( $resp );
 			wp_die();
 		}
-    }
+	} elseif ( in_array( $post_type, [ 'virtual-tour', 'category' ] ) ) {
+		$posts_per_page = 9;
+		// here's where we get all our Spotlights to display in beautiful flex boxes
+		$meta_query_args = array(
+			'relation' => 'AND',
+			array(
+				'key'     => 'is_active',
+				'value'   => true,
+				'compare' => '='
+			),
+			array(
+				'relation' => 'AND',
+				array(
+					'key'     => '360-virtual-tour',
+					'value'   => '',
+					'compare' => '!='
+				),
+				array(
+					'key'     => '360-virtual-tour',
+					'compare' => 'EXISTS'
+				)
+			)
+		);
+		
+		$args          = array(
+			'post_type'      => 'vendor_profile',
+			'posts_per_page' => $posts_per_page,
+			'meta_query'     => $meta_query_args,
+			'offset'         => $offset,
+			'orderby'        => 'rand(' . get_random_post() . ')'
+		);
+		$archive_posts = get_posts( $args );
+		$html          .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
+		$col_count     = 0;
+		if ( sizeof( $archive_posts ) > 0 ) {
+//			$html .= '<div class="archive-row cols">';
+			foreach ( $archive_posts as $archive_post ) {
+				
+				
+				// Featured Image
+				$feat_img = get_the_post_thumbnail( $archive_post->ID );
+				$html     .= '<div class="archive-col" onclick="window.location = \'' . get_field( '360-virtual-tour', $archive_post->ID ) . '\'">';
+				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+				
+				// Vendor Name
+				$post_title = get_the_title( $archive_post->ID );
+				$html       .= '<div class="post-name">
+                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
+            </div>'; // END .vendor-name
+				$html       .= '</div>'; // END .archive-col++
+				$col_count ++;
+				if ( $col_count >= sizeof( $archive_posts ) ) {
+//					$html .= '</div>'; // End of last .archive-row div
+				} elseif ( $col_count % 3 == 0 ) {
+//					$html .= '</div><div class="archive-row cols">'; // start a new .archive-row
+				}
+			}
+			
+			$banner_ad = do_shortcode( '[banner_ad type="category"]' );
+			
+			
+			$html .= $banner_ad;
+			
+			$html .= $append == false ? '</div>' : ''; // END #post-archive-list
+		} else {
+			$html .= '<script type="text/javascript">
+                jQuery("#archive-more-button").hide();
+            </script>';
+			$resp = array(
+				'newhtml' => $html
+			);
+			wp_send_json( $resp );
+			wp_die();
+		}
+		
+		// The Load More Ajax Button
+		if ( $append == false ) {
+			$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+		} else {
+			// we're appending, so we don't need the button printed again
+			// send back the resulting HTML to the AJAX call, and add it in via JS
+			$resp = array(
+				'newhtml' => $html
+			);
+			wp_send_json( $resp );
+			wp_die();
+		}
+	}
 	
 	return $html;
 }
+
 // Create a session so we can store the already retrieved posts, so there are no dupes
 function prefix_start_session() {
-	if( !session_id() ) {
+	if ( ! session_id() ) {
 		session_start();
 	}
 }
+
 add_action( 'init', 'prefix_start_session' );
 function get_random_post() {
-	if ( !isset( $_SESSION['random'] ) ) {
+	if ( ! isset( $_SESSION['random'] ) ) {
 		$_SESSION['random'] = rand();
 	}
+	
 	return $_SESSION['random'];
+}
+
+// Store how many ads we have displayed, to ensure we don't get repeats
+function get_ad_offset($ad_type) {
+	switch($ad_type) {
+        case 'category':
+	        if ( ! isset( $_SESSION['ad_cat_offset'] ) ) {
+		        $_SESSION['ad_cat_offset'] = 0;
+		        return $_SESSION['ad_cat_offset'];
+	        }
+	        $_SESSION['ad_cat_offset'] += 1;
+	        return $_SESSION['ad_cat_offset'];
+            break;
+        case 'square':
+	        if ( ! isset( $_SESSION['ad_square_offset'] ) ) {
+		        $_SESSION['ad_square_offset'] = 0;
+		        return $_SESSION['ad_square_offset'];
+	        }
+	        $_SESSION['ad_square_offset'] += 1;
+	        return $_SESSION['ad_square_offset'];
+            break;
+    }
+}
+
+// Reset 'adoffset' every pageload
+add_action( 'wp_head', 'reset_ad_offset' );
+function reset_ad_offset() {
+	if ( isset( $_SESSION['ad_cat_offset'] ) ) {
+		$_SESSION['ad_cat_offset'] = - 1;
+	}
+	if ( isset( $_SESSION['ad_square_offset'] ) ) {
+		$_SESSION['ad_square_offset'] = - 1;
+	}
+}
+
+/******************************** [square-ad] SHORTCODE *************************************/
+add_shortcode( 'banner_ad', 'render_banner_ad' );
+function render_banner_ad( $atts ) {
+	// be sure not to show the same ad twice, so here we can use the session ID to ensure it's not repeated
+	$request         = $_POST;
+	$ad_type         = 'square';
+	$html            = '';
+	$offset          = 0;
+	$append          = false; // If we have an offset, let's append these results
+	$meta_query_args = array();
+	
+	if ( isset( $atts['type'] ) ) {
+		$ad_type = $atts['type']; // 'category' | 'block' (meaning 2 square and 4 category)
+	}
+	
+	// banner_size = $ad_type
+    // start_date < today
+    // end_date > today
+	
+	
+	// banner_start_date | banner_end_date | high_exposure_end_date
+	// TODO: also update view count
+//	$query             = $wpdb->prepare(
+//		"SELECT p.* from $wpdb->posts AS p
+//        INNER JOIN $wpdb->post_meta AS pm ON p.ID = pm.post_id
+//        WHERE p.ID IN (
+//            SELECT p.* FROM p
+//            WHERE pm.meta_key = %s AND pm.meta_value = %s
+//        )
+//        AND p.post_type = %s AND pm.
+//        GROUP BY t.term_id ORDER BY t.name",
+//		'banner_size',
+//        $ad_type,
+//        'banner',
+//		'category'
+//	);
+//	$vendor_categories = $wpdb->get_results( $query );
+ 
+	$today = date( 'Ymd' );
+	if ( $ad_type !== 'block' ) {
+		$meta_query_args = array(
+			'relation' => 'AND',
+            array(
+                'key'     => 'banner_start_date',
+                'compare' => '<=',
+                'value'   => $today
+            ),
+            array(
+                'key'     => 'banner_stop_date',
+                'compare' => '>',
+                'value'   => $today
+            ),
+			array(
+				'key'     => 'banner_size',
+				'compare' => '=',
+				'value'   => $ad_type
+			)
+		);
+	}
+//	$meta_query = new WP_Meta_Query( $meta_query_args );
+	
+	
+	$banner_args = array(
+		'post_type'      => 'banner',
+		'meta_query'     => $meta_query_args,
+		'posts_per_page' => 1,
+		'offset'         => get_ad_offset($ad_type),
+		'meta_key'       => 'exposure_level', // highest exposure ads first
+		'order_by'       => 'meta_value_num',
+		'order'          => 'DESC'
+	);
+	$banner_ads  = new WP_Query( $banner_args );
+//    print_r($banner_ads); die();
+	
+	if ( $banner_ads->have_posts() ) {
+		while ( $banner_ads->have_posts() ) {
+			$banner_ads->the_post();
+			$view_count = get_field( 'view_count' );
+			update_field( 'view_count', $view_count + 1, get_the_ID() );
+			update_field( 'last_viewed', date( "Y-m-d H:i:s" ), get_the_ID() );
+			$image = get_field( 'ad_banner' );
+			$html  .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url' ) . '" title="' . get_field( 'banner_name' ) . '" alt="' . get_field( 'banner_name' ) . '" target="_blank"><img src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
+			
+		}
+	}
+	wp_reset_query();
+	return $html;
 }
