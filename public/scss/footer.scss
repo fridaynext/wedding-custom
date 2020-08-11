@@ -99,7 +99,8 @@
     bottom: 73px;
     width: 280px;
     text-transform: uppercase;
-    border: var(--charcoal-color) 2px solid;
+    //border: var(--charcoal-color) 2px solid;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
     padding-top: 5px;
     background: #FFF;
     max-height: 40vh;
@@ -120,14 +121,21 @@
       list-style-type: none;
 
       li {
-        padding: 5px;
-        text-align: center;
+        padding: 0 10px;
+        //text-align: center;
         font-weight: 300;
-        background: var(--main-teal-color);
+        background: #FFF;
         border-top: 1px #FFF solid;
-
+        &:hover {
+          background: var(--lightest-gray-color);
+        }
         a {
-          color: #000;
+          display: inline-block;
+          font-size: 14px;
+          color: var(--charcoal-color);
+          border-top: 1px var(--main-teal-color) solid;
+          padding: 2px 10px;
+          width: 100%;
         }
       }
     }

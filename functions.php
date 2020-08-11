@@ -1943,15 +1943,83 @@ function render_featured_spotlights() {
 add_shortcode( 'home_page_hero_slider', 'render_home_hero_slider' );
 function render_home_hero_slider() {
 	// grab each set of data for home sliders, depending on type
+    $today = date( 'Y-m-d H:i:s' );
 	$args         = array(
 		'post_type'      => 'home_slide',
 		'posts_per_page' => 5,
-		'order'          => 'ASC',
-		'meta_key'       => 'is_active',
-		'meta_value'     => true
-		// TODO: check for date and make sure it's not expired!
-	);
+		'order'          => 'DESC',
+		'meta_query'     => array(
+            array(
+                'key' => 'is_active',
+                'compare' => '=',
+                'value' => true
+            ),
+            array(
+                'key' => 'is_slide_featured',
+                'compare' => '=',
+                'value' => true
+            ),
+            'start_date ' => array(
+                'key' => 'banner_start_date', // stored like '2020-07-09 15:00:00'
+                'compare' => '<',
+                'value' => $today,
+            ),
+            'end_date' => array(
+                'relation' => 'OR',
+                array(
+                    'key' => 'banner_end_date',
+                    'compare' => 'NOT EXISTS'
+                ),
+                array(
+                    'key' => 'banner_end_date',
+                    'compare' => '=',
+                    'value' => '',
+                ),
+                array(
+                    'key' => 'banner_end_date',
+                    'compare' => '>',
+                    'value' => $today,
+                )
+            )
+        ),
+        'orderby' => 'start_date'
+    );
+	
 	$home_sliders = get_posts( $args );
+	// If there were less than 5 posts, find the remaining posts to make a total of 5
+    if (sizeof($home_sliders) < 5) {
+        // get the remainder up to 5 of more random sliders
+	    $args         = array(
+		    'post_type'      => 'home_slide',
+		    'posts_per_page' => (5 - sizeof($home_sliders)),
+		    'orderby'        => 'rand',
+		    'meta_query'     => array(
+			    array(
+				    'key' => 'is_active',
+				    'compare' => '=',
+				    'value' => true
+			    ),
+			    array(
+                    'relation' => 'OR',
+                    array(
+                        'key' => 'is_slide_featured',
+                        'compare' => '=',
+                        'value' => false
+                    ),
+				    array(
+					    'key' => 'banner_end_date',
+					    'compare' => '<',
+					    'value' => $today,
+				    )
+                )
+		    )
+	    );
+	    $more_home_sliders = get_posts($args);
+//        print_r($more_home_sliders);die();
+	    foreach ($more_home_sliders as $another_slider) {
+	        $home_sliders[] = $another_slider;
+        }
+    }
 	
 	$html  = '';
 	$count = 1;
@@ -2067,7 +2135,15 @@ function render_local_fave_grid() {
 	/* Swiper JS Script */
 	$html .= '<script type="text/javascript">
                 var swiper = new Swiper(".swiper-faves-container", {
-                    slidesPerView:4,
+                    slidesPerView:2,
+                    breakpoints: {
+                        768: {
+                            slidesPerView:3,
+                        },
+                        980: {
+                            slidesPerView:4,
+                        }
+                    },
                     spaceBetween: "2.7%",
                     pagination: {
                         el: ".swiper-pagination-faves",
@@ -2127,9 +2203,9 @@ function render_homepage_spotlights() {
 	$count      = 0;
 	$html       = '<div class="local-faves-container spotlight">';
 	foreach ( $spotlights as $spotlight ) {
-		if ( $count % 4 == 0 ) {
+		/*if ( $count % 4 == 0 ) {
 			$html .= '</div><div class="local-faves-container spotlight">';
-		}
+		}*/
 		$html .= '<div class="individual-fave spotlight">';
 		$html .= '<div class="local-fave-image">';
 		$html .= get_the_post_thumbnail( $spotlight->ID, array( 500, 500 ) );
@@ -2155,7 +2231,7 @@ function render_home_slider_table() {
 	        <tr>
 	            <th>Banner</th>
 				<th>Banner Name</th>
-				<th>Post Date</th>
+				<th>Start Featured</th>
 				<th>Is Featured?</th>
 				<th>End Featured Date</th>
 				<th>View Count &<br />Last Viewed</th>
@@ -3011,12 +3087,13 @@ function render_archive_slider( $atts ) {
 		foreach ( $slider_posts as $slider_post ) {
 			$text_title = '';
 			// Make sure there is a linked vendor, and use their name as the "title"
-			if ( get_field( 'vendor', $slider_post ) ) {
-				$text_title = get_the_title( get_field( 'vendor', $slider_post ) );
-			} else {
-				// otherwise, just use the article title as a last resort (or for Blog posts)
-				$text_title = get_the_title( $slider_post );
-			}
+            $text_title = get_field('head_1', $slider_post->ID);
+//			if ( get_field( 'vendor', $slider_post ) ) {
+//				$text_title = get_the_title( get_field( 'vendor', $slider_post ) );
+//			} else {
+//				// otherwise, just use the article title as a last resort (or for Blog posts)
+//				$text_title = get_the_title( $slider_post );
+//			}
 			
 			$bg_text = '';
 			// Check to see if the Archive Page slider image is present in the spotlight
@@ -3287,13 +3364,13 @@ function render_archive_ajax( $atts ) {
 				
 				// Featured Image
 				$feat_img = get_the_post_thumbnail( $archive_post->ID );
-				$html     .= '<div class="archive-col" onclick="window.location = \'' . get_field( '360-virtual-tour', $archive_post->ID ) . '\'">';
+				$html     .= '<div class="archive-col" onclick="window.location = \'' . get_field( '360-virtual-tour', $archive_post->ID ) . '\', \'_blank\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
 				// Vendor Name
 				$post_title = get_the_title( $archive_post->ID );
 				$html       .= '<div class="post-name">
-                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
+                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '" target="_blank">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
 				$col_count ++;
@@ -3443,7 +3520,12 @@ function render_banner_ad( $atts ) {
 				'key'     => 'banner_size',
 				'compare' => '=',
 				'value'   => $ad_type
-			)
+			),
+            array(
+                'key'     => 'is_active',
+                'compare' => '=',
+                'value'   => true
+            )
 		);
 	}
 //	$meta_query = new WP_Meta_Query( $meta_query_args );

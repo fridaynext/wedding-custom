@@ -316,18 +316,28 @@ $(document).ready(function () {
 		e.preventDefault();
 	});
 
-
-	// dropdown for tablet/phone widths
-	$('a#vendor-tablet-link').on('click', function(e) {
-		if ($(window).width() < 768) {
-			// phone width, so do full-screen modal
-			jPopupDemo.open();
-		} else {
-			// tablet width, so do tablet normal dropdown
-			$('div.midnav-vendor-list-tablet').toggleClass('visible');
-		}
+	$('#menu-header-top-menu li.vendor-dropdown').on('click', function (e) {
+		$('div.midnav-vendor-list').toggleClass('visible');
 		e.preventDefault();
 	});
+
+	$('a#vendor-tablet-link').on('click', function (e) {
+		$('div.midnav-vendor-list-tablet').toggleClass('visible');
+		e.preventDefault();
+	});
+
+
+	// dropdown for tablet/phone widths
+	// $('a#vendor-tablet-link').on('click', function(e) {
+	// 	if ($(window).width() < 768) {
+	// 		// phone width, so do full-screen modal
+	// 		jPopupDemo.open();
+	// 	} else {
+	// 		// tablet width, so do tablet normal dropdown
+	// 		$('div.midnav-vendor-list-tablet').toggleClass('visible');
+	// 	}
+	// 	e.preventDefault();
+	// });
 
 	// ********* FOOTER VENDOR MENU AND STAY CONNECTED POPUP ************** //
 	$('a.hamburger-click').on('click', function (e) {

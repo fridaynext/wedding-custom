@@ -565,7 +565,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								
 								<?php /******************** 360° Virtual Tours ********************/
 								if ( $url_360 ) : ?>
-                                    <h2><span id="360-tours" class="sticky-top"></span><span class="vendor-header-triangle"></span>360° Virtual Tours
+                                    <h2><span id="360-tours" class="sticky-top"></span><span class="vendor-header-triangle"></span>360° Tours
                                         of <?php echo get_the_title(); ?></h2>
 									<?php $url_360 = get_field( '360-virtual-tour', get_the_ID() ); ?>
                                     <a target="_blank" href="<?php echo $url_360; ?>"><img

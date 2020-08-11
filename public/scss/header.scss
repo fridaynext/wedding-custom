@@ -31,6 +31,86 @@
 #menu-header-top-menu {
   margin-left: 0 !important;
   margin-right: 0 !important;
+
+  li {
+    &.vendor-dropdown {
+      @media screen and (max-width: 545px) {
+        display: none !important;
+      }
+    }
+
+    a {
+      &::after {
+        display: none;
+      }
+
+    }
+  }
+
+  ul.sub-menu {
+    width: unset !important;
+    top: calc(100% - 4px) !important;
+    left: 10px !important;
+    border: none !important;
+    padding-top: 10px !important;
+    padding-bottom: 0 !important;
+    background: transparent !important;
+
+    li {
+      background: #FFF;
+      margin-left: 0;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-bottom: 0 !important;
+      width: 100%;
+
+      &:hover {
+        background: var(--lightest-gray-color);
+      }
+
+      &.last {
+        a {
+          border-bottom: none !important;
+          padding-bottom: 10px;
+        }
+      }
+
+      &:first-child {
+        a {
+          padding-top: 10px;
+        }
+      }
+
+      a {
+        padding: 0 10px;
+        margin-left: 10px;
+        margin-right: 10px;
+        border-bottom: 1px solid var(--main-teal-color);
+        color: var(--charcoal-color);
+
+        &:hover {
+          background: transparent;
+          opacity: 1;
+        }
+      }
+    }
+
+    &::before {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-bottom: 13px solid #FFF;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      content: '';
+      position: absolute;
+      top: -3px;
+    }
+  }
+
+  .menu-item-has-children > a:first-child {
+    padding-right: 0 !important;
+  }
 }
 
 #menu-header-top-menu .header-search {
@@ -185,16 +265,19 @@
 
 #menu-home-header-top-menu {
   padding-right: 11px !important;
+
   .menu-border-right {
     border-right: 1px solid var(--light-gray-color);
     margin-top: 15px;
     margin-bottom: 15px;
   }
+
   li.computer {
     @media screen and (max-width: 979px) {
       display: none;
     }
   }
+
   .vendor-login {
     @media screen and (max-width: 979px) {
       border-right: var(--medium-gray-color) 1px solid;
@@ -207,13 +290,13 @@
       display: none;
     }
   }
+
   .social-icon {
     @media screen and (max-width: 360px) {
       display: none;
     }
   }
 }
-
 
 
 #menu-header-top-menu-tablet li a, #menu-home-header-top-menu li a {
@@ -243,5 +326,88 @@
   }
   .et_mobile_nav_menu {
     display: none !important;
+  }
+}
+
+/************ VENDOR MEGA MENU **************/
+#main-header-vendor-dropdown .midnav-vendor-list {
+  display: none;
+  position: absolute;
+  top: 9px;
+  right: 526px;
+  @media screen and (max-width: 1100px) {
+    right: 55px;
+  }
+  @media screen and (max-width: 767px) {
+    right: 22px;
+  }
+  @media screen and (max-width: 545px) {
+    display: none !important;
+  }
+  min-width: 230px;
+  text-transform: uppercase;
+  padding-top: 5px;
+  background: #FFF;
+  height: 350px;
+  max-height: 350px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+
+  &.visible {
+    display: block;
+  }
+
+  p {
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+    font-weight: 500;
+    color: var(--red-color);
+    font-size: smaller;
+
+  }
+
+  ul.vendor-mega-menu {
+    padding: 0;
+    list-style-type: none;
+    overflow: scroll;
+    height: 341px;
+
+    &::before {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-bottom: 13px solid #FFF;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      content: '';
+      position: absolute;
+      top: -13px;
+      @media screen and (min-width: 536px) and (max-width: 767px) {
+        right: 124px;
+      }
+      @media screen and (max-width: 535px) {
+        right: 90px;
+      }
+    }
+
+    li {
+      padding: 0 10px;
+      //text-align: center;
+      background: #FFF;
+      margin-bottom: 0;
+
+      &:hover {
+        background: var(--lightest-gray-color);
+      }
+
+      a {
+        display: inline-block;
+        font-size: 14px;
+        color: var(--charcoal-color);
+        border-top: 1px var(--main-teal-color) solid;
+        padding: 2px 10px;
+        width: 100%;
+      }
+    }
   }
 }
