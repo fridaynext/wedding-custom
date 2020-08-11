@@ -129,6 +129,14 @@
 }
 
 /******* ARCHIVE POST LIST (AJAX) ********/
+.cat-title {
+  padding-bottom: 40px;
+  h2 {
+    text-align: center;
+    color: var(--charcoal-color);
+    font-weight: 300;
+  }
+}
 #post-archive-list {
   &.rows {
     display: grid;

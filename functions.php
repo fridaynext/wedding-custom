@@ -3325,36 +3325,56 @@ function render_archive_ajax( $atts ) {
 		}
 	} elseif ( in_array( $post_type, [ 'virtual-tour', 'category' ] ) ) {
 		$posts_per_page = 9;
-		// here's where we get all our Spotlights to display in beautiful flex boxes
-		$meta_query_args = array(
-			'relation' => 'AND',
-			array(
-				'key'     => 'is_active',
-				'value'   => true,
-				'compare' => '='
-			),
-			array(
-				'relation' => 'AND',
-				array(
-					'key'     => '360-virtual-tour',
-					'value'   => '',
-					'compare' => '!='
-				),
-				array(
-					'key'     => '360-virtual-tour',
-					'compare' => 'EXISTS'
-				)
-			)
-		);
+		// here's where we get all our posts to display in beautiful grid boxes
+        $args = array();
+        switch($post_type) {
+            case "virtual-tour":
+                $meta_query_args = array(
+                    'relation' => 'AND',
+                    array(
+                        'key'     => 'is_active',
+                        'value'   => true,
+                        'compare' => '='
+                    ),
+                    array(
+                        'relation' => 'AND',
+                        array(
+                            'key'     => '360-virtual-tour',
+                            'value'   => '',
+                            'compare' => '!='
+                        ),
+                        array(
+                            'key'     => '360-virtual-tour',
+                            'compare' => 'EXISTS'
+                        )
+                    )
+                );
+	            $args          = array(
+		            'post_type'      => 'vendor_profile',
+		            'posts_per_page' => $posts_per_page,
+		            'meta_query'     => $meta_query_args,
+		            'offset'         => $offset,
+		            'orderby'        => 'rand(' . get_random_post() . ')'
+	            );
+                break;
+            case "category":
+	            $category = get_queried_object();
+	            $args          = array(
+		            'post_type'      => 'vendor_profile',
+		            'posts_per_page' => $posts_per_page,
+		            'cat'            => $category->term_id,
+		            'offset'         => $offset,
+		            'orderby'        => 'rand(' . get_random_post() . ')'
+	            );
+                break;
+        }
 		
-		$args          = array(
-			'post_type'      => 'vendor_profile',
-			'posts_per_page' => $posts_per_page,
-			'meta_query'     => $meta_query_args,
-			'offset'         => $offset,
-			'orderby'        => 'rand(' . get_random_post() . ')'
-		);
+//		global $post;
+//        $cat = get_term_by('slug', $post->post_name, 'category');
+		$category = get_queried_object();
+        $category = get_term($category->term_id, 'category');
 		$archive_posts = get_posts( $args );
+		$html          .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
 		$html          .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
 		$col_count     = 0;
 		if ( sizeof( $archive_posts ) > 0 ) {
