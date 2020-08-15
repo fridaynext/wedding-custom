@@ -333,3 +333,20 @@
     }
   }
 }
+
+.breadcrumbs {
+  font-family: "Encode Sans Condensed", sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--charcoal-color);
+  font-size: 13px;
+  a {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--charcoal-color);
+    font-size: 13px;
+  }
+}

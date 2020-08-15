@@ -3196,7 +3196,7 @@ function render_archive_ajax( $atts ) {
 	$offset    = 0;
 	$append    = false; // If we have an offset, let's append these results
     $alpha     = false;
-    $alpha_click = false;
+    $alpha_click = false; // If 'Sort Alphabetically' was clicked
 	
 	if ( isset( $request['offset'] ) && $request['offset'] !== 0 ) {
 		$offset = $request['offset'];
@@ -3378,6 +3378,44 @@ function render_archive_ajax( $atts ) {
 	                $category = get_queried_object();
                     $cat_id = $category->term_id;
                 }
+                // grab the premium level for each category
+//                $meta_query_args = array(
+//                    'relation' => 'OR',
+//                    array(
+//                        'relation' => 'AND',
+//                        'level' => array(
+//                            'key' => 'premium_listings_0_level',
+//                            'compare' => 'EXISTS'
+//                        ),
+//	                    array(
+//		                    'key' => 'premium_listings_0_categry',
+//		                    'value' => $cat_id
+//	                    )
+//                    ),
+//                    array(
+//                        'relation' => 'AND',
+//                        'level' => array(
+//                            'key' => 'premium_listings_1_level',
+//                            'compare' => 'EXISTS'
+//                        ),
+//	                    array(
+//		                    'key' => 'premium_listings_1_category',
+//		                    'value' => $cat_id
+//	                    )
+//                    ),
+//                    array(
+//                        'relation' => 'AND',
+//		                'level' => array(
+//                            'key' => 'premium_listings_2_level',
+//                            'compare' => 'EXISTS'
+//                        ),
+//		                array(
+//			                'key' => 'premium_listings_2_category',
+//			                'value' => $cat_id
+//		                )
+//	                )
+//
+//                );
 	            
 	            $args          = array(
 		            'post_type'      => 'vendor_profile',
@@ -3463,7 +3501,43 @@ function render_archive_ajax( $atts ) {
 			wp_send_json( $resp );
 			wp_die();
 		}
-	}
+	} elseif ( in_array($post_type, ['search_results'])) {
+	    // get the queried object and display the search results
+        global $query_string;
+		wp_parse_str( $query_string, $search_query );
+		$search_term = $search_query['s'];
+        
+        // rebuild the query args to only search for post types I want to see
+        $query_args = array(
+            'post_type'      => array('spotlight', 'styled_shoot', 'wedding_story', 'post', 'page'),
+            's'              => $search_term,
+            'posts_per_page' => 10,
+        );
+        
+        $search_results = get_posts($query_args);
+
+        foreach ($search_results as $search_result) {
+	        // Featured Image
+	        $feat_img = get_the_post_thumbnail( $search_result->ID );
+	        $html     .= '<div class="archive-col" onclick="window.location = \'' . get_the_permalink( $search_result->ID ) . '\'">';
+	        $html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+	
+	        // Vendor Name
+	        $post_title = get_the_title( $search_result->ID );
+	        $html       .= '<div class="post-name">
+                        <h4><a href="' . get_the_permalink( $search_result->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
+            </div>'; // END .vendor-name
+	        $html       .= '</div>'; // END .archive-col++
+	        $col_count ++;
+	        if ( $col_count >= sizeof( $search_results ) ) {
+//					$html .= '</div>'; // End of last .archive-row div
+	        } elseif ( $col_count % 3 == 0 ) {
+//					$html .= '</div><div class="archive-row cols">'; // start a new .archive-row
+	        }
+        }
+		$html .= $append == false ? '</div>' : ''; // END #post-archive-list
+    
+    }
 	
 	return $html;
 }
@@ -3617,4 +3691,39 @@ function render_category_description() {
     $category = get_queried_object();
 	$category = get_term($category->term_id, 'category');
 	return $category->description;
+}
+
+add_shortcode('breadcrumbs', 'render_breadcrumbs');
+function render_breadcrumbs() {
+    // find current lcoation and display breadcrumbs
+    $html = '<div class="breadcrumbs">';
+	$html .= '<a href="'.home_url().'" rel="nofollow">San Antonio Weddings</a>';
+	if (is_category() || is_single()) {
+		if (is_category()) {
+		    $html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
+		    $category = get_queried_object();
+		    $html .= '<a href="' . $category->url . '">' . $category->name . '</a>';
+        }
+		if (is_single()) {
+		    $post_type = get_post_type();
+		    $post_type_obj = get_post_type_object($post_type);
+			$html .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
+			$html .= '<a href="' . get_post_type_archive_link($post_type) . '">' . $post_type_obj->label . '</a>';
+			$html .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
+			$html .= get_the_title();
+		}
+	} elseif (is_page()) {
+		$html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
+		$html .= get_the_title();
+	} elseif (is_search()) {
+		$html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;Search Results for... ";
+		$html .= '"<em>';
+		ob_start();
+		the_search_query();
+		$html .= ob_get_contents();
+		ob_end_clean();
+		$html .= '</em>"';
+	}
+	$html .= '</div>';
+	return $html;
 }
