@@ -362,16 +362,23 @@ $(document).ready(function () {
 
 	// Set up the offset so it can be updated while the page is live
 	let offset = 0;
+	let alphabetize = false;
+	let alphaClick = false;
 	$('#archive-more-button a').on('click', function(e) {
 		offset += $(this).data('offset');
 		let post_type = $(this).data('post_type');
+		let category = $(this).data('category-id');
+		alphaClick = false;
 		console.log("Clicked Archive More");
 		console.log(offset);
 		// Want to set the offset based on how many articles are currently showing
 		let data = {
 			'action': 'archive_moreposts',
 			'offset': offset,
-			'post_type': post_type
+			'post_type': post_type,
+			'category': category,
+			'alphabetize': alphabetize,
+			'alphaClick': alphaClick
 		};
 		$.post(fnajax.ajax_url, data, function (response) {
 			// can pass messages back via 'response' if I want to check to see if everything worked
@@ -379,6 +386,32 @@ $(document).ready(function () {
 		});
 		e.preventDefault();
 	});
+
+	$('.alphabetize a.sort-alphabetically').on('click', function(e) {
+		e.preventDefault();
+
+		// go back to functions.php and get the current number of posts, but in alphabetical order
+		let offsetButton = $('#archive-more-button a');
+		offset = offsetButton.data('offset');
+		let post_type = offsetButton.data('post_type');
+		let category = offsetButton.data('category-id');
+		alphaClick = true;
+		alphabetize = true;
+		let data = {
+			'action': 'archive_sortposts',
+			'offset': offset,
+			'post_type': post_type,
+			'category': category,
+			'alphabetize': alphabetize,
+			'alpha_click': alphaClick
+		};
+		$.post(fnajax.ajax_url, data, function (response) {
+			// can pass messages back via 'response' if I want to check to see if everything worked
+			$('#post-archive-list').html(response.newhtml);
+		});
+		$(this).hide();
+
+	})
 
 	// var swiper = new Swiper('.swiper-container', {
 	//     slidesPerView: 'auto',

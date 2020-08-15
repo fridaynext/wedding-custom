@@ -3184,6 +3184,9 @@ function render_archive_slider( $atts ) {
 add_action( 'wp_ajax_archive_moreposts', 'render_archive_ajax' );
 add_action( 'wp_ajax_nopriv_archive_moreposts', 'render_archive_ajax' );
 
+add_action( 'wp_ajax_archive_sortposts', 'render_archive_ajax' );
+add_action( 'wp_ajax_nopriv_archive_sortposts', 'render_archive_ajax' );
+
 add_shortcode( 'archive_ajax', 'render_archive_ajax' );
 function render_archive_ajax( $atts ) {
 	// TODO: could possibly pass in 'offset' when calling this function from AJAX, so that I don't have to write it again
@@ -3192,11 +3195,21 @@ function render_archive_ajax( $atts ) {
 	$html      = '';
 	$offset    = 0;
 	$append    = false; // If we have an offset, let's append these results
+    $alpha     = false;
+    $alpha_click = false;
 	
 	if ( isset( $request['offset'] ) && $request['offset'] !== 0 ) {
 		$offset = $request['offset'];
 		$append = true;
 	}
+	if ( isset( $request['alphabetize']) ) {
+	    if ($request['alphabetize'] == true) {
+	        $alpha = true;
+        }
+    }
+	if ( isset( $request['alpha_click'] ) ) {
+	    $alpha_click = $request['alpha_click'];
+    }
 	
 	if ( isset( $request['post_type'] ) ) {
 		$post_type = $request['post_type'];
@@ -3327,6 +3340,7 @@ function render_archive_ajax( $atts ) {
 		$posts_per_page = 9;
 		// here's where we get all our posts to display in beautiful grid boxes
         $args = array();
+        
         switch($post_type) {
             case "virtual-tour":
                 $meta_query_args = array(
@@ -3358,13 +3372,20 @@ function render_archive_ajax( $atts ) {
 	            );
                 break;
             case "category":
-	            $category = get_queried_object();
+                if( isset($request['category']) ) {
+                    $cat_id = $request['category'];
+                } else {
+	                $category = get_queried_object();
+                    $cat_id = $category->term_id;
+                }
+	            
 	            $args          = array(
 		            'post_type'      => 'vendor_profile',
-		            'posts_per_page' => $posts_per_page,
-		            'cat'            => $category->term_id,
-		            'offset'         => $offset,
-		            'orderby'        => 'rand(' . get_random_post() . ')'
+		            'posts_per_page' => $alpha_click ? $offset : $posts_per_page,
+		            'cat'            => $cat_id,
+		            'offset'         => $alpha_click ? 0 : $offset,
+		            'orderby'        => $alpha ? 'title' : 'rand(' . get_random_post() . ')',
+                    'order'          => 'ASC'
 	            );
                 break;
         }
@@ -3372,25 +3393,26 @@ function render_archive_ajax( $atts ) {
 //		global $post;
 //        $cat = get_term_by('slug', $post->post_name, 'category');
 		$category = get_queried_object();
-        $category = get_term($category->term_id, 'category');
 		$archive_posts = get_posts( $args );
-		$html          .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
+		if ( $offset == 0 ) {
+		    $html .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
+		    $html .= '<div class="alphabetize"><a class="sort-alphabetically" href="#">Sort Alphabetically</a></div>';
+        }
 		$html          .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
 		$col_count     = 0;
 		if ( sizeof( $archive_posts ) > 0 ) {
 //			$html .= '<div class="archive-row cols">';
 			foreach ( $archive_posts as $archive_post ) {
-				
-				
+			 
 				// Featured Image
 				$feat_img = get_the_post_thumbnail( $archive_post->ID );
-				$html     .= '<div class="archive-col" onclick="window.location = \'' . get_field( '360-virtual-tour', $archive_post->ID ) . '\', \'_blank\'">';
+				$html     .= '<div class="archive-col" onclick="window.location = \'' . ( $post_type !== 'virtual_tour' ?  get_the_permalink($archive_post->ID) : get_field('360tour', $archive_post->ID )) . '\', \'_blank\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
 				// Vendor Name
 				$post_title = get_the_title( $archive_post->ID );
-				$html       .= '<div class="post-name">
-                        <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '" target="_blank">' . $post_title . '</a></h4>
+				$html       .= '<div class="post-name ' . $post_type . '">
+                        <h4>' . $post_title. '</h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
 				$col_count ++;
@@ -3401,7 +3423,7 @@ function render_archive_ajax( $atts ) {
 				}
 			}
 			
-			$banner_ad = do_shortcode( '[banner_ad type="category"]' );
+			$banner_ad = sizeof($archive_posts) > 8 ? do_shortcode( '[banner_ad type="category"]' ) : "";
 			
 			
 			$html .= $banner_ad;
@@ -3420,7 +3442,18 @@ function render_archive_ajax( $atts ) {
 		
 		// The Load More Ajax Button
 		if ( $append == false ) {
-			$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $posts_per_page . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+		    // Store the category, since it won't be the queried object once we click the 'more' button
+            $cat = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
+            if (isset($args['cat'])) {
+                $this_category = get_term($args['cat'], 'category');
+                $count = $this_category->count;
+                $offset = $offset == 0 ? sizeof($archive_posts) : $offset;
+                if ($offset < $count) {
+	                $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+                }
+            } else {
+                $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+            }
 		} else {
 			// we're appending, so we don't need the button printed again
 			// send back the resulting HTML to the AJAX call, and add it in via JS
@@ -3576,4 +3609,12 @@ function render_banner_ad( $atts ) {
 	}
 	wp_reset_query();
 	return $html;
+}
+
+add_shortcode('category_description', 'render_category_description');
+function render_category_description() {
+	// get the current category
+    $category = get_queried_object();
+	$category = get_term($category->term_id, 'category');
+	return $category->description;
 }
