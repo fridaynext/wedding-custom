@@ -1923,7 +1923,7 @@ function render_featured_spotlights() {
 		$html .= '<div class="left-half">';
 		if ( get_field( 'header_image', $spotlight->ID ) ) {
 			$image = get_field( 'header_image', $spotlight->ID );
-			$html  .= '<img src="' . esc_url( $image['url'] ) . '" alt="' . esc_url( $image['alt'] ) . '" />';
+			$html  .= '<img src="' . esc_url( $image['url'] ) . '" alt="' . esc_attr( $image['alt'] ) . '" />';
 //                style="max-height:200px;float:right;border-right-width:4px;border-right-color:#ffffff;border-right-style:solid;"
 		}
 		$html .= '</div>';
@@ -3197,25 +3197,18 @@ function render_archive_ajax( $atts ) {
 	$append    = false; // If we have an offset, let's append these results
     $alpha     = false;
     $alpha_click = false; // If 'Sort Alphabetically' was clicked
+	$search_term = '';
+ 
 	
-	if ( isset( $request['offset'] ) && $request['offset'] !== 0 ) {
-		$offset = $request['offset'];
-		$append = true;
-	}
-	if ( isset( $request['alphabetize']) ) {
-	    if ($request['alphabetize'] == true) {
-	        $alpha = true;
-        }
-    }
-	if ( isset( $request['alpha_click'] ) ) {
-	    $alpha_click = $request['alpha_click'];
-    }
+	$offset = isset( $request['offset'] ) && $request['offset'] !== 0 ? $request['offset'] : $offset;
+    $append = isset( $request['offset'] ) && $request['offset'] !== 0 ? true : $append;
 	
-	if ( isset( $request['post_type'] ) ) {
-		$post_type = $request['post_type'];
-	} elseif ( isset( $atts['type'] ) ) {
-		$post_type = $atts['type']; // == 'spotlight' ? 'spotlight' : '';
-	}
+    $alpha = isset( $request['alphabetize'] ) ? true : $alpha;
+	$alpha_click = isset( $request['alpha_click'] ) ? $request['alpha_click'] : $alpha_click;
+	
+	$search_term = isset( $request['search_term'] ) ? $request['search_term'] : $search_term;
+	
+	$post_type = isset( $request['post_type'] ) ? $request['post_type'] : (isset($atts['type']) ? $atts['type'] : $post_type);
 	
 	if ( $post_type == 'spotlight' || $post_type == 'post' ) {
 		$posts_per_page = 5;
@@ -3237,7 +3230,7 @@ function render_archive_ajax( $atts ) {
 				// 3. Get the excerpt (or a specific number of words, followed by ellipsis) under Title
 				
 				// Featured Image
-				$feat_img = get_the_post_thumbnail( $archive_post->ID );
+				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array('loading' => false) );
 				$html     .= '<div class="archive-row" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
@@ -3295,7 +3288,7 @@ function render_archive_ajax( $atts ) {
 				
 				
 				// Featured Image
-				$feat_img = get_the_post_thumbnail( $archive_post->ID );
+				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array('loading' => false) );
 				$html     .= '<div class="archive-col" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
@@ -3443,7 +3436,7 @@ function render_archive_ajax( $atts ) {
 			foreach ( $archive_posts as $archive_post ) {
 			 
 				// Featured Image
-				$feat_img = get_the_post_thumbnail( $archive_post->ID );
+				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array('loading' => false) );
 				$html     .= '<div class="archive-col" onclick="window.location = \'' . ( $post_type !== 'virtual_tour' ?  get_the_permalink($archive_post->ID) : get_field('360tour', $archive_post->ID )) . '\', \'_blank\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
@@ -3505,41 +3498,180 @@ function render_archive_ajax( $atts ) {
 	    // get the queried object and display the search results
         global $query_string;
 		wp_parse_str( $query_string, $search_query );
-		$search_term = $search_query['s'];
-        
+		$search_term = strlen($search_term) > 0 ? $search_term : $search_query['s'];
+		
         // rebuild the query args to only search for post types I want to see
-        $query_args = array(
-            'post_type'      => array('spotlight', 'styled_shoot', 'wedding_story', 'post', 'page'),
-            's'              => $search_term,
-            'posts_per_page' => 10,
-        );
+//        $query_args = array(
+//            'posts_per_page' => 10,
+//            's'              => get_search_query(),
+//            'meta_query'     => array(
+//                array(
+//                    'key' => 'is_active',
+//                    'value' => true
+//                )
+//            )
+//        );
         
-        $search_results = get_posts($query_args);
-
-        foreach ($search_results as $search_result) {
-	        // Featured Image
-	        $feat_img = get_the_post_thumbnail( $search_result->ID );
-	        $html     .= '<div class="archive-col" onclick="window.location = \'' . get_the_permalink( $search_result->ID ) . '\'">';
-	        $html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
-	
-	        // Vendor Name
-	        $post_title = get_the_title( $search_result->ID );
-	        $html       .= '<div class="post-name">
-                        <h4><a href="' . get_the_permalink( $search_result->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
+		
+		$html          .= $append == false ? '<div id="post-archive-list" class="search-results cols">' : '';
+		
+		add_filter( 'posts_where', 'title_filter', 10, 2 );
+        $search_query = new WP_Query(
+            array(
+                'post_type' => array('vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post'),
+                'posts_per_page' => 10,
+                'title_filter' => $search_term,
+                'title_filter_relation' => 'AND',
+                'offset' => $offset,
+                'meta_query' => array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => 'is_active',
+                        'value' => true,
+                        'compare' => '='
+                    ),
+                    array(
+                        'relation' => 'OR',
+                        array(
+                            'key' => 'meta_title',
+                            'value' => $search_term,
+                            'compare' => 'LIKE'
+                        ),
+                        array(
+                            'key' => 'meta_description',
+                            'value' => $search_term,
+                            'compare' => 'LIKE'
+                        ),
+	                    array(
+		                    'key' => 'meta_title',
+		                    'compare' => 'NOT EXISTS'
+	                    ),
+	                    array(
+		                    'key' => 'meta_description',
+		                    'compare' => 'NOT EXISTS'
+	                    )
+                    )
+                )
+            )
+        );
+        remove_filter( 'posts_where', 'title_filter', 10, 2 );
+        
+//        $search_results = get_posts($query_args);
+//        if (sizeof($search_results) > 0) {
+//            foreach ($search_results as $search_result) {
+//                // Featured Image
+//                $feat_img = get_the_post_thumbnail($search_result->ID);
+//                $html     .= '<div class="archive-col" onclick="window.location=\'' . get_the_permalink($search_result->ID) . '\'">';
+//                $html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+//
+//                // Vendor Name
+//                $post_title = get_the_title($search_result->ID);
+//                $html       .= '<div class="post-name">
+//                        <h4><a href="' . get_the_permalink($search_result->ID) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
+//            </div>'; // END .vendor-name
+//                $html       .= '</div>'; // END .archive-col++
+//            }
+//        }
+		if ($search_query->have_posts()) :
+			while($search_query->have_posts()) : $search_query->the_post();
+				// Featured Image
+//				$feat_img = get_field('header_image');
+                $feat_img = get_the_post_thumbnail();
+				$html     .= '<div class="archive-col" onclick="window.location=\'' . get_the_permalink() . '\'">';
+				$cpt_name = get_post_type_object(get_post_type())->labels->singular_name;
+				$cpt_name = $cpt_name == 'Post' ? 'Blog' : $cpt_name;
+				$html     .= '<div class="search-type ' . get_post_type() . '">' . $cpt_name . '</div>';
+				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+//			    $html     .= '<div class="thumbnail"><img src="' . $feat_img['url'] . '" /></div>';
+       
+				// Vendor Name
+				$post_title = get_the_title();
+				$html       .= '<div class="post-name">
+                        <h4><a href="' . get_the_permalink() . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
-	        $html       .= '</div>'; // END .archive-col++
-	        $col_count ++;
-	        if ( $col_count >= sizeof( $search_results ) ) {
-//					$html .= '</div>'; // End of last .archive-row div
-	        } elseif ( $col_count % 3 == 0 ) {
-//					$html .= '</div><div class="archive-row cols">'; // start a new .archive-row
-	        }
-        }
+				$html       .= '</div>'; // END .archive-col++
+            endwhile;
+        else :
+	        if ($offset > 0) {
+                $html .= '<script type="text/javascript">
+                        jQuery("#archive-more-button").hide();
+                        </script>';
+            } else {
+                $html .= '<div class="no-results">No Results Found...</div>';
+            }
+        endif;
+        $count = $search_query->found_posts;
+		$offset = $offset == 0 ? $search_query->post_count : $offset;
+        wp_reset_postdata();
 		$html .= $append == false ? '</div>' : ''; // END #post-archive-list
-    
+		
+		// The Load More Ajax Button
+		if ( $append == false ) {
+			// Store the category, since it won't be the queried object once we click the 'more' button
+			$cat = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
+			if (isset($search_term)) {
+				
+				if ($offset < $count) {
+					$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-search-query="' . $search_term . '" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+				}
+			} else {
+				$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-search-query="' . $search_term . '" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+				
+			}
+		} else {
+			// we're appending, so we don't need the button printed again
+			// send back the resulting HTML to the AJAX call, and add it in via JS
+			$resp = array(
+				'newhtml' => $html
+			);
+			wp_send_json( $resp );
+			wp_die();
+		}
     }
 	
 	return $html;
+}
+
+add_filter( 'pre_get_posts', 'change_search_types' );
+/**
+ * This function modifies the main WordPress query to include an array of
+ * post types instead of the default 'post' post type.
+ *
+ * @param object $query  The original query.
+ * @return object $query The amended query.
+ */
+function change_search_types( $query ) {
+	
+	if ( $query->is_search ) {
+		$query->set( 'post_type', array( 'spotlight','wedding_story','styled_shoot','post','vendor_profile' ) );
+	}
+	
+	return $query;
+	
+}
+
+add_shortcode('search_term', 'render_search_term');
+function render_search_term() {
+    if (is_search()) {
+	    global $query_string;
+	    wp_parse_str( $query_string, $search_query );
+	    return '<span style="text-transform:none;">' . $search_query['s'] . '</span>';
+    } else {
+        return '';
+    }
+}
+
+// Search by Title
+function title_filter( $where, $wp_query ){
+	global $wpdb;
+	if( $search_term = $wp_query->get( 'title_filter' ) ) :
+		$search_term = $wpdb->esc_like( $search_term );
+		$search_term = ' \'%' . $search_term . '%\'';
+		$title_filter_relation = ( strtoupper( $wp_query->get( 'title_filter_relation' ) ) == 'OR' ? 'OR' : 'AND' );
+		$where .= ' '.$title_filter_relation.' ' . $wpdb->posts . '.post_title LIKE ' . $search_term;
+		$where .= ' AND '.$wpdb->posts . ".post_type IN ('post','spotlight','wedding_story','styled_shoot','vendor_profile')";
+	endif;
+	return $where;
 }
 
 // Create a session so we can store the already retrieved posts, so there are no dupes

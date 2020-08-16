@@ -368,6 +368,7 @@ $(document).ready(function () {
 		offset += $(this).data('offset');
 		let post_type = $(this).data('post_type');
 		let category = $(this).data('category-id');
+		let searchTerm = $(this).data('search-query');
 		alphaClick = false;
 		console.log("Clicked Archive More");
 		console.log(offset);
@@ -378,7 +379,8 @@ $(document).ready(function () {
 			'post_type': post_type,
 			'category': category,
 			'alphabetize': alphabetize,
-			'alphaClick': alphaClick
+			'alphaClick': alphaClick,
+			'search_term': searchTerm
 		};
 		$.post(fnajax.ajax_url, data, function (response) {
 			// can pass messages back via 'response' if I want to check to see if everything worked

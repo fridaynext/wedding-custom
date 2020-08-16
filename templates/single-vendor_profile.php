@@ -11,6 +11,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 ?>
 
     <div id="main-content">
+        <?php /************** BREADCRUMBS **************/ ?>
+        <?php echo do_shortcode('[breadcrumbs]'); ?>
         <div class="container">
             <div id="content-area" class="clearfix">
                 <div class="et_post_meta_wrapper">
@@ -343,6 +345,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								do_action( 'et_before_content' );
 								
 								// Insert the photo gallery, and video gallery
+                                $total = 0;
 								if ( $vendor_gallery ) :
 									$size = "full";
 									
@@ -352,7 +355,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                         <div class="swiper-wrapper">
 											<?php foreach ( $vendor_gallery as $image_id ): ?>
                                                 <div class="swiper-slide">
-													<?php echo wp_get_attachment_image( $image_id, $size ); ?>
+													<?php echo wp_get_attachment_image( $image_id, $size, false, array('loading' => false) ); ?>
                                                 </div>
 											<?php endforeach; ?>
                                         </div>
@@ -362,57 +365,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                         <div class="swiper-button-next"></div>
                                     </div>
 
-                                    <script type="text/javascript">
-                                        
-                                        let swiper = new Swiper('.swiper-container', {
-                                            slidesPerView: 'auto',
-                                            centeredSlides: true,
-                                            loop: true,
-                                            loopedSlides: <?php echo $total; ?>,
-                                            spaceBetween: 5,
-                                            navigation: {
-                                                nextEl: '.swiper-button-next',
-                                                prevEl: '.swiper-button-prev'
-                                            },
-                                            on: {
-                                                init: function() {
-                                                    calculateDimensions();
-                                                },
-                                                resize: function() {
-                                                
-                                                }
-                                            }
-                                        });
-                                        
-                                        // find width of image and dynamically assign width of parent div (.swiper-slide)
-                                        // set widths of all parent div containers of images
-                                        function calculateDimensions() {
-                                            // in each swiper-slide, get the child image's width to calculate this wrapper's width
-                                            jQuery('.swiper-slide').each(function (index, element) {
-                                                let imgWidth = jQuery(this).children().first().width();
-                                                console.log("Image Width: " + imgWidth);
-                                                let imgHeight = jQuery(this).children().first().height();
-                                                console.log("Image Height: " + imgHeight);
-                                                let wrapperHeight = jQuery('.swiper-wrapper').height();
-                                                console.log("Wrapper Height: " + wrapperHeight);
-                                                jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
-                                                let newHeight = imgWidth * wrapperHeight / imgHeight;
-                                                console.log("This image " + index + " new width: " + newHeight);
-                                            });
-                                            jQuery('.swiper-slide-duplicate').each(function (index, element) {
-                                                let imgWidth = jQuery(this).children().first().width();
-                                                let imgHeight = jQuery(this).children().first().height();
-                                                let wrapperHeight = jQuery('.swiper-wrapper').height();
-                                                console.log("Duplicate Wrapper Height: " + wrapperHeight);
-                                                jQuery(this).width(imgWidth * wrapperHeight / imgHeight);
-                                                console.log("Duplicate image " + index + " new width: " + (imgWidth * wrapperHeight / imgHeight));
-                                            });
-                                        }
-                                        jQuery(window).on('load', function() {
-                                            // Resize refreshes sliders
-                                            swiper.slideTo(<?php echo $total; ?>,0);
-                                        });
-                                    </script>
+                                    
 								<?php endif; ?>
 								
 								<?php if ( $about_vendor ) : ?>
@@ -763,7 +716,59 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
             });
 
         })(jQuery);
-    </script>
+        
+        /****** SWIPER JS FUNCTIONALITY *****/
+
+        (function ($) {
+            let swiper = new Swiper('.swiper-container', {
+                slidesPerView: 'auto',
+                centeredSlides: true,
+                loop: true,
+                loopedSlides: <?php echo $total; ?>,
+                spaceBetween: 5,
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev'
+                },
+                on: {
+                    imagesReady: function () {
+                        calculateDimensions();
+                    }
+                }
+            });
+
+            // find width of image and dynamically assign width of parent div (.swiper-slide)
+            // set widths of all parent div containers of images
+            function calculateDimensions() {
+                // in each swiper-slide, get the child image's width to calculate this wrapper's width
+                $('.swiper-slide').each(function (index, element) {
+                    let imgWidth = $(this).children().first().width();
+                    console.log("Image Width: " + imgWidth);
+                    let imgHeight = $(this).children().first().height();
+                    console.log("Image Height: " + imgHeight);
+                    let wrapperHeight = $('.swiper-wrapper').height();
+                    console.log("Wrapper Height: " + wrapperHeight);
+                    $(this).width(imgWidth * wrapperHeight / imgHeight);
+                    let newHeight = imgWidth * wrapperHeight / imgHeight;
+                    console.log("This image " + index + " new width: " + newHeight);
+                });
+                $('.swiper-slide-duplicate').each(function (index, element) {
+                    let imgWidth = $(this).children().first().width();
+                    let imgHeight = $(this).children().first().height();
+                    let wrapperHeight = $('.swiper-wrapper').height();
+                    console.log("Duplicate Wrapper Height: " + wrapperHeight);
+                    $(this).width(imgWidth * wrapperHeight / imgHeight);
+                    console.log("Duplicate image " + index + " new width: " + (imgWidth * wrapperHeight / imgHeight));
+                });
+                swiper.update();
+                swiper.slideTo(<?php echo $total; ?>,1);
+            }
+            
+            // Resize refreshes sliders
+        })(jQuery);
+        
+        
+        </script>
 
 <?php
 

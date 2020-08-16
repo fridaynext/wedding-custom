@@ -2,7 +2,10 @@
 html {
   scroll-behavior: smooth;
 }
-
+div.breadcrumbs {
+  padding: 5px 5px 5px 30px;
+  background: var(--light-gray-color);
+}
 body.single-vendor_profile h1.entry-title {
   color: var(--black-color);
   text-transform: uppercase;
@@ -87,7 +90,7 @@ div.vendor-meta {
   position: sticky;
   top: 0;
   background: #FFF;
-  z-index: 5;
+  z-index: 1;
 
   .vendor-page-nav {
     display: flex;
@@ -130,6 +133,7 @@ div.vendor-meta {
 .swiper-container {
   width: 100%;
   max-width: 900px;
+  z-index: 0;
 }
 
 .swiper-wrapper {
@@ -169,7 +173,7 @@ div.vendor-meta {
   background: rgba(0, 0, 0, .4);
   transition: .3s background;
   pointer-events: none;
-  z-index: 5;
+  z-index: 2;
 }
 
 .swiper-slide img, .swiper-slide-duplicate img {
@@ -190,11 +194,15 @@ div.vendor-meta {
 .swiper-slide-prev, .swiper-slide-duplicate-prev {
   transform: scale3d(.95, .95, 1);
   transform-origin: center right;
+  overflow: hidden;
+  max-width: unset;
 }
 
 .swiper-slide-next, .swiper-slide-duplicate-next {
   transform: scale3d(.95, .95, 1);
   transform-origin: center left;
+  overflow: hidden;
+  max-width: unset;
 }
 
 .swiper-button-prev, .swiper-button-next {
