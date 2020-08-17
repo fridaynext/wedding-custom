@@ -7,6 +7,7 @@ $(document).ready(function () {
 	});
 	$(".header-search a").on('click', function () {
 		$("div.header-search-dropdown").toggleClass("visible");
+		$("form.et_pb_searchform input.et_pb_s").trigger("focus");
 	});
 
 	// Home hero slider hidden text display on mobile

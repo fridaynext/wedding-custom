@@ -812,11 +812,11 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                 },
                 on: {
                     imagesReady: function () {
-                        calculateDimensions();
                         this.slideTo(<?php echo $total; ?>,1);
                     },
                     init: function () {
-                        this.update();
+                        calculateDimensions();
+                        
                     }
                 }
             });
@@ -832,12 +832,13 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                     prevEl: '.swiper-button-prev.s2'
                 },
                 on: {
-                    init: function () {
-                   
+                    resize: function () {
+                        this.update();
                     },
                    
                 }
             });
+            $(window).trigger("resize");
 
             // find width of image and dynamically assign width of parent div (.swiper-slide)
             // set widths of all parent div containers of images
