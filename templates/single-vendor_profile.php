@@ -344,13 +344,15 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								<?php
 								do_action( 'et_before_content' );
 								
+								/***************************** SWIPER JS PHOTO GALLERY ******************************/
 								// Insert the photo gallery, and video gallery
                                 $total = 0;
+                                $video_total = 0;
 								if ( $vendor_gallery ) :
 									$size = "full";
 									
 									$total = sizeof( $vendor_gallery ); ?>
-                                    <div class="swiper-container">
+                                    <div id="photo-gallery" class="swiper-container visible">
                                         <span id="vendor-gallery" class="sticky-top"></span>
                                         <div class="swiper-wrapper">
 											<?php foreach ( $vendor_gallery as $image_id ): ?>
@@ -364,10 +366,88 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                         <div class="swiper-button-prev"></div>
                                         <div class="swiper-button-next"></div>
                                     </div>
-
-                                    
+                                
 								<?php endif; ?>
-								
+                                
+                                <?php if( $video_gallery ) {
+                                    $video_total = sizeof($video_gallery); ?>
+                                    <div id="video-gallery" class="swiper-container s2">
+                                        <div class="swiper-wrapper">
+			                                <?php foreach ( $video_gallery as $video ): ?>
+                                                <div class="swiper-slide">
+					                                <?php echo $video['video_url']; ?>
+                                                </div>
+			                                <?php endforeach; ?>
+                                        </div>
+                                        <div class="swiper-pagination"></div>
+
+                                        <div class="swiper-button-prev s2"></div>
+                                        <div class="swiper-button-next s2"></div>
+                                    </div>
+                                
+                                <?php } ?>
+                                
+                                <?php /*********************** JS Buttons Swap between photos/videos ***************************/
+                                if( $vendor_gallery ) { ?>
+                                   <div id="gallery-buttons">
+                                       <div class="photo-button is-active">
+                                           <div class="left-half">
+                                               <?php the_post_thumbnail( 'post-thumbnail', array('loading' => false) ); ?>
+                                               <div class="icon"></div>
+                                           </div>
+                                           <div class="right-half">
+                                               <h5>Photos</h5>
+                                               <span class="total-media"><?php echo $total; ?> Photos</span>
+                                           </div>
+                                       </div>
+                                       <?php if( $video_gallery ) { ?>
+                                           <div class="video-button">
+                                               <div class="left-half">
+	                                               <?php the_post_thumbnail( 'post-thumbnail', array('loading' => false) ); ?>
+                                                   <div class="icon"><i class="far fa-play-circle"></i></div>
+                                               </div>
+                                               <div class="right-half">
+                                                   <h5>Videos</h5>
+                                                   <span class="total-media"><?php echo sizeof($video_gallery); echo sizeof($video_gallery) > 1 ? ' Videos' : ' Video'; ?></span>
+                                               </div>
+                                           </div>
+                                       <?php } ?>
+                                   </div>
+                                    <script type="text/javascript">
+                                        (function($) {
+                                            $('.photo-button').on('click', function(e) {
+                                                e.preventDefault();
+                                                let photoGal = $('#photo-gallery');
+                                                let videoGal = $('#video-gallery');
+                                                
+                                                if(!photoGal.hasClass('visible')) {
+                                                    photoGal.addClass('visible');
+                                                    $('.photo-button').addClass('is-active');
+                                                    if(videoGal.hasClass('visible')) {
+                                                        videoGal.removeClass('visible');
+                                                        $('.video-button').removeClass('is-active')
+                                                    }
+                                                }
+                                            });
+                                            $('.video-button').on('click', function(e) {
+                                                e.preventDefault();
+                                                let photoGal = $('#photo-gallery');
+                                                let videoGal = $('#video-gallery');
+
+                                                if(!videoGal.hasClass('visible')) {
+                                                    videoGal.addClass('visible');
+                                                    $('.video-button').addClass('is-active');
+                                                    if(photoGal.hasClass('visible')) {
+                                                        photoGal.removeClass('visible');
+                                                        $('.photo-button').removeClass('is-active');
+                                                    }
+                                                }
+                                            });
+                                        })(jQuery)
+                                    </script>
+                                <?php }
+                                
+								?>
 								<?php if ( $about_vendor ) : ?>
                                     <h2><span id="about-vendor" class="sticky-top"></span><span
                                                 class="vendor-header-triangle"></span>About <?php echo get_the_title(); ?>
@@ -733,7 +813,29 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                 on: {
                     imagesReady: function () {
                         calculateDimensions();
+                        this.slideTo(<?php echo $total; ?>,1);
+                    },
+                    init: function () {
+                        this.update();
                     }
+                }
+            });
+            
+            let swiper2 = new Swiper('.swiper-container.s2', {
+                slidesPerView: 'auto',
+                centeredSlides: true,
+                loop: true,
+                loopedSlides: <?php echo $video_total; ?>,
+                spaceBetween: 5,
+                navigation: {
+                    nextEl: '.swiper-button-next.s2',
+                    prevEl: '.swiper-button-prev.s2'
+                },
+                on: {
+                    init: function () {
+                   
+                    },
+                   
                 }
             });
 
@@ -760,8 +862,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                     $(this).width(imgWidth * wrapperHeight / imgHeight);
                     console.log("Duplicate image " + index + " new width: " + (imgWidth * wrapperHeight / imgHeight));
                 });
-                swiper.update();
-                swiper.slideTo(<?php echo $total; ?>,1);
+                
             }
             
             // Resize refreshes sliders
