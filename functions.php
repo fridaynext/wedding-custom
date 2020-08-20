@@ -235,7 +235,7 @@ function fn_enqueue_styles() {
 	wp_enqueue_style( 'admin-styles' );
 	
 	// TODO: Only render these styles for the article pages!
-	wp_register_style( 'article_styles', plugins_url( 'public/css/article.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_register_style( 'article_styles', plugins_url( 'public/css/article-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'article_styles' );
 	
 	wp_register_style( 'open_sans_light', '//fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;300;700&family=Encode+Sans:wght@100;300;700&family=Open+Sans+Condensed:wght@700&display=swap', array(), FRIDAY_NEXT_EXTRAS_VERSION );
@@ -410,7 +410,7 @@ add_role(
 		'delete_published_posts' => true,
 		'edit_posts'             => true,
 		'publish_posts'          => true,
-		'upload_files'            => true,
+		'upload_files'           => true,
 		'edit_pages'             => true,
 		'edit_published_pages'   => true,
 		'publish_pages'          => true,
@@ -1943,83 +1943,83 @@ function render_featured_spotlights() {
 add_shortcode( 'home_page_hero_slider', 'render_home_hero_slider' );
 function render_home_hero_slider() {
 	// grab each set of data for home sliders, depending on type
-    $today = date( 'Y-m-d H:i:s' );
-	$args         = array(
+	$today = date( 'Y-m-d H:i:s' );
+	$args  = array(
 		'post_type'      => 'home_slide',
 		'posts_per_page' => 5,
 		'order'          => 'DESC',
 		'meta_query'     => array(
-            array(
-                'key' => 'is_active',
-                'compare' => '=',
-                'value' => true
-            ),
-            array(
-                'key' => 'is_slide_featured',
-                'compare' => '=',
-                'value' => true
-            ),
-            'start_date ' => array(
-                'key' => 'banner_start_date', // stored like '2020-07-09 15:00:00'
-                'compare' => '<',
-                'value' => $today,
-            ),
-            'end_date' => array(
-                'relation' => 'OR',
-                array(
-                    'key' => 'banner_end_date',
-                    'compare' => 'NOT EXISTS'
-                ),
-                array(
-                    'key' => 'banner_end_date',
-                    'compare' => '=',
-                    'value' => '',
-                ),
-                array(
-                    'key' => 'banner_end_date',
-                    'compare' => '>',
-                    'value' => $today,
-                )
-            )
-        ),
-        'orderby' => 'start_date'
-    );
+			array(
+				'key'     => 'is_active',
+				'compare' => '=',
+				'value'   => true
+			),
+			array(
+				'key'     => 'is_slide_featured',
+				'compare' => '=',
+				'value'   => true
+			),
+			'start_date ' => array(
+				'key'     => 'banner_start_date', // stored like '2020-07-09 15:00:00'
+				'compare' => '<',
+				'value'   => $today,
+			),
+			'end_date'    => array(
+				'relation' => 'OR',
+				array(
+					'key'     => 'banner_end_date',
+					'compare' => 'NOT EXISTS'
+				),
+				array(
+					'key'     => 'banner_end_date',
+					'compare' => '=',
+					'value'   => '',
+				),
+				array(
+					'key'     => 'banner_end_date',
+					'compare' => '>',
+					'value'   => $today,
+				)
+			)
+		),
+		'orderby'        => 'start_date'
+	);
 	
 	$home_sliders = get_posts( $args );
 	// If there were less than 5 posts, find the remaining posts to make a total of 5
-    if (sizeof($home_sliders) < 5) {
-        // get the remainder up to 5 of more random sliders
-	    $args         = array(
-		    'post_type'      => 'home_slide',
-		    'posts_per_page' => (5 - sizeof($home_sliders)),
-		    'orderby'        => 'rand',
-		    'meta_query'     => array(
-			    array(
-				    'key' => 'is_active',
-				    'compare' => '=',
-				    'value' => true
-			    ),
-			    array(
-                    'relation' => 'OR',
-                    array(
-                        'key' => 'is_slide_featured',
-                        'compare' => '=',
-                        'value' => false
-                    ),
-				    array(
-					    'key' => 'banner_end_date',
-					    'compare' => '<',
-					    'value' => $today,
-				    )
-                )
-		    )
-	    );
-	    $more_home_sliders = get_posts($args);
+	if ( sizeof( $home_sliders ) < 5 ) {
+		// get the remainder up to 5 of more random sliders
+		$args              = array(
+			'post_type'      => 'home_slide',
+			'posts_per_page' => ( 5 - sizeof( $home_sliders ) ),
+			'orderby'        => 'rand',
+			'meta_query'     => array(
+				array(
+					'key'     => 'is_active',
+					'compare' => '=',
+					'value'   => true
+				),
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => 'is_slide_featured',
+						'compare' => '=',
+						'value'   => false
+					),
+					array(
+						'key'     => 'banner_end_date',
+						'compare' => '<',
+						'value'   => $today,
+					)
+				)
+			)
+		);
+		$more_home_sliders = get_posts( $args );
 //        print_r($more_home_sliders);die();
-	    foreach ($more_home_sliders as $another_slider) {
-	        $home_sliders[] = $another_slider;
-        }
-    }
+		foreach ( $more_home_sliders as $another_slider ) {
+			$home_sliders[] = $another_slider;
+		}
+	}
 	
 	$html  = '';
 	$count = 1;
@@ -3087,7 +3087,7 @@ function render_archive_slider( $atts ) {
 		foreach ( $slider_posts as $slider_post ) {
 			$text_title = '';
 			// Make sure there is a linked vendor, and use their name as the "title"
-            $text_title = get_field('head_1', $slider_post->ID);
+			$text_title = get_field( 'head_1', $slider_post->ID );
 //			if ( get_field( 'vendor', $slider_post ) ) {
 //				$text_title = get_the_title( get_field( 'vendor', $slider_post ) );
 //			} else {
@@ -3190,25 +3190,25 @@ add_action( 'wp_ajax_nopriv_archive_sortposts', 'render_archive_ajax' );
 add_shortcode( 'archive_ajax', 'render_archive_ajax' );
 function render_archive_ajax( $atts ) {
 	// TODO: could possibly pass in 'offset' when calling this function from AJAX, so that I don't have to write it again
-	$request   = $_POST;
-	$post_type = '';
-	$html      = '';
-	$offset    = 0;
-	$append    = false; // If we have an offset, let's append these results
-    $alpha     = false;
-    $alpha_click = false; // If 'Sort Alphabetically' was clicked
+	$request     = $_POST;
+	$post_type   = '';
+	$html        = '';
+	$offset      = 0;
+	$append      = false; // If we have an offset, let's append these results
+	$alpha       = false;
+	$alpha_click = false; // If 'Sort Alphabetically' was clicked
 	$search_term = '';
- 
+	
 	
 	$offset = isset( $request['offset'] ) && $request['offset'] !== 0 ? $request['offset'] : $offset;
-    $append = isset( $request['offset'] ) && $request['offset'] !== 0 ? true : $append;
+	$append = isset( $request['offset'] ) && $request['offset'] !== 0 ? true : $append;
 	
-    $alpha = isset( $request['alphabetize'] ) ? true : $alpha;
+	$alpha       = isset( $request['alphabetize'] ) ? true : $alpha;
 	$alpha_click = isset( $request['alpha_click'] ) ? $request['alpha_click'] : $alpha_click;
 	
 	$search_term = isset( $request['search_term'] ) ? $request['search_term'] : $search_term;
 	
-	$post_type = isset( $request['post_type'] ) ? $request['post_type'] : (isset($atts['type']) ? $atts['type'] : $post_type);
+	$post_type = isset( $request['post_type'] ) ? $request['post_type'] : ( isset( $atts['type'] ) ? $atts['type'] : $post_type );
 	
 	if ( $post_type == 'spotlight' || $post_type == 'post' ) {
 		$posts_per_page = 5;
@@ -3230,7 +3230,7 @@ function render_archive_ajax( $atts ) {
 				// 3. Get the excerpt (or a specific number of words, followed by ellipsis) under Title
 				
 				// Featured Image
-				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array('loading' => false) );
+				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array( 'loading' => false ) );
 				$html     .= '<div class="archive-row" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
@@ -3288,7 +3288,7 @@ function render_archive_ajax( $atts ) {
 				
 				
 				// Featured Image
-				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array('loading' => false) );
+				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array( 'loading' => false ) );
 				$html     .= '<div class="archive-col" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
@@ -3332,46 +3332,46 @@ function render_archive_ajax( $atts ) {
 	} elseif ( in_array( $post_type, [ 'virtual-tour', 'category' ] ) ) {
 		$posts_per_page = 9;
 		// here's where we get all our posts to display in beautiful grid boxes
-        $args = array();
-        
-        switch($post_type) {
-            case "virtual-tour":
-                $meta_query_args = array(
-                    'relation' => 'AND',
-                    array(
-                        'key'     => 'is_active',
-                        'value'   => true,
-                        'compare' => '='
-                    ),
-                    array(
-                        'relation' => 'AND',
-                        array(
-                            'key'     => '360-virtual-tour',
-                            'value'   => '',
-                            'compare' => '!='
-                        ),
-                        array(
-                            'key'     => '360-virtual-tour',
-                            'compare' => 'EXISTS'
-                        )
-                    )
-                );
-	            $args          = array(
-		            'post_type'      => 'vendor_profile',
-		            'posts_per_page' => $posts_per_page,
-		            'meta_query'     => $meta_query_args,
-		            'offset'         => $offset,
-		            'orderby'        => 'rand(' . get_random_post() . ')'
-	            );
-                break;
-            case "category":
-                if( isset($request['category']) ) {
-                    $cat_id = $request['category'];
-                } else {
-	                $category = get_queried_object();
-                    $cat_id = $category->term_id;
-                }
-                // grab the premium level for each category
+		$args = array();
+		
+		switch ( $post_type ) {
+			case "virtual-tour":
+				$meta_query_args = array(
+					'relation' => 'AND',
+					array(
+						'key'     => 'is_active',
+						'value'   => true,
+						'compare' => '='
+					),
+					array(
+						'relation' => 'AND',
+						array(
+							'key'     => '360-virtual-tour',
+							'value'   => '',
+							'compare' => '!='
+						),
+						array(
+							'key'     => '360-virtual-tour',
+							'compare' => 'EXISTS'
+						)
+					)
+				);
+				$args            = array(
+					'post_type'      => 'vendor_profile',
+					'posts_per_page' => $posts_per_page,
+					'meta_query'     => $meta_query_args,
+					'offset'         => $offset,
+					'orderby'        => 'rand(' . get_random_post() . ')'
+				);
+				break;
+			case "category":
+				if ( isset( $request['category'] ) ) {
+					$cat_id = $request['category'];
+				} else {
+					$category = get_queried_object();
+					$cat_id   = $category->term_id;
+				}
+				// grab the premium level for each category
 //                $meta_query_args = array(
 //                    'relation' => 'OR',
 //                    array(
@@ -3409,41 +3409,41 @@ function render_archive_ajax( $atts ) {
 //	                )
 //
 //                );
-	            
-	            $args          = array(
-		            'post_type'      => 'vendor_profile',
-		            'posts_per_page' => $alpha_click ? $offset : $posts_per_page,
-		            'cat'            => $cat_id,
-		            'offset'         => $alpha_click ? 0 : $offset,
-		            'orderby'        => $alpha ? 'title' : 'rand(' . get_random_post() . ')',
-                    'order'          => 'ASC'
-	            );
-                break;
-        }
-		
+				
+				$args = array(
+					'post_type'      => 'vendor_profile',
+					'posts_per_page' => $alpha_click ? $offset : $posts_per_page,
+					'cat'            => $cat_id,
+					'offset'         => $alpha_click ? 0 : $offset,
+					'orderby'        => $alpha ? 'title' : 'rand(' . get_random_post() . ')',
+					'order'          => 'ASC'
+				);
+				break;
+		}
+
 //		global $post;
 //        $cat = get_term_by('slug', $post->post_name, 'category');
-		$category = get_queried_object();
+		$category      = get_queried_object();
 		$archive_posts = get_posts( $args );
 		if ( $offset == 0 ) {
-		    $html .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
-		    $html .= '<div class="alphabetize"><a class="sort-alphabetically" href="#">Sort Alphabetically</a></div>';
-        }
-		$html          .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
-		$col_count     = 0;
+			$html .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
+			$html .= '<div class="alphabetize"><a class="sort-alphabetically" href="#">Sort Alphabetically</a></div>';
+		}
+		$html      .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
+		$col_count = 0;
 		if ( sizeof( $archive_posts ) > 0 ) {
 //			$html .= '<div class="archive-row cols">';
 			foreach ( $archive_posts as $archive_post ) {
-			 
+				
 				// Featured Image
-				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array('loading' => false) );
-				$html     .= '<div class="archive-col" onclick="window.location = \'' . ( $post_type !== 'virtual_tour' ?  get_the_permalink($archive_post->ID) : get_field('360tour', $archive_post->ID )) . '\', \'_blank\'">';
+				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array( 'loading' => false ) );
+				$html     .= '<div class="archive-col" onclick="window.location = \'' . ( $post_type !== 'virtual_tour' ? get_the_permalink( $archive_post->ID ) : get_field( '360tour', $archive_post->ID ) ) . '\', \'_blank\'">';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 				
 				// Vendor Name
 				$post_title = get_the_title( $archive_post->ID );
 				$html       .= '<div class="post-name ' . $post_type . '">
-                        <h4>' . $post_title. '</h4>
+                        <h4>' . $post_title . '</h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
 				$col_count ++;
@@ -3454,7 +3454,7 @@ function render_archive_ajax( $atts ) {
 				}
 			}
 			
-			$banner_ad = sizeof($archive_posts) > 8 ? do_shortcode( '[banner_ad type="category"]' ) : "";
+			$banner_ad = sizeof( $archive_posts ) > 8 ? do_shortcode( '[banner_ad type="category"]' ) : "";
 			
 			
 			$html .= $banner_ad;
@@ -3473,18 +3473,18 @@ function render_archive_ajax( $atts ) {
 		
 		// The Load More Ajax Button
 		if ( $append == false ) {
-		    // Store the category, since it won't be the queried object once we click the 'more' button
-            $cat = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
-            if (isset($args['cat'])) {
-                $this_category = get_term($args['cat'], 'category');
-                $count = $this_category->count;
-                $offset = $offset == 0 ? sizeof($archive_posts) : $offset;
-                if ($offset < $count) {
-	                $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-                }
-            } else {
-                $html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-            }
+			// Store the category, since it won't be the queried object once we click the 'more' button
+			$cat = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
+			if ( isset( $args['cat'] ) ) {
+				$this_category = get_term( $args['cat'], 'category' );
+				$count         = $this_category->count;
+				$offset        = $offset == 0 ? sizeof( $archive_posts ) : $offset;
+				if ( $offset < $count ) {
+					$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+				}
+			} else {
+				$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+			}
 		} else {
 			// we're appending, so we don't need the button printed again
 			// send back the resulting HTML to the AJAX call, and add it in via JS
@@ -3494,13 +3494,13 @@ function render_archive_ajax( $atts ) {
 			wp_send_json( $resp );
 			wp_die();
 		}
-	} elseif ( in_array($post_type, ['search_results'])) {
-	    // get the queried object and display the search results
-        global $query_string;
+	} elseif ( in_array( $post_type, [ 'search_results' ] ) ) {
+		// get the queried object and display the search results
+		global $query_string;
 		wp_parse_str( $query_string, $search_query );
-		$search_term = strlen($search_term) > 0 ? $search_term : $search_query['s'];
+		$search_term = strlen( $search_term ) > 0 ? $search_term : $search_query['s'];
 		
-        // rebuild the query args to only search for post types I want to see
+		// rebuild the query args to only search for post types I want to see
 //        $query_args = array(
 //            'posts_per_page' => 10,
 //            's'              => get_search_query(),
@@ -3511,51 +3511,57 @@ function render_archive_ajax( $atts ) {
 //                )
 //            )
 //        );
-        
 		
-		$html          .= $append == false ? '<div id="post-archive-list" class="search-results cols">' : '';
+		
+		$html .= $append == false ? '<div id="post-archive-list" class="search-results cols">' : '';
 		
 		add_filter( 'posts_where', 'title_filter', 10, 2 );
-        $search_query = new WP_Query(
-            array(
-                'post_type' => array('vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post'),
-                'posts_per_page' => 10,
-                'title_filter' => $search_term,
-                'title_filter_relation' => 'AND',
-                'offset' => $offset,
-                'meta_query' => array(
-                    'relation' => 'AND',
-                    array(
-                        'key' => 'is_active',
-                        'value' => true,
-                        'compare' => '='
-                    ),
-                    array(
-                        'relation' => 'OR',
-                        array(
-                            'key' => 'meta_title',
-                            'value' => $search_term,
-                            'compare' => 'LIKE'
-                        ),
-                        array(
-                            'key' => 'meta_description',
-                            'value' => $search_term,
-                            'compare' => 'LIKE'
-                        ),
-	                    array(
-		                    'key' => 'meta_title',
-		                    'compare' => 'NOT EXISTS'
-	                    ),
-	                    array(
-		                    'key' => 'meta_description',
-		                    'compare' => 'NOT EXISTS'
-	                    )
-                    )
-                )
-            )
-        );
-        remove_filter( 'posts_where', 'title_filter', 10, 2 );
-        
+		$search_query = new WP_Query(
+			array(
+				'post_type'             => array(
+					'vendor_profile',
+					'spotlight',
+					'wedding_story',
+					'styled_shoot',
+					'post'
+				),
+				'posts_per_page'        => 10,
+				'title_filter'          => $search_term,
+				'title_filter_relation' => 'AND',
+				'offset'                => $offset,
+				'meta_query'            => array(
+					'relation' => 'AND',
+					array(
+						'key'     => 'is_active',
+						'value'   => true,
+						'compare' => '='
+					),
+					array(
+						'relation' => 'OR',
+						array(
+							'key'     => 'meta_title',
+							'value'   => $search_term,
+							'compare' => 'LIKE'
+						),
+						array(
+							'key'     => 'meta_description',
+							'value'   => $search_term,
+							'compare' => 'LIKE'
+						),
+						array(
+							'key'     => 'meta_title',
+							'compare' => 'NOT EXISTS'
+						),
+						array(
+							'key'     => 'meta_description',
+							'compare' => 'NOT EXISTS'
+						)
+					)
+				)
+			)
+		);
+		remove_filter( 'posts_where', 'title_filter', 10, 2 );
+
 //        $search_results = get_posts($query_args);
 //        if (sizeof($search_results) > 0) {
 //            foreach ($search_results as $search_result) {
@@ -3572,46 +3578,46 @@ function render_archive_ajax( $atts ) {
 //                $html       .= '</div>'; // END .archive-col++
 //            }
 //        }
-		if ($search_query->have_posts()) :
-			while($search_query->have_posts()) : $search_query->the_post();
+		if ( $search_query->have_posts() ) :
+			while ( $search_query->have_posts() ) : $search_query->the_post();
 				// Featured Image
 //				$feat_img = get_field('header_image');
-                $feat_img = get_the_post_thumbnail();
+				$feat_img = get_the_post_thumbnail();
 				$html     .= '<div class="archive-col" onclick="window.location=\'' . get_the_permalink() . '\'">';
-				$cpt_name = get_post_type_object(get_post_type())->labels->singular_name;
+				$cpt_name = get_post_type_object( get_post_type() )->labels->singular_name;
 				$cpt_name = $cpt_name == 'Post' ? 'Blog' : $cpt_name;
 				$html     .= '<div class="search-type ' . get_post_type() . '">' . $cpt_name . '</div>';
 				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
 //			    $html     .= '<div class="thumbnail"><img src="' . $feat_img['url'] . '" /></div>';
-       
+				
 				// Vendor Name
 				$post_title = get_the_title();
 				$html       .= '<div class="post-name">
                         <h4><a href="' . get_the_permalink() . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
-            endwhile;
-        else :
-	        if ($offset > 0) {
-                $html .= '<script type="text/javascript">
+			endwhile;
+		else :
+			if ( $offset > 0 ) {
+				$html .= '<script type="text/javascript">
                         jQuery("#archive-more-button").hide();
                         </script>';
-            } else {
-                $html .= '<div class="no-results">No Results Found...</div>';
-            }
-        endif;
-        $count = $search_query->found_posts;
+			} else {
+				$html .= '<div class="no-results">No Results Found...</div>';
+			}
+		endif;
+		$count  = $search_query->found_posts;
 		$offset = $offset == 0 ? $search_query->post_count : $offset;
-        wp_reset_postdata();
+		wp_reset_postdata();
 		$html .= $append == false ? '</div>' : ''; // END #post-archive-list
 		
 		// The Load More Ajax Button
 		if ( $append == false ) {
 			// Store the category, since it won't be the queried object once we click the 'more' button
 			$cat = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
-			if (isset($search_term)) {
+			if ( isset( $search_term ) ) {
 				
-				if ($offset < $count) {
+				if ( $offset < $count ) {
 					$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-search-query="' . $search_term . '" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
 				}
 			} else {
@@ -3627,7 +3633,7 @@ function render_archive_ajax( $atts ) {
 			wp_send_json( $resp );
 			wp_die();
 		}
-    }
+	}
 	
 	return $html;
 }
@@ -3637,40 +3643,43 @@ add_filter( 'pre_get_posts', 'change_search_types' );
  * This function modifies the main WordPress query to include an array of
  * post types instead of the default 'post' post type.
  *
- * @param object $query  The original query.
+ * @param object $query The original query.
+ *
  * @return object $query The amended query.
  */
 function change_search_types( $query ) {
 	
 	if ( $query->is_search ) {
-		$query->set( 'post_type', array( 'spotlight','wedding_story','styled_shoot','post','vendor_profile' ) );
+		$query->set( 'post_type', array( 'spotlight', 'wedding_story', 'styled_shoot', 'post', 'vendor_profile' ) );
 	}
 	
 	return $query;
 	
 }
 
-add_shortcode('search_term', 'render_search_term');
+add_shortcode( 'search_term', 'render_search_term' );
 function render_search_term() {
-    if (is_search()) {
-	    global $query_string;
-	    wp_parse_str( $query_string, $search_query );
-	    return '<span style="text-transform:none;">' . $search_query['s'] . '</span>';
-    } else {
-        return '';
-    }
+	if ( is_search() ) {
+		global $query_string;
+		wp_parse_str( $query_string, $search_query );
+		
+		return '<span style="text-transform:none;">' . $search_query['s'] . '</span>';
+	} else {
+		return '';
+	}
 }
 
 // Search by Title
-function title_filter( $where, $wp_query ){
+function title_filter( $where, $wp_query ) {
 	global $wpdb;
-	if( $search_term = $wp_query->get( 'title_filter' ) ) :
-		$search_term = $wpdb->esc_like( $search_term );
-		$search_term = ' \'%' . $search_term . '%\'';
+	if ( $search_term = $wp_query->get( 'title_filter' ) ) :
+		$search_term           = $wpdb->esc_like( $search_term );
+		$search_term           = ' \'%' . $search_term . '%\'';
 		$title_filter_relation = ( strtoupper( $wp_query->get( 'title_filter_relation' ) ) == 'OR' ? 'OR' : 'AND' );
-		$where .= ' '.$title_filter_relation.' ' . $wpdb->posts . '.post_title LIKE ' . $search_term;
-		$where .= ' AND '.$wpdb->posts . ".post_type IN ('post','spotlight','wedding_story','styled_shoot','vendor_profile')";
+		$where                 .= ' ' . $title_filter_relation . ' ' . $wpdb->posts . '.post_title LIKE ' . $search_term;
+		$where                 .= ' AND ' . $wpdb->posts . ".post_type IN ('post','spotlight','wedding_story','styled_shoot','vendor_profile')";
 	endif;
+	
 	return $where;
 }
 
@@ -3691,25 +3700,29 @@ function get_random_post() {
 }
 
 // Store how many ads we have displayed, to ensure we don't get repeats
-function get_ad_offset($ad_type) {
-	switch($ad_type) {
-        case 'category':
-	        if ( ! isset( $_SESSION['ad_cat_offset'] ) ) {
-		        $_SESSION['ad_cat_offset'] = 0;
-		        return $_SESSION['ad_cat_offset'];
-	        }
-	        $_SESSION['ad_cat_offset'] += 1;
-	        return $_SESSION['ad_cat_offset'];
-            break;
-        case 'square':
-	        if ( ! isset( $_SESSION['ad_square_offset'] ) ) {
-		        $_SESSION['ad_square_offset'] = 0;
-		        return $_SESSION['ad_square_offset'];
-	        }
-	        $_SESSION['ad_square_offset'] += 1;
-	        return $_SESSION['ad_square_offset'];
-            break;
-    }
+function get_ad_offset( $ad_type ) {
+	switch ( $ad_type ) {
+		case 'category':
+			if ( ! isset( $_SESSION['ad_cat_offset'] ) ) {
+				$_SESSION['ad_cat_offset'] = 0;
+				
+				return $_SESSION['ad_cat_offset'];
+			}
+			$_SESSION['ad_cat_offset'] += 1;
+			
+			return $_SESSION['ad_cat_offset'];
+			break;
+		case 'square':
+			if ( ! isset( $_SESSION['ad_square_offset'] ) ) {
+				$_SESSION['ad_square_offset'] = 0;
+				
+				return $_SESSION['ad_square_offset'];
+			}
+			$_SESSION['ad_square_offset'] += 1;
+			
+			return $_SESSION['ad_square_offset'];
+			break;
+	}
 }
 
 // Reset 'adoffset' every pageload
@@ -3739,8 +3752,8 @@ function render_banner_ad( $atts ) {
 	}
 	
 	// banner_size = $ad_type
-    // start_date < today
-    // end_date > today
+	// start_date < today
+	// end_date > today
 	
 	
 	// banner_start_date | banner_end_date | high_exposure_end_date
@@ -3760,31 +3773,31 @@ function render_banner_ad( $atts ) {
 //		'category'
 //	);
 //	$vendor_categories = $wpdb->get_results( $query );
- 
+	
 	$today = date( 'Ymd' );
 	if ( $ad_type !== 'block' ) {
 		$meta_query_args = array(
 			'relation' => 'AND',
-            array(
-                'key'     => 'banner_start_date',
-                'compare' => '<=',
-                'value'   => $today
-            ),
-            array(
-                'key'     => 'banner_stop_date',
-                'compare' => '>',
-                'value'   => $today
-            ),
+			array(
+				'key'     => 'banner_start_date',
+				'compare' => '<=',
+				'value'   => $today
+			),
+			array(
+				'key'     => 'banner_stop_date',
+				'compare' => '>',
+				'value'   => $today
+			),
 			array(
 				'key'     => 'banner_size',
 				'compare' => '=',
 				'value'   => $ad_type
 			),
-            array(
-                'key'     => 'is_active',
-                'compare' => '=',
-                'value'   => true
-            )
+			array(
+				'key'     => 'is_active',
+				'compare' => '=',
+				'value'   => true
+			)
 		);
 	}
 //	$meta_query = new WP_Meta_Query( $meta_query_args );
@@ -3794,7 +3807,7 @@ function render_banner_ad( $atts ) {
 		'post_type'      => 'banner',
 		'meta_query'     => $meta_query_args,
 		'posts_per_page' => 1,
-		'offset'         => get_ad_offset($ad_type),
+		'offset'         => get_ad_offset( $ad_type ),
 		'meta_key'       => 'exposure_level', // highest exposure ads first
 		'order_by'       => 'meta_value_num',
 		'order'          => 'DESC'
@@ -3814,40 +3827,42 @@ function render_banner_ad( $atts ) {
 		}
 	}
 	wp_reset_query();
+	
 	return $html;
 }
 
-add_shortcode('category_description', 'render_category_description');
+add_shortcode( 'category_description', 'render_category_description' );
 function render_category_description() {
 	// get the current category
-    $category = get_queried_object();
-	$category = get_term($category->term_id, 'category');
+	$category = get_queried_object();
+	$category = get_term( $category->term_id, 'category' );
+	
 	return $category->description;
 }
 
-add_shortcode('breadcrumbs', 'render_breadcrumbs');
+add_shortcode( 'breadcrumbs', 'render_breadcrumbs' );
 function render_breadcrumbs() {
-    // find current lcoation and display breadcrumbs
-    $html = '<div class="breadcrumbs">';
-	$html .= '<a href="'.home_url().'" rel="nofollow">San Antonio Weddings</a>';
-	if (is_category() || is_single()) {
-		if (is_category()) {
-		    $html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
-		    $category = get_queried_object();
-		    $html .= '<a href="' . $category->url . '">' . $category->name . '</a>';
-        }
-		if (is_single()) {
-		    $post_type = get_post_type();
-		    $post_type_obj = get_post_type_object($post_type);
-			$html .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
-			$html .= '<a href="' . get_post_type_archive_link($post_type) . '">' . $post_type_obj->label . '</a>';
-			$html .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
-			$html .= get_the_title();
+	// find current lcoation and display breadcrumbs
+	$html = '<div class="breadcrumbs">';
+	$html .= '<a href="' . home_url() . '" rel="nofollow">San Antonio Weddings</a>';
+	if ( is_category() || is_single() ) {
+		if ( is_category() ) {
+			$html     .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
+			$category = get_queried_object();
+			$html     .= '<a href="' . $category->url . '">' . $category->name . '</a>';
 		}
-	} elseif (is_page()) {
+		if ( is_single() ) {
+			$post_type     = get_post_type();
+			$post_type_obj = get_post_type_object( $post_type );
+			$html          .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
+			$html          .= '<a href="' . get_post_type_archive_link( $post_type ) . '">' . $post_type_obj->label . '</a>';
+			$html          .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
+			$html          .= get_the_title();
+		}
+	} elseif ( is_page() ) {
 		$html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
 		$html .= get_the_title();
-	} elseif (is_search()) {
+	} elseif ( is_search() ) {
 		$html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;Search Results for... ";
 		$html .= '"<em>';
 		ob_start();
@@ -3857,5 +3872,41 @@ function render_breadcrumbs() {
 		$html .= '</em>"';
 	}
 	$html .= '</div>';
+	
 	return $html;
+}
+
+add_shortcode( 'more_like_this', 'render_more_like_this' );
+function render_more_like_this( $atts ) {
+	// $atts['type'] will contain the type of post we're getting more of
+	$post_type = $atts['type'] == 'blog' ? 'post' : $atts['type'];
+	
+	$args     = array(
+		'post_type'      => $post_type,
+		'posts_per_page' => 3,
+		'meta_key'       => 'is_active',
+		'meta_value'     => true,
+		'orderby'        => $post_type == 'post' ? 'date' : 'rand'
+	);
+	$articles = get_posts( $args );
+	$html     = '<div class="more-like-this-container">';
+	foreach ( $articles as $article ) {
+		// get the 'head' image
+		$html  .= '<div class="individual-fave blog-buzz">';
+		$html  .= '<div class="local-fave-image">';
+		$image = get_field( 'header_image', $article->ID );
+		$html  .= '<img src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
+		$html  .= '<a href="' . get_permalink( $article ) . '"><div class="fave-image-overlay"></div></a>';
+		$html  .= '</div>'; // END .local-fave-image
+		
+		$html .= '<div class="fave-title-container">';
+		$html .= '<a href="' . get_permalink( $article ) . '"><h3>' . $article->post_title . '</h3></a>';
+		$html .= '</div>'; // END .fave-title-container
+		$html .= '</div>'; // END .individual-fave
+		
+	}
+	$html .= '</div>';
+	return $html;
+	
+	
 }
