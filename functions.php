@@ -209,7 +209,7 @@ function my_acf_init() {
 add_action( 'acf/init', 'my_acf_init' );
 
 function fn_enqueue_styles() {
-	wp_register_style( 'fn_default_styles', plugins_url( 'public/css/default.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_register_style( 'fn_default_styles', plugins_url( 'public/css/default-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'fn_default_styles' );
 	wp_register_style( 'swiper_style', 'https://unpkg.com/swiper/swiper-bundle.min.css', array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'swiper_style' );
@@ -3906,7 +3906,61 @@ function render_more_like_this( $atts ) {
 		
 	}
 	$html .= '</div>';
+	
 	return $html;
 	
+}
+
+add_shortcode( 'special_offers', 'render_special_offer_list' );
+function render_special_offer_list() {
+	$today           = date( 'Y-m-d H:i:s' ); //print_r($today);die();
+	$meta_query_args = array(
+		'relation'    => 'OR',
+        array(
+	        'relation' => 'AND',
+	        array(
+		        'key'     => 'offer_start_date',
+		        'compare' => '<=',
+		        'value'   => $today,
+		        'type'    => 'DATETIME'
+	        ),
+	        array(
+		        'key'     => 'offer_end_date',
+		        'compare' => '>',
+		        'value'   => $today,
+		        'type'    => 'DATETIME'
+	        )
+        ),
+        array(
+            'relation'    => 'AND',
+            array(
+                'key'   => 'permanent_promotion',
+                'value' => true
+            )
+        )
+	);
+	$args            = array(
+		'post_type'      => 'special_offers',
+		'posts_per_page' => -1,
+		'meta_query'     => $meta_query_args,
+		array(
+			'key'     => 'is_active',
+			'compare' => '=',
+			'value'   => true
+		)
+	);
+	$special_offers  = get_posts( $args );
 	
+	$html = '<div class="special-offers-list">';
+	foreach ( $special_offers as $special_offer ) {
+		$this_vendor = get_field( 'vendor', $special_offer->ID );
+		
+		$html .= '<div class="individual-offer">';
+		$html .= '<h5><span class="offer-header-triangle"></span>' . get_the_title( $this_vendor ) . '</h5>';
+		$html .= '<h4><a href="' . get_the_permalink( $this_vendor ) . '#special-offers">' . get_the_title( $special_offer->ID ) . '</a></h4>';
+		$html .= '</div>'; // END .individual-offer
+	}
+	$html .= '</div>';
+	
+	return $html;
 }

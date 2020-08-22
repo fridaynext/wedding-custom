@@ -815,9 +815,11 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                         this.slideTo(<?php echo $total; ?>,1);
                     },
                     init: function () {
-                        calculateDimensions();
-                        
-                    }
+                        window.dispatchEvent(new Event('resize'));
+                    },
+                    resize: function() {
+                        this.update();
+                    },
                 }
             });
             
@@ -838,7 +840,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                    
                 }
             });
-            $(window).trigger("resize");
+            window.dispatchEvent(new Event('resize'));
 
             // find width of image and dynamically assign width of parent div (.swiper-slide)
             // set widths of all parent div containers of images
@@ -867,6 +869,9 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
             }
             
             // Resize refreshes sliders
+            $(window).on("load", function() {
+                window.dispatchEvent(new Event('resize'));
+            })
         })(jQuery);
         
         
