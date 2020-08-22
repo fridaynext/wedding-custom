@@ -644,9 +644,11 @@ function my_ajax_getpostsfordatatables() {
 		1 => 'type',
 		2 => 'title',
 		3 => 'author',
-		4 => 'postDate',
-		5 => 'isActive',
-		6 => 'action'
+		4 => 'clickCountLastClicked',
+		5 => 'viewCountLastViewed',
+		6 => 'postDate',
+		7 => 'isActive',
+		8 => 'action'
 	);
 	
 	$args = array(
@@ -691,6 +693,8 @@ function my_ajax_getpostsfordatatables() {
 			$nestedData[] = get_post_type();
 			$nestedData[] = '<a href="' . get_the_permalink() . '" alt="' . get_the_title() . '" target="_blank">' . get_the_title() . '</a>';
 			$nestedData[] = get_field( 'author' );
+			$nestedData[] = '<strong>' . get_field( 'banner_click_count' ) . '</strong><br />' . (get_field('last_clicked') ? get_field('last_clicked') : 'N.A.');
+			$nestedData[] = '<strong>' . get_field( 'view_count' ) . '</strong><br />' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.');
 			$nestedData[] = get_the_date( "m/d/Y" ) . '<br>' . get_the_date( "g:i A" );
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
@@ -741,9 +745,11 @@ function render_vendors() {
 		1 => 'categories',
 		2 => 'url_slug',
 		3 => 'group',
-		4 => 'premium',
-		5 => 'isActive',
-		6 => 'action'
+		4 => 'localFavesClickCountLastClicked',
+		5 => 'profilePageViewCountLastViewed',
+		6 => 'premium',
+		7 => 'isActive',
+		8 => 'action'
 	);
 	
 	$args = array(
@@ -801,7 +807,14 @@ function render_vendors() {
 				$group_text = esc_html( $group->name );
 			}
 			$nestedData[] = $group_text; // TODO: filter out individual taxonomy
-			$nestedData[] = ''; // TODO: premium level for each category
+            $nestedData[] = get_field('local_faves_click_count') . '<br \>' . get_field('local_faves_last_viewed'); // Local Faves Last Clicked
+            $nestedData[] = get_field('profile_page_view_count') . '<br \>' . get_field('profile_page_last_viewed'); // Profile Page Views and Last Viewed
+			$premium_listings = get_field('premium_listings');
+			if($premium_listings) {
+			    $nestedData[] = $premium_listings[0]['level'];
+            } else {
+			    $nestedData[] = '';
+            }
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
@@ -932,6 +945,8 @@ function vendor_table_func( $atts ) {
 				<th>Categories</th>
 				<th>URL Permalink</th>
 				<th>Group</th>
+				<th>Local Faves<br>Click Count &<br>Last Clicked</th>
+		        <th>Profile Page<br>View Count &<br>Last Viewed</th>
 				<th>Premium Level</th>
 				<th>Is Active?</th>
 				<th>Action</th>
@@ -952,6 +967,8 @@ function article_table_func( $atts ) {
 				<th>Type</th>
 				<th>Title</th>
 				<th>Author</th>
+				<th>Banners & Links<br />Click Count &<br />Last Clicked</th>
+				<th>Article Page<br />View Count &<br />Last Viewed</th>
 				<th>Post Date</th>
 				<th>Is Active?</th>
 				<th>Action</th>
@@ -1216,6 +1233,58 @@ function edit_category_admin() {
 /* Add extra fields to the category form dynamically */
 add_filter( 'acf/pre_save_post', 'save_category', 10, 1 );
 
+/* Dynamically populate vendor email in sidebar contact form */
+add_filter( 'gform_field_value_vendor_email', 'gravity_form_vendor_email' );
+function gravity_form_vendor_email( $value ) {
+	if ( get_post_type() == 'vendor_profile' ) {
+		return get_field( "email" );
+	}
+	
+	return $value;
+}
+
+add_filter( 'gform_field_value_vendor_email_cc', 'gravity_form_vendor_email_cc' );
+function gravity_form_vendor_email_cc( $value ) {
+	if ( get_post_type() == 'vendor_profile' ) {
+		return get_field( "email_cc" );
+	}
+	
+	return $value;
+}
+
+add_filter( 'gform_field_value_vendor_email_cc', 'gravity_form_vendor_email_bcc' );
+function gravity_form_vendor_email_bcc( $value ) {
+	if ( get_post_type() == 'vendor_profile' ) {
+		return get_field( "email_bcc" );
+	}
+	
+	return $value;
+}
+
+add_filter( 'gform_field_value_vendor_name', 'gravity_form_vendor_name' );
+function gravity_form_vendor_name( $value ) {
+	if ( get_post_type() == 'vendor_profile' ) {
+		return get_the_title();
+	}
+	
+	return $value;
+}
+
+add_filter( 'gform_field_value_email_subject_line', 'gravity_form_vendor_email_subject_line' );
+function gravity_form_vendor_email_subject_line( $value ) {
+	if ( get_post_type() == 'vendor_profile' ) {
+		return get_field( "subject_line" );
+	}
+	
+	return $value;
+}
+
+/* Enable CC Field for Vendor Pricing Info Form */
+add_filter( 'gform_notification_enable_cc_1', 'gf_enable_cc', 10, 3 );
+function gf_enable_cc( $enable, $notification, $form ) {
+	return true;
+}
+
 /* Create new Category Term when category form is submitted */
 function save_category( $post_id ) {
 	
@@ -1439,6 +1508,10 @@ add_shortcode( 'vendor_url', 'vendor_url_func' );
 
 // Display Article Content from Shortcode //
 function article_content_func( $atts ) {
+    // Update the View Count and Last Viewed
+    $view_count = get_field('view_count');
+    update_field('view_count', ++$view_count);
+    update_field('last_viewed', date('Y-m-d H:m:s'));
 	$return_string = '';
 	
 	// We have the field - time to loop through
@@ -1555,34 +1628,34 @@ function process_row( $field_key, $post_id ) {
  */
 //
 function social_media_tab_func( $atts ) {
-	$fb_url  = get_field( "facebook" );
-	$pin_url = get_field( "pinterest" );
-	$ig_url  = get_field( "instagram" );
-	
-	$html = '<div class="all-tabs-container">';
-	$html .= '<div id="social-tabs">';
-	$html .= '<span class="social-tabs-triangle"></span>
-                <ul>';
-	if ( $fb_url ) {
-		$html .= '<li><a href="#facebook">Facebook</a></li>';
-	}
-	if ( $pin_url ) {
-		$html .= '<li><a href="#pinterest">Pinterest</a></li>';
-	}
-	if ( $ig_url ) {
-		$html .= '<li><a href="#instagram">Instagram</a></li>';
-	}
-	$html .= '</ul>';
-	
-	if ( $fb_url ) {
-		$html .= '<div id="facebook" class="social-share-div"><div class="fb-page" data-href="' . $fb_url . '" data-tabs="timeline" data-width="" data-height="360" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="' . $fb_url . '" class="fb-xfbml-parse-ignore"><a href="' . $fb_url . '">' . get_the_title() . '</a></blockquote></div></div>';
-	}
-	if ( $pin_url ) {
-		$html .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="280" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
-	}
-	if ( $ig_url ) {
-		$config = new includes\Config\SawConfig();
-		$regex  = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
+//	$fb_url  = get_field( "facebook" );
+//	$pin_url = get_field( "pinterest" );
+//	$ig_url  = get_field( "instagram" );
+//
+//	$html = '<div class="all-tabs-container">';
+//	$html .= '<div id="social-tabs">';
+//	$html .= '<span class="social-tabs-triangle"></span>
+//                <ul>';
+//	if ( $fb_url ) {
+//		$html .= '<li><a href="#facebook">Facebook</a></li>';
+//	}
+//	if ( $pin_url ) {
+//		$html .= '<li><a href="#pinterest">Pinterest</a></li>';
+//	}
+//	if ( $ig_url ) {
+//		$html .= '<li><a href="#instagram">Instagram</a></li>';
+//	}
+//	$html .= '</ul>';
+//
+//	if ( $fb_url ) {
+//		$html .= '<div id="facebook" class="social-share-div"><div class="fb-page" data-href="' . $fb_url . '" data-tabs="timeline" data-width="" data-height="360" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="' . $fb_url . '" class="fb-xfbml-parse-ignore"><a href="' . $fb_url . '">' . get_the_title() . '</a></blockquote></div></div>';
+//	}
+//	if ( $pin_url ) {
+//		$html .= '<div id="pinterest" class="social-share-div"><a data-pin-do="embedUser" data-pin-board-width="280" data-pin-scale-height="250" data-pin-scale-width="80" href="' . $pin_url . '"></a></div>';
+//	}
+//	if ( $ig_url ) {
+//		$config = new includes\Config\SawConfig();
+//		$regex  = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
 		// Verify valid Instagram URL
 //		if ( preg_match( $regex, $ig_url, $matches ) ) {
 //			$ig_username = $matches[1];
@@ -1616,17 +1689,23 @@ function social_media_tab_func( $atts ) {
 //                        <a class="ig-follow" href="' . $ig_url . '" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
 //                      </div>';
 //        }
-	}
-	$html .= '</div></div>';
-	$html .= '<script type="text/javascript">
-                jQuery( function() {
-                    jQuery("#social-tabs").tabs({
-                        event: "mouseover"
-                    });
-                    jQuery(".all-tabs-container").parent().parent().addClass("social-sidebar-tabs");
-                });
-              </script>';
-	
+//	}
+//	$html .= '</div></div>';
+//	$html .= '<script type="text/javascript">
+//                jQuery( function() {
+//                    jQuery("#social-tabs").tabs({
+//                        event: "mouseover"
+//                    });
+//                    jQuery(".all-tabs-container").parent().parent().addClass("social-sidebar-tabs");
+//                });
+//              </script>';
+//
+    $html = '<div class="social-icons">';
+    $html .= '<span class="social-tabs-triangle"></span>';
+        $html .= get_field('facebook') ? '<a target="_blank" href="' . get_field("facebook") . '"><img src="' . plugins_url("/public/img/Social-Media-Icons-SAW-FB.png", __FILE__) . '" /></a>' : '';
+	    $html .= get_field('instagram') ? '<a target="_blank" href="' . get_field("instagram") . '"><img src="' . plugins_url("/public/img/Social-Media-Icons-SAW-Instagram.png", __FILE__) . '" /></a>' : '';
+        $html .= get_field('pinterest') ? '<a target="_blank" href="' . get_field("pinterest") . '"><img src="' . plugins_url("/public/img/Social-Media-Icons-SAW-Pinterest.png", __FILE__) . '" /></a>' : '';
+    $html .= '</div>';
 	return $html;
 }
 
@@ -2061,7 +2140,7 @@ function render_home_hero_slider() {
 		$html .= '</div>'; // end .photographer-credit
 		// read more link
 		$html .= '<div class="read-more saw-button">';
-		$html .= '<a href="' . get_field( 'banner_url', $slider->ID ) . '" alt="' . get_field( 'banner_name', $slider->ID ) . '">Read More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a>';
+		$html .= '<a id="' . $slider->ID . '" href="' . get_field( 'banner_url', $slider->ID ) . '" alt="' . get_field( 'banner_name', $slider->ID ) . '">Read More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a>';
 		$html .= '</div>'; // end .read-more
 		$html .= '</div>'; // end .hero-text-content
 		$html .= '</div>'; // end .orange
@@ -2118,7 +2197,7 @@ function render_local_fave_grid() {
 		$html .= '<div class="individual-fave swiper-slide">';
 		$html .= '<div class="local-fave-image">';
 		$html .= get_the_post_thumbnail( $local_fave->ID, array( 500, 500 ) );
-		$html .= '<a href="' . get_permalink( $local_fave ) . '"><div class="fave-image-overlay"></div></a>';
+		$html .= '<a href="' . get_permalink( $local_fave ) . '" class="local-fave-link" id="' . $local_fave->ID . '"><div class="fave-image-overlay"></div></a>';
 		$html .= '</div>'; // END .local-fave-image
 		
 		$html .= '<div class="fave-title-container">';
@@ -2235,6 +2314,7 @@ function render_home_slider_table() {
 				<th>Is Featured?</th>
 				<th>End Featured Date</th>
 				<th>View Count &<br />Last Viewed</th>
+				<th>Click Count &<br />Last Clicked</th>
 				<th>Is Active?</th>
 				<th>Action</th>
 	        </tr>
@@ -2261,8 +2341,9 @@ function render_home_sliders() {
 		3 => 'isFeatured',
 		4 => 'endFeaturedDate', // featured_release_date - when the banner is no longer featured
 		5 => 'viewCountLastViewed',
-		6 => 'isActive',
-		7 => 'action'
+		6 => 'clickCountLastClicked',
+		7 => 'isActive',
+		8 => 'action'
 	);
 	
 	$args = array(
@@ -2308,6 +2389,7 @@ function render_home_sliders() {
 			$nestedData[] = ( get_field( 'is_slide_featured' ) == true ? 'Yes' : 'No' );
 			$nestedData[] = ( get_field( 'banner_end_date' ) ? get_field( 'banner_end_date' ) : 'N.A.' ); // featured release date
 			$nestedData[] = '<strong>' . get_field( 'view_count' ) . '</strong><br />' . ( get_field( 'last_viewed' ) ? get_field( 'last_viewed' ) : 'N.A.' ); // view count
+            $nestedData[] = '<strong>' . get_field( 'click_count' ) . '</strong><br />' . (get_field( 'last_clicked') ? get_field( 'last_clicked' ) : 'N.A.');
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
@@ -3814,7 +3896,7 @@ function render_banner_ad( $atts ) {
 	);
 	$banner_ads  = new WP_Query( $banner_args );
 //    print_r($banner_ads); die();
-	
+    $this_post_id = get_the_ID();
 	if ( $banner_ads->have_posts() ) {
 		while ( $banner_ads->have_posts() ) {
 			$banner_ads->the_post();
@@ -3822,7 +3904,8 @@ function render_banner_ad( $atts ) {
 			update_field( 'view_count', $view_count + 1, get_the_ID() );
 			update_field( 'last_viewed', date( "Y-m-d H:i:s" ), get_the_ID() );
 			$image = get_field( 'ad_banner' );
-			$html  .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url' ) . '" title="' . get_field( 'banner_name' ) . '" alt="' . get_field( 'banner_name' ) . '" target="_blank"><img src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
+			$post_id = '';
+			$html  .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url' ) . '" title="' . get_field( 'banner_name' ) . '" alt="' . get_field( 'banner_name' ) . '" target="_blank" ><img data-target-id="' . (is_single() ? $this_post_id : '') .'" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
 			
 		}
 	}
@@ -3915,33 +3998,33 @@ add_shortcode( 'special_offers', 'render_special_offer_list' );
 function render_special_offer_list() {
 	$today           = date( 'Y-m-d H:i:s' ); //print_r($today);die();
 	$meta_query_args = array(
-		'relation'    => 'OR',
-        array(
-	        'relation' => 'AND',
-	        array(
-		        'key'     => 'offer_start_date',
-		        'compare' => '<=',
-		        'value'   => $today,
-		        'type'    => 'DATETIME'
-	        ),
-	        array(
-		        'key'     => 'offer_end_date',
-		        'compare' => '>',
-		        'value'   => $today,
-		        'type'    => 'DATETIME'
-	        )
-        ),
-        array(
-            'relation'    => 'AND',
-            array(
-                'key'   => 'permanent_promotion',
-                'value' => true
-            )
-        )
+		'relation' => 'OR',
+		array(
+			'relation' => 'AND',
+			array(
+				'key'     => 'offer_start_date',
+				'compare' => '<=',
+				'value'   => $today,
+				'type'    => 'DATETIME'
+			),
+			array(
+				'key'     => 'offer_end_date',
+				'compare' => '>',
+				'value'   => $today,
+				'type'    => 'DATETIME'
+			)
+		),
+		array(
+			'relation' => 'AND',
+			array(
+				'key'   => 'permanent_promotion',
+				'value' => true
+			)
+		)
 	);
 	$args            = array(
 		'post_type'      => 'special_offers',
-		'posts_per_page' => -1,
+		'posts_per_page' => - 1,
 		'meta_query'     => $meta_query_args,
 		array(
 			'key'     => 'is_active',
@@ -3963,4 +4046,37 @@ function render_special_offer_list() {
 	$html .= '</div>';
 	
 	return $html;
+}
+
+add_action( 'wp_ajax_update_click_count', 'update_click_count' );
+add_action( 'wp_ajax_nopriv_update_click_count', 'update_click_count' );
+function update_click_count() {
+	$target_id      = intval( $_POST['targetId'] );
+	$type_to_update = $_POST['typeToUpdate'];
+	$link_type      = $_POST['linkType'];
+	
+	// If 'Local Fave' was clicked, update the `local_faves_click_count` for the
+	//  vendor_profile at $target_id
+	if ( $link_type == 'local_fave' ) {
+		$click_count = get_field( 'local_faves_click_count', $target_id );
+		update_field( 'local_faves_click_count', ++$click_count, $target_id );
+		update_field( 'local_faves_last_clicked', date( "Y-m-d H:i:s" ), $target_id );
+	} elseif ($link_type == 'home_slider') {
+	    $click_count = get_field('click_count', $target_id);
+	    update_field( 'click_count', ++$click_count, $target_id);
+	    update_field( 'last_clicked', date("Y-m-d H:i:s"), $target_id);
+    } elseif ($link_type == 'banner_ad') {
+	    $click_count = get_field('banner_click_count', $target_id);
+	    update_field( 'banner_click_count', ++$click_count, $target_id);
+	    update_field( 'last_clicked', date('Y-m-d H:m:s'), $target_id);
+    }
+	$resp = array(
+		'title'     => 'Click Update Status',
+		'content'   => 'Click Count / Last Viewed was updated!',
+		'post_type' => $link_type,
+        'target_id' => $target_id
+	);
+	wp_send_json( $resp );
+	wp_die();
+	
 }

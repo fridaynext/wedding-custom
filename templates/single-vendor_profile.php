@@ -19,7 +19,10 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                     <h1 class="entry-title"><?php the_title(); ?></h1>
 					
 					<?php
-					
+				    // Update the profile_page_view_count and last_viewed every time this page is loaded
+                    $view_count = get_field('profile_page_view_count');
+                    update_field('profile_page_view_count', ++$view_count);
+                    update_field('profile_page_last_viewed', date( "Y-m-d H:i:s" ))
 					// Display the address, 'Visit our Website', Phone (call), Phone ('text us now')
 					
 					// address
@@ -170,7 +173,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                             </div>
 							
 							<?php // phone (call)
-							?>
+							if( $phone_call = get_field( "business_phone_number" ) ) : ?>
                             <div class="vendor-phone-call meta-item" data-micromodal-trigger="phone-modal" onclick="MicroModal.show('phone-modal', {awaitCloseAnimation:true})">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                     <path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"/>
@@ -211,15 +214,16 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                     </div>
                                 </div>
                             </div>
-							
+							<?php endif; ?>
 							<?php // phone (text)
-							?>
+//                            print_r(get_field("text_phone_number", get_the_ID()));die();
+							if( $phone_text = get_post_meta( get_the_ID(), "text_phone_number" ) ) : ?>
                             <div class="vendor-phone-text meta-item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                     <path d="M144 208c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zM256 32C114.6 32 0 125.1 0 240c0 47.6 19.9 91.2 52.9 126.3C38 405.7 7 439.1 6.5 439.5c-6.6 7-8.4 17.2-4.6 26S14.4 480 24 480c61.5 0 110-25.7 139.1-46.3C192 442.8 223.2 448 256 448c141.4 0 256-93.1 256-208S397.4 32 256 32zm0 368c-26.7 0-53.1-4.1-78.4-12.1l-22.7-7.2-19.5 13.8c-14.3 10.1-33.9 21.4-57.5 29 7.3-12.1 14.4-25.7 19.9-40.2l10.6-28.1-20.6-21.8C69.7 314.1 48 282.2 48 240c0-88.2 93.3-160 208-160s208 71.8 208 160-93.3 160-208 160z"/>
                                 </svg>
 								<?php
-								$phone_text = get_field( "text_phone_number", get_the_ID() );
+								$phone_text = get_post_meta( get_the_ID(), "text_phone_number", true );
 								if ( preg_match( '/(\d{3})(\d{3})(\d{4})/', $phone_text, $matches ) ) {
 									$phone_text = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 								}
@@ -241,7 +245,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                     data-custom-close="phone-text-modal" onclick="MicroModal.close('phone-text-modal', {awaitCloseAnimation:true})"></button>
                                         </header>
                                         <div id="phone-text-modal-content" class="modal__content">
-                                            <?php gravity_form(4, false, false, false, array('twilio_cell_number' => get_field('text_phone_number')), true); ?>
+                                            <?php gravity_form(4, false, false, false, array('twilio_cell_number' => get_post_meta(get_the_ID(), 'text_phone_number', true)), true); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -253,9 +257,9 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                     });
                                 })
                             </script>
+				            <?php endif; ?>
                         </div>
                     </div>
-					
 					
 					<?php
 					$thumb = '';

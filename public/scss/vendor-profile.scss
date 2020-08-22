@@ -466,6 +466,30 @@ div.in-the-press {
 /*.individual-press-post .press-social-slider */
 
 /******************************* SIDEBAR **************************************/
+.social-icons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 25px;
+  a {
+    img {
+      width: 90px;
+      height: auto;
+      max-width: 90px;
+    }
+  }
+  .social-tabs-triangle {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-right: 10px solid transparent;
+    border-top: 12px solid var(--red-color);
+    /*border-bottom: 12px solid transparent;*/
+    border-left: 10px solid transparent;
+    padding-bottom: 25px;
+  }
+}
 .single-vendor_profile #sidebar {
   padding-left: 0;
   margin-top: 30px;
