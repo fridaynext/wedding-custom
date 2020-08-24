@@ -3890,8 +3890,9 @@ function render_banner_ad( $atts ) {
 		'meta_query'     => $meta_query_args,
 		'posts_per_page' => 1,
 		'offset'         => get_ad_offset( $ad_type ),
-		'meta_key'       => 'exposure_level', // highest exposure ads first
-		'order_by'       => 'meta_value_num',
+//		'meta_key'       => 'exposure_level', // highest exposure ads first
+//		'order_by'       => 'meta_value_num',
+        'order_by'       => 'rand',
 		'order'          => 'DESC'
 	);
 	$banner_ads  = new WP_Query( $banner_args );
@@ -3969,7 +3970,7 @@ function render_more_like_this( $atts ) {
 		'posts_per_page' => 3,
 		'meta_key'       => 'is_active',
 		'meta_value'     => true,
-		'orderby'        => $post_type == 'post' ? 'date' : 'rand'
+		'orderby'        => 'rand'
 	);
 	$articles = get_posts( $args );
 	$html     = '<div class="more-like-this-container">';
@@ -4078,5 +4079,64 @@ function update_click_count() {
 	);
 	wp_send_json( $resp );
 	wp_die();
+	
+}
+/* Catch the Vendor Profile Form when it's saved, to see if a user is being created / update */
+add_filter( 'acf/pre_save_post', 'create_update_user', 10, 1 );
+function create_update_user($post_id) {
+    // Grab the `email_username` and `password` variables, if set
+	$acf_request = $_POST['acf'];
+	$create_new_user   = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] : false;
+	if ($create_new_user) {
+	    // Link new vendor was clicked. Make sure a username AND password were passed in, and then create the user
+        $email_username = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] : false;
+        $password = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b82f05254'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b82f05254'] : false;
+        
+        if ( $email_username !== false && $password !== false ) {
+            // we have email and password, create a new user with 'vendor' role
+            $user_args = array(
+                'user_pass' => $password,
+                'user_login' => $email_username,
+                'user_email' => $email_username,
+                'role' => 'vendor'
+            );
+            $new_user_id = wp_insert_user( $user_args );
+            if(!is_wp_error($new_user_id)) {
+                // user was successfully created - add this user's ID to the Vendor Profile as the 'Linked User Account'
+                $linked_user = array(
+                    'user' => $new_user_id,
+                    'change_password' => false,
+                    'new_password' => ''
+                );
+                $_POST['acf']['field_5f42d0bcd749d'] = $linked_user;
+                return $post_id;
+            } else {
+                $error_code = $new_user_id->get_error_code();
+                $linked_user_message = array(
+                    'field_5f42cfe7c54e9' => true,
+                    'field_5f29b82f05254' => '',
+                    'field_5f29b6ee05253' => $email_username,
+                    'field_5f42e54f6df3d' => 'Adding user failed with error: ' . $error_code
+                );
+                update_field('field_5f42cc7f1db03', $linked_user_message, $post_id);
+                $_POST['acf']['field_5f42cc7f1db03'] = $linked_user_message;
+                return $post_id; // break here, so these fields don't get overwritten incorrectly
+            }
+        }
+    }
+	// regardless of what happens, ALWAYS clear out any plaintext password values from the database
+    $_POST['acf']['field_5f42cc7f1db03'] = array(
+        'field_5f42cfe7c54e9' => false,
+        'field_5f29b6ee05253' => '',
+        'field_5f29b82f05254' => '',
+        'field_5f42e54f6df3d' => ''
+    );
+    
+    $_POST['acf']['field_5f42d0bcd749d'] = array(
+        'field_5f42d117d749f' => false, // change_password set to false
+        'field_5f42d13bd74a0' => '' // update the new password field to ''
+    );
+    
+	return $post_id;
 	
 }

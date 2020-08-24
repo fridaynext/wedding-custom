@@ -373,7 +373,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                 
 								<?php endif; ?>
                                 
-                                <?php if( $video_gallery ) {
+                                <?php if( $video_gallery && !empty($video_gallery[0]['video_url'])) {
                                     $video_total = sizeof($video_gallery); ?>
                                     <div id="video-gallery" class="swiper-container s2">
                                         <div class="swiper-wrapper">
@@ -392,7 +392,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                 <?php } ?>
                                 
                                 <?php /*********************** JS Buttons Swap between photos/videos ***************************/
-                                if( $vendor_gallery ) { ?>
+                                if( sizeof($vendor_gallery) > 0 ) { ?>
                                    <div id="gallery-buttons">
                                        <div class="photo-button is-active">
                                            <div class="left-half">
@@ -404,7 +404,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                <span class="total-media"><?php echo $total; ?> Photos</span>
                                            </div>
                                        </div>
-                                       <?php if( $video_gallery ) { ?>
+                                       <?php if( $video_gallery && !empty($video_gallery[0]['video_url']) ) { ?>
                                            <div class="video-button">
                                                <div class="left-half">
 	                                               <?php the_post_thumbnail( 'post-thumbnail', array('loading' => false) ); ?>
@@ -430,6 +430,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                     if(videoGal.hasClass('visible')) {
                                                         videoGal.removeClass('visible');
                                                         $('.video-button').removeClass('is-active')
+                                                        window.dispatchEvent(new Event('resize'));
                                                     }
                                                 }
                                             });
@@ -444,6 +445,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                     if(photoGal.hasClass('visible')) {
                                                         photoGal.removeClass('visible');
                                                         $('.photo-button').removeClass('is-active');
+                                                        window.dispatchEvent(new Event('resize'));
                                                     }
                                                 }
                                             });
@@ -830,8 +832,6 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
             let swiper2 = new Swiper('.swiper-container.s2', {
                 slidesPerView: 'auto',
                 centeredSlides: true,
-                loop: true,
-                loopedSlides: <?php echo $video_total; ?>,
                 spaceBetween: 5,
                 navigation: {
                     nextEl: '.swiper-button-next.s2',
@@ -841,7 +841,9 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                     resize: function () {
                         this.update();
                     },
-                   
+                    slideChange: function() {
+                        window.dispatchEvent(new Event('resize'));
+                    }
                 }
             });
             window.dispatchEvent(new Event('resize'));
