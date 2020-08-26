@@ -1,10 +1,10 @@
 <?php
 /**
  * @package FN_Extras
- * @version 1.2.3
+ * @version 1.2.4
  */
 
-define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.3' );
+define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.4' );
 
 /********************* ACF JSON *********************/
 add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
@@ -344,6 +344,17 @@ function my_login_redirect( $redirect_to, $request, $user ) {
 		} elseif ( in_array( 'vendor', $user->roles ) ) {
 			// Redirect vendors to the vendor admin section!
 			// TODO: RETURN VENDORS TO THEIR VENDOR ADMIN PAGE!!!!!
+            $profile_args = array(
+                'post_type' => 'vendor_profile',
+                'meta_key' => 'linked_user_account_user',
+                'meta_value' => $user->ID,
+                'posts_per_page' => 1    // stop at the first match
+            );
+            $matching_profile = get_posts($profile_args);
+            if (sizeof($matching_profile) > 0) {
+                // we found a match, so let's send them to their profile page
+                return home_url('/client-admin?ven_id=' . $matching_profile[0]->ID);
+            }
 			return home_url();
 		} else {
 			// logged in user that is not admin, editor, or vendor
@@ -2245,7 +2256,7 @@ function render_blog_buzz() {
 	$args       = array(
 		'post_type'      => 'post',
 		'posts_per_page' => 4,
-		'order_by'       => 'date',
+		'orderby'        => 'date',
 		'order'          => 'DESC'
 	);
 	$blog_posts = get_posts( $args );
@@ -3312,9 +3323,10 @@ function render_archive_ajax( $atts ) {
 				// 3. Get the excerpt (or a specific number of words, followed by ellipsis) under Title
 				
 				// Featured Image
+                $head_img = get_field('header_image', $archive_post->ID);
 				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array( 'loading' => false ) );
 				$html     .= '<div class="archive-row" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
-				$html     .= '<div class="thumbnail">' . $feat_img . '</div>'; // END .thumbnail
+				$html     .= '<div class="thumbnail"><img src="' . $head_img['url'] . '" /></div>'; // END .thumbnail
 				
 				// Vendor Name
 				$post_title = $post_type == 'spotlight' ? get_the_title( get_field( 'vendor', $archive_post->ID ) ) : get_the_title( $archive_post->ID );
@@ -3376,7 +3388,7 @@ function render_archive_ajax( $atts ) {
 				
 				// Vendor Name
 				$post_title = get_the_title( $archive_post->ID );
-				$html       .= '<div class="post-name">
+				$html       .= '<div class="post-name ' . ($post_type == "wedding_story" ? "wedding-story" : "") . '">
                         <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
@@ -3496,6 +3508,8 @@ function render_archive_ajax( $atts ) {
 					'post_type'      => 'vendor_profile',
 					'posts_per_page' => $alpha_click ? $offset : $posts_per_page,
 					'cat'            => $cat_id,
+					'meta_key'       => 'is_active',
+					'meta_value'     => true,
 					'offset'         => $alpha_click ? 0 : $offset,
 					'orderby'        => $alpha ? 'title' : 'rand(' . get_random_post() . ')',
 					'order'          => 'ASC'
@@ -3525,7 +3539,7 @@ function render_archive_ajax( $atts ) {
 				// Vendor Name
 				$post_title = get_the_title( $archive_post->ID );
 				$html       .= '<div class="post-name ' . $post_type . '">
-                        <h4>' . $post_title . '</h4>
+                        <h4 class="cat-archive"><a href="' . get_permalink($archive_post->ID) . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
 				$col_count ++;
@@ -3891,8 +3905,8 @@ function render_banner_ad( $atts ) {
 		'posts_per_page' => 1,
 		'offset'         => get_ad_offset( $ad_type ),
 //		'meta_key'       => 'exposure_level', // highest exposure ads first
-//		'order_by'       => 'meta_value_num',
-        'order_by'       => 'rand',
+//		'orderby'        => 'meta_value_num',
+        'orderby'        => 'rand(' . get_random_post() . ')',
 		'order'          => 'DESC'
 	);
 	$banner_ads  = new WP_Query( $banner_args );
@@ -4087,6 +4101,7 @@ function create_update_user($post_id) {
     // Grab the `email_username` and `password` variables, if set
 	$acf_request = $_POST['acf'];
 	$create_new_user   = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] : false;
+	$reset_password = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] : false;
 	if ($create_new_user) {
 	    // Link new vendor was clicked. Make sure a username AND password were passed in, and then create the user
         $email_username = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] : false;
@@ -4094,10 +4109,17 @@ function create_update_user($post_id) {
         
         if ( $email_username !== false && $password !== false ) {
             // we have email and password, create a new user with 'vendor' role
+            $first_name = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f45af9a01611'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f45af9a01611'] : '';
+	        $last_name = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f45afd801612'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f45afd801612'] : '';
+            
             $user_args = array(
-                'user_pass' => $password,
                 'user_login' => $email_username,
+                'user_pass' => $password,
                 'user_email' => $email_username,
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'display_name' => $first_name . ' ' . $last_name,
+                'show_admin_bar_front' => 'false',
                 'role' => 'vendor'
             );
             $new_user_id = wp_insert_user( $user_args );
@@ -4123,6 +4145,13 @@ function create_update_user($post_id) {
                 return $post_id; // break here, so these fields don't get overwritten incorrectly
             }
         }
+    } elseif ( $reset_password ) {
+	    $user = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d0e3d749e'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d0e3d749e'] : null;
+	    $new_password = ! empty($acf_request['field_5f42d0bcd749d']['field_5f42d13bd74a0'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d13bd74a0'] : null;
+	    // make sure they are both not null before continuing
+        if($user !== null && $new_password !== null) {
+            wp_set_password($new_password, $user); // this will reset the user's password
+        }
     }
 	// regardless of what happens, ALWAYS clear out any plaintext password values from the database
     $_POST['acf']['field_5f42cc7f1db03'] = array(
@@ -4139,4 +4168,44 @@ function create_update_user($post_id) {
     
 	return $post_id;
 	
+}
+
+/* [company_name] */
+add_shortcode('client_add_name', 'render_company_name' );
+function render_company_name() {
+    if (is_page('client-admin')) {
+        // return the title from the Vendor PProfile
+	    if ( isset( $_GET['ven_id'] ) ) {
+		    $vendor_id = $_GET['ven_id'];
+		    return get_the_title($vendor_id);
+	    }
+    }
+    return 'company_name';
+}
+
+add_shortcode('client_last_login', 'render_last_login');
+function render_last_login() {
+    if (is_page('client-admin')) {
+        // return the current user's last log in
+        if (! empty( get_user_meta(get_current_user_id(), 'last_login'))) {
+            $last_login = new DateTime(get_user_meta(get_current_user_id(), 'last_login', true));
+            return $last_login->format("M d, Y");
+        }
+    }
+    return 'n.a.';
+}
+
+add_action('wp_login', 'set_last_login');
+//function for setting the last login
+function set_last_login($login) {
+	$user = get_userdatabylogin($login);
+	$curent_login_time = get_user_meta( $user->ID , 'current_login', true);
+	//add or update the last login value for logged in user
+	if(!empty($curent_login_time)){
+		update_usermeta( $user->ID, 'last_login', $curent_login_time );
+		update_usermeta( $user->ID, 'current_login', current_time('mysql') );
+	}else {
+		update_usermeta( $user->ID, 'current_login', current_time('mysql') );
+		update_usermeta( $user->ID, 'last_login', current_time('mysql') );
+	}
 }

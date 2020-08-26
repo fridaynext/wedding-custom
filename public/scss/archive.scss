@@ -154,15 +154,15 @@
   .archive-row {
     position: relative;
     display: grid;
-    height: 250px;
+    //height: 250px;
     background: #FFF;
     border: 1px solid var(--medium-gray-color);
     grid-template-columns: 250px auto;
     @media screen and (max-width: 660px) {
       grid-template-columns: 200px auto;
-      height: 200px;
+      //height: 200px;
     }
-    @media screen and (max-width: 423px) {
+    @media screen and (max-width: 250px) {
       grid-template-columns: 100px auto;
       height: 165px;
     }
@@ -186,16 +186,14 @@
       overflow: hidden;
 
       img {
-        height: 250px;
-        width: 250px;
         transition: 0.2s all;
         @media screen and (max-width: 660px) {
-          height: 200px;
-          width: 200px;
+          //height: 200px;
+          //width: 200px;
         }
         @media screen and (max-width: 423px) {
-          height: 100px;
-          width: 100px;
+          //height: 100px;
+          //width: 100px;
         }
       }
     }
@@ -207,24 +205,27 @@
       padding-left: 20px;
       padding-right: 20px;
 
-      h4 a {
-        color: var(--red-color);
-        @media screen and (max-width: 560px) {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          font-size: smaller;
-          line-height: 1.3em;
-          text-align: center;
-        }
-        @media screen and (max-width: 423px) {
-          -webkit-line-clamp: 2;
+      h4 {
+        font-size: 16px !important;
+
+        a {
+          color: var(--red-color);
+          @media screen and (max-width: 560px) {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-size: 16px;
+            line-height: 1.2em;
+            text-align: center;
+          }
+          @media screen and (max-width: 423px) {
+            -webkit-line-clamp: 2;
+          }
         }
       }
-
       &.post h4 a, &.wedding_story h4 a {
-        color: var(--main-teal-color);
+        color: var(--main-teal-color) !important;
       }
 
       p {
@@ -252,9 +253,10 @@
       grid-template-columns: minmax(200px, 300px) minmax(200px, 300px);
     }
     @media screen and (max-width: 675px) {
+      grid-template-columns: minmax(150px, 250px) minmax(150px, 250px);
       grid-gap: 15px;
     }
-    @media screen and (max-width: 423px) {
+    @media screen and (max-width: 330px) {
       grid-template-columns: 95%;
       grid-gap: 10px;
 
@@ -270,7 +272,7 @@
       @media screen and (max-width: 675px) {
         grid-template-columns: minmax(150px, 300px) minmax(150px, 300px);
       }
-      @media screen and (max-width: 425px) {
+      @media screen and (max-width: 330px) {
         grid-template-columns: 1fr;
       }
       .archive-col {
@@ -281,7 +283,7 @@
         @media screen and (max-width: 565px) {
           grid-template-rows: 75% auto;
         }
-        @media screen and (max-width: 423px) {
+        @media screen and (max-width: 250px) {
           grid-template-rows: 83% auto;
         }
         &:hover {
@@ -316,6 +318,7 @@
         }
         .post-name {
           h4 {
+            font-size: 16px !important;
             a {
               display: -webkit-box;
               -webkit-line-clamp: 2;
@@ -336,8 +339,12 @@
             padding-bottom: 5px;
           }
 
+          &.post h4 a, &.wedding-story h4 a {
+            color: var(--main-teal-color) !important;
+          }
 
         }
+
       }
     }
     .archive-col {
@@ -346,7 +353,7 @@
       @media screen and (max-width: 565px) {
         grid-template-rows: 75% auto;
       }
-      @media screen and (max-width: 423px) {
+      @media screen and (max-width: 330px) {
         grid-template-rows: 85% auto;
       }
       &:hover {
@@ -355,6 +362,10 @@
         .thumbnail img {
           transform: scale3d(1.1, 1.1, 1.1);
           transform-origin: center center;
+        }
+
+        h4 a {
+          color: var(--charcoal-color) !important;
         }
       }
 
@@ -379,35 +390,30 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        @media screen and (max-width: 423px) {
-          align-items: center;
-        }
         padding: 5px 10px;
         background: #FFF;
         width: 100%;
-        &.category h4 a {
-          color: var(--red-color);
+        &.category h4 {
+          &.cat-archive {
+            font-size: 16px !important;
+            letter-spacing: 1px;
+            line-height: 1.2em;
+          }
+          a {
+            color: var(--red-color);
+          }
         }
         h4 {
           padding-bottom: 0;
-          text-align: center;
           a {
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            color: var(--main-teal-color);
-            font-size: smaller;
+            color: var(--red-color);
+            font-size: 16px;
             font-weight: 300;
-            line-height: 1.3em;
-            @media screen and (max-width: 911px) {
-              font-size: medium;
-            }
-            @media screen and (max-width: 423px) {
-              font-size: inherit;
-              line-height: 1.4em;
-              font-weight: 400;
-            }
+            line-height: 1.2em;
 
           }
         }
@@ -415,7 +421,9 @@
           padding-top: 5px;
           padding-bottom: 5px;
         }
-
+        &.post h4 a, &.wedding-story h4 a {
+          color: var(--main-teal-color);
+        }
 
       }
     }
