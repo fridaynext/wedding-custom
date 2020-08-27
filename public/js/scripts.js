@@ -460,7 +460,25 @@ $(document).ready(function () {
         });
         $(this).hide();
 
-    })
+    });
+
+    // In client admin section, intercept YouTube links and do a full-screen modal to display them
+    $('.profile-team-links a').on('click', function(e) {
+        e.preventDefault();
+        let oembedContainer = $('#client-oembed-container');
+        // make an ajax call here to go get the oembed contents for this specific URL that was clicked
+        let videoUrl = $(this).attr('href');
+        let data = {
+            'action': 'get_oembed',
+            'videoUrl': videoUrl
+        }
+        $.post(fnajax.ajax_url, data, function(response) {
+            // the necessary oembed html will be returned from this ajax call
+            oembedContainer.html(response.oembedhtml);
+        });
+        oembedContainer.addClass('visible');
+        MicroModal.show('tutorial-video-modal', {awaitCloseAnimation:true});
+    });
 
     // var swiper = new Swiper('.swiper-container', {
     //     slidesPerView: 'auto',

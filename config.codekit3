@@ -149,6 +149,24 @@
 		"oAP": "/public/css/article-min.css.map",
 		"oF": 0
 		},
+	"/public/css/client-admin-min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/public/css/client-admin-min-min.css",
+		"oF": 0,
+		"oS": 3
+		},
+	"/public/css/client-admin-min.css.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/public/css/client-admin-min.css.map",
+		"oF": 0
+		},
 	"/public/css/default-min.css": {
 		"aP": 1,
 		"bl": 0,
@@ -579,6 +597,19 @@
 		"ma": 1,
 		"oA": 0,
 		"oAP": "/public/css/article-min.css",
+		"oF": 2,
+		"oS": 3,
+		"sct": 0
+		},
+	"/public/scss/client-admin.scss": {
+		"aP": 1,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 1,
+		"oA": 0,
+		"oAP": "/public/css/client-admin-min.css",
 		"oF": 2,
 		"oS": 3,
 		"sct": 0

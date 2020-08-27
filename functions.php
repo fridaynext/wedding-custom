@@ -234,6 +234,8 @@ function fn_enqueue_styles() {
 	wp_register_style( 'admin-styles', plugins_url( 'public/css/admin.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'admin-styles' );
 	
+	wp_register_style( 'client-admin-styles', plugins_url( 'public/css/client-admin-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
+	wp_enqueue_style( 'client-admin-styles' );
 	// TODO: Only render these styles for the article pages!
 	wp_register_style( 'article_styles', plugins_url( 'public/css/article-min.css', __FILE__ ), array(), FRIDAY_NEXT_EXTRAS_VERSION );
 	wp_enqueue_style( 'article_styles' );
@@ -278,7 +280,7 @@ function fn_enqueue_scripts() {
 	wp_register_script( 'jpopup_modal', plugins_url( 'public/js/jpopup.min.js', __FILE__ ) );
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
-	if ( get_post_type() == 'vendor_profile' ) {
+	if ( get_post_type() == 'vendor_profile' || is_page('client-admin')) {
 		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js', array(), null, false );
 		wp_register_script( 'popper', '//unpkg.com/@popperjs/core@2', array(), null, true );
 		wp_register_script( 'micromodal', plugins_url( 'public/js/micromodal.min.js', __FILE__ ), array(), null, true );
@@ -344,17 +346,18 @@ function my_login_redirect( $redirect_to, $request, $user ) {
 		} elseif ( in_array( 'vendor', $user->roles ) ) {
 			// Redirect vendors to the vendor admin section!
 			// TODO: RETURN VENDORS TO THEIR VENDOR ADMIN PAGE!!!!!
-            $profile_args = array(
-                'post_type' => 'vendor_profile',
-                'meta_key' => 'linked_user_account_user',
-                'meta_value' => $user->ID,
-                'posts_per_page' => 1    // stop at the first match
-            );
-            $matching_profile = get_posts($profile_args);
-            if (sizeof($matching_profile) > 0) {
-                // we found a match, so let's send them to their profile page
-                return home_url('/client-admin?ven_id=' . $matching_profile[0]->ID);
-            }
+			$profile_args     = array(
+				'post_type'      => 'vendor_profile',
+				'meta_key'       => 'linked_user_account_user',
+				'meta_value'     => $user->ID,
+				'posts_per_page' => 1    // stop at the first match
+			);
+			$matching_profile = get_posts( $profile_args );
+			if ( sizeof( $matching_profile ) > 0 ) {
+				// we found a match, so let's send them to their profile page
+				return home_url( '/client-admin?ven_id=' . $matching_profile[0]->ID );
+			}
+			
 			return home_url();
 		} else {
 			// logged in user that is not admin, editor, or vendor
@@ -480,18 +483,6 @@ function saw_sortable_offers( $columns ) {
 	$columns['vendor'] = 'vendor';
 	
 	return $columns;
-}
-
-add_action( 'pre_get_posts', 'special_offers_orderby' );
-function special_offers_orderby( $query ) {
-	if ( ! is_admin() ) {
-		return;
-	}
-	$orderby = $query->get( 'orderby' );
-	if ( 'vendor' == $orderby ) {
-		$query->set( 'meta_key', 'vendor' );
-		$query->set( 'orderby', 'meta_value' );
-	}
 }
 
 // Add custom meta box with Special Offer items in Vendor profile
@@ -704,8 +695,8 @@ function my_ajax_getpostsfordatatables() {
 			$nestedData[] = get_post_type();
 			$nestedData[] = '<a href="' . get_the_permalink() . '" alt="' . get_the_title() . '" target="_blank">' . get_the_title() . '</a>';
 			$nestedData[] = get_field( 'author' );
-			$nestedData[] = '<strong>' . get_field( 'banner_click_count' ) . '</strong><br />' . (get_field('last_clicked') ? get_field('last_clicked') : 'N.A.');
-			$nestedData[] = '<strong>' . get_field( 'view_count' ) . '</strong><br />' . (get_field('last_viewed') ? get_field('last_viewed') : 'N.A.');
+			$nestedData[] = '<strong>' . get_field( 'banner_click_count' ) . '</strong><br />' . ( get_field( 'last_clicked' ) ? get_field( 'last_clicked' ) : 'N.A.' );
+			$nestedData[] = '<strong>' . get_field( 'view_count' ) . '</strong><br />' . ( get_field( 'last_viewed' ) ? get_field( 'last_viewed' ) : 'N.A.' );
 			$nestedData[] = get_the_date( "m/d/Y" ) . '<br>' . get_the_date( "g:i A" );
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
@@ -817,15 +808,15 @@ function render_vendors() {
 				$group      = get_field( 'group' );
 				$group_text = esc_html( $group->name );
 			}
-			$nestedData[] = $group_text; // TODO: filter out individual taxonomy
-            $nestedData[] = get_field('local_faves_click_count') . '<br \>' . get_field('local_faves_last_viewed'); // Local Faves Last Clicked
-            $nestedData[] = get_field('profile_page_view_count') . '<br \>' . get_field('profile_page_last_viewed'); // Profile Page Views and Last Viewed
-			$premium_listings = get_field('premium_listings');
-			if($premium_listings) {
-			    $nestedData[] = $premium_listings[0]['level'];
-            } else {
-			    $nestedData[] = '';
-            }
+			$nestedData[]     = $group_text; // TODO: filter out individual taxonomy
+			$nestedData[]     = get_field( 'local_faves_click_count' ) . '<br \>' . get_field( 'local_faves_last_viewed' ); // Local Faves Last Clicked
+			$nestedData[]     = get_field( 'profile_page_view_count' ) . '<br \>' . get_field( 'profile_page_last_viewed' ); // Profile Page Views and Last Viewed
+			$premium_listings = get_field( 'premium_listings' );
+			if ( $premium_listings ) {
+				$nestedData[] = $premium_listings[0]['level'];
+			} else {
+				$nestedData[] = '';
+			}
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
@@ -1519,10 +1510,10 @@ add_shortcode( 'vendor_url', 'vendor_url_func' );
 
 // Display Article Content from Shortcode //
 function article_content_func( $atts ) {
-    // Update the View Count and Last Viewed
-    $view_count = get_field('view_count');
-    update_field('view_count', ++$view_count);
-    update_field('last_viewed', date('Y-m-d H:m:s'));
+	// Update the View Count and Last Viewed
+	$view_count = get_field( 'view_count' );
+	update_field( 'view_count', ++ $view_count );
+	update_field( 'last_viewed', date( 'Y-m-d H:m:s' ) );
 	$return_string = '';
 	
 	// We have the field - time to loop through
@@ -1667,7 +1658,7 @@ function social_media_tab_func( $atts ) {
 //	if ( $ig_url ) {
 //		$config = new includes\Config\SawConfig();
 //		$regex  = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
-		// Verify valid Instagram URL
+	// Verify valid Instagram URL
 //		if ( preg_match( $regex, $ig_url, $matches ) ) {
 //			$ig_username = $matches[1];
 //
@@ -1711,12 +1702,13 @@ function social_media_tab_func( $atts ) {
 //                });
 //              </script>';
 //
-    $html = '<div class="social-icons">';
-    $html .= '<span class="social-tabs-triangle"></span>';
-        $html .= get_field('facebook') ? '<a target="_blank" href="' . get_field("facebook") . '"><img src="' . plugins_url("/public/img/Social-Media-Icons-SAW-FB.png", __FILE__) . '" /></a>' : '';
-	    $html .= get_field('instagram') ? '<a target="_blank" href="' . get_field("instagram") . '"><img src="' . plugins_url("/public/img/Social-Media-Icons-SAW-Instagram.png", __FILE__) . '" /></a>' : '';
-        $html .= get_field('pinterest') ? '<a target="_blank" href="' . get_field("pinterest") . '"><img src="' . plugins_url("/public/img/Social-Media-Icons-SAW-Pinterest.png", __FILE__) . '" /></a>' : '';
-    $html .= '</div>';
+	$html = '<div class="social-icons">';
+	$html .= '<span class="social-tabs-triangle"></span>';
+	$html .= get_field( 'facebook' ) ? '<a target="_blank" href="' . get_field( "facebook" ) . '"><img src="' . plugins_url( "/public/img/Social-Media-Icons-SAW-FB.png", __FILE__ ) . '" /></a>' : '';
+	$html .= get_field( 'instagram' ) ? '<a target="_blank" href="' . get_field( "instagram" ) . '"><img src="' . plugins_url( "/public/img/Social-Media-Icons-SAW-Instagram.png", __FILE__ ) . '" /></a>' : '';
+	$html .= get_field( 'pinterest' ) ? '<a target="_blank" href="' . get_field( "pinterest" ) . '"><img src="' . plugins_url( "/public/img/Social-Media-Icons-SAW-Pinterest.png", __FILE__ ) . '" /></a>' : '';
+	$html .= '</div>';
+	
 	return $html;
 }
 
@@ -2400,7 +2392,7 @@ function render_home_sliders() {
 			$nestedData[] = ( get_field( 'is_slide_featured' ) == true ? 'Yes' : 'No' );
 			$nestedData[] = ( get_field( 'banner_end_date' ) ? get_field( 'banner_end_date' ) : 'N.A.' ); // featured release date
 			$nestedData[] = '<strong>' . get_field( 'view_count' ) . '</strong><br />' . ( get_field( 'last_viewed' ) ? get_field( 'last_viewed' ) : 'N.A.' ); // view count
-            $nestedData[] = '<strong>' . get_field( 'click_count' ) . '</strong><br />' . (get_field( 'last_clicked') ? get_field( 'last_clicked' ) : 'N.A.');
+			$nestedData[] = '<strong>' . get_field( 'click_count' ) . '</strong><br />' . ( get_field( 'last_clicked' ) ? get_field( 'last_clicked' ) : 'N.A.' );
 			$nestedData[] = ( get_field( 'is_active' ) ? "Yes" : "No" );
 			$nestedData[] = '<div class="vmenu-container">
 						<button class="vmenu-button" type="button">
@@ -3323,7 +3315,7 @@ function render_archive_ajax( $atts ) {
 				// 3. Get the excerpt (or a specific number of words, followed by ellipsis) under Title
 				
 				// Featured Image
-                $head_img = get_field('header_image', $archive_post->ID);
+				$head_img = get_field( 'header_image', $archive_post->ID );
 				$feat_img = get_the_post_thumbnail( $archive_post->ID, 'post-thumbnail', array( 'loading' => false ) );
 				$html     .= '<div class="archive-row" onclick="window.location = \'' . get_the_permalink( $archive_post->ID ) . '\'">';
 				$html     .= '<div class="thumbnail"><img src="' . $head_img['url'] . '" /></div>'; // END .thumbnail
@@ -3388,7 +3380,7 @@ function render_archive_ajax( $atts ) {
 				
 				// Vendor Name
 				$post_title = get_the_title( $archive_post->ID );
-				$html       .= '<div class="post-name ' . ($post_type == "wedding_story" ? "wedding-story" : "") . '">
+				$html       .= '<div class="post-name ' . ( $post_type == "wedding_story" ? "wedding-story" : "" ) . '">
                         <h4><a href="' . get_the_permalink( $archive_post->ID ) . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
@@ -3539,7 +3531,7 @@ function render_archive_ajax( $atts ) {
 				// Vendor Name
 				$post_title = get_the_title( $archive_post->ID );
 				$html       .= '<div class="post-name ' . $post_type . '">
-                        <h4 class="cat-archive"><a href="' . get_permalink($archive_post->ID) . '">' . $post_title . '</a></h4>
+                        <h4 class="cat-archive"><a href="' . get_permalink( $archive_post->ID ) . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
 				$col_count ++;
@@ -3734,7 +3726,7 @@ function render_archive_ajax( $atts ) {
 	return $html;
 }
 
-add_filter( 'pre_get_posts', 'change_search_types' );
+add_action( 'pre_get_posts', 'change_search_types' );
 /**
  * This function modifies the main WordPress query to include an array of
  * post types instead of the default 'post' post type.
@@ -3744,13 +3736,20 @@ add_filter( 'pre_get_posts', 'change_search_types' );
  * @return object $query The amended query.
  */
 function change_search_types( $query ) {
-	
-	if ( $query->is_search ) {
-		$query->set( 'post_type', array( 'spotlight', 'wedding_story', 'styled_shoot', 'post', 'vendor_profile' ) );
+	// This is for special offers in the WP admin
+	if ( ! empty( $query->get( 'orderby' ) ) ) {
+		$orderby = $query->get( 'orderby' );
+		
+		if ( 'vendor' == $orderby ) {
+			$query->set( 'meta_key', 'vendor' );
+			$query->set( 'orderby', 'meta_value' );
+		}
 	}
-	
-	return $query;
-	
+	if ( ! is_admin() && $query->is_search ) {
+		$query->set( 'post_type', array( 'spotlight', 'wedding_story', 'styled_shoot', 'post', 'vendor_profile' ) );
+	} elseif ( $query->i ) {
+		return $query;
+	}
 }
 
 add_shortcode( 'search_term', 'render_search_term' );
@@ -3906,21 +3905,21 @@ function render_banner_ad( $atts ) {
 		'offset'         => get_ad_offset( $ad_type ),
 //		'meta_key'       => 'exposure_level', // highest exposure ads first
 //		'orderby'        => 'meta_value_num',
-        'orderby'        => 'rand(' . get_random_post() . ')',
+		'orderby'        => 'rand(' . get_random_post() . ')',
 		'order'          => 'DESC'
 	);
 	$banner_ads  = new WP_Query( $banner_args );
 //    print_r($banner_ads); die();
-    $this_post_id = get_the_ID();
+	$this_post_id = get_the_ID();
 	if ( $banner_ads->have_posts() ) {
 		while ( $banner_ads->have_posts() ) {
 			$banner_ads->the_post();
 			$view_count = get_field( 'view_count' );
 			update_field( 'view_count', $view_count + 1, get_the_ID() );
 			update_field( 'last_viewed', date( "Y-m-d H:i:s" ), get_the_ID() );
-			$image = get_field( 'ad_banner' );
+			$image   = get_field( 'ad_banner' );
 			$post_id = '';
-			$html  .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url' ) . '" title="' . get_field( 'banner_name' ) . '" alt="' . get_field( 'banner_name' ) . '" target="_blank" ><img data-target-id="' . (is_single() ? $this_post_id : '') .'" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
+			$html    .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url' ) . '" title="' . get_field( 'banner_name' ) . '" alt="' . get_field( 'banner_name' ) . '" target="_blank" ><img data-target-id="' . ( is_single() ? $this_post_id : '' ) . '" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
 			
 		}
 	}
@@ -4074,138 +4073,234 @@ function update_click_count() {
 	//  vendor_profile at $target_id
 	if ( $link_type == 'local_fave' ) {
 		$click_count = get_field( 'local_faves_click_count', $target_id );
-		update_field( 'local_faves_click_count', ++$click_count, $target_id );
+		update_field( 'local_faves_click_count', ++ $click_count, $target_id );
 		update_field( 'local_faves_last_clicked', date( "Y-m-d H:i:s" ), $target_id );
-	} elseif ($link_type == 'home_slider') {
-	    $click_count = get_field('click_count', $target_id);
-	    update_field( 'click_count', ++$click_count, $target_id);
-	    update_field( 'last_clicked', date("Y-m-d H:i:s"), $target_id);
-    } elseif ($link_type == 'banner_ad') {
-	    $click_count = get_field('banner_click_count', $target_id);
-	    update_field( 'banner_click_count', ++$click_count, $target_id);
-	    update_field( 'last_clicked', date('Y-m-d H:m:s'), $target_id);
-    }
+	} elseif ( $link_type == 'home_slider' ) {
+		$click_count = get_field( 'click_count', $target_id );
+		update_field( 'click_count', ++ $click_count, $target_id );
+		update_field( 'last_clicked', date( "Y-m-d H:i:s" ), $target_id );
+	} elseif ( $link_type == 'banner_ad' ) {
+		$click_count = get_field( 'banner_click_count', $target_id );
+		update_field( 'banner_click_count', ++ $click_count, $target_id );
+		update_field( 'last_clicked', date( 'Y-m-d H:m:s' ), $target_id );
+	}
 	$resp = array(
 		'title'     => 'Click Update Status',
 		'content'   => 'Click Count / Last Viewed was updated!',
 		'post_type' => $link_type,
-        'target_id' => $target_id
+		'target_id' => $target_id
 	);
 	wp_send_json( $resp );
 	wp_die();
 	
 }
+
 /* Catch the Vendor Profile Form when it's saved, to see if a user is being created / update */
 add_filter( 'acf/pre_save_post', 'create_update_user', 10, 1 );
-function create_update_user($post_id) {
-    // Grab the `email_username` and `password` variables, if set
-	$acf_request = $_POST['acf'];
-	$create_new_user   = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] : false;
-	$reset_password = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] : false;
-	if ($create_new_user) {
-	    // Link new vendor was clicked. Make sure a username AND password were passed in, and then create the user
-        $email_username = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] : false;
-        $password = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b82f05254'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b82f05254'] : false;
-        
-        if ( $email_username !== false && $password !== false ) {
-            // we have email and password, create a new user with 'vendor' role
-            $first_name = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f45af9a01611'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f45af9a01611'] : '';
-	        $last_name = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f45afd801612'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f45afd801612'] : '';
-            
-            $user_args = array(
-                'user_login' => $email_username,
-                'user_pass' => $password,
-                'user_email' => $email_username,
-                'first_name' => $first_name,
-                'last_name' => $last_name,
-                'display_name' => $first_name . ' ' . $last_name,
-                'show_admin_bar_front' => 'false',
-                'role' => 'vendor'
-            );
-            $new_user_id = wp_insert_user( $user_args );
-            if(!is_wp_error($new_user_id)) {
-                // user was successfully created - add this user's ID to the Vendor Profile as the 'Linked User Account'
-                $linked_user = array(
-                    'user' => $new_user_id,
-                    'change_password' => false,
-                    'new_password' => ''
-                );
-                $_POST['acf']['field_5f42d0bcd749d'] = $linked_user;
-                return $post_id;
-            } else {
-                $error_code = $new_user_id->get_error_code();
-                $linked_user_message = array(
-                    'field_5f42cfe7c54e9' => true,
-                    'field_5f29b82f05254' => '',
-                    'field_5f29b6ee05253' => $email_username,
-                    'field_5f42e54f6df3d' => 'Adding user failed with error: ' . $error_code
-                );
-                update_field('field_5f42cc7f1db03', $linked_user_message, $post_id);
-                $_POST['acf']['field_5f42cc7f1db03'] = $linked_user_message;
-                return $post_id; // break here, so these fields don't get overwritten incorrectly
-            }
-        }
-    } elseif ( $reset_password ) {
-	    $user = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d0e3d749e'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d0e3d749e'] : null;
-	    $new_password = ! empty($acf_request['field_5f42d0bcd749d']['field_5f42d13bd74a0'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d13bd74a0'] : null;
-	    // make sure they are both not null before continuing
-        if($user !== null && $new_password !== null) {
-            wp_set_password($new_password, $user); // this will reset the user's password
-        }
-    }
+function create_update_user( $post_id ) {
+	// Grab the `email_username` and `password` variables, if set
+	$acf_request     = $_POST['acf'];
+	$create_new_user = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] : false;
+	$reset_password  = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] : false;
+	if ( $create_new_user ) {
+		// Link new vendor was clicked. Make sure a username AND password were passed in, and then create the user
+		$email_username = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] : false;
+		$password       = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b82f05254'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b82f05254'] : false;
+		
+		if ( $email_username !== false && $password !== false ) {
+			// we have email and password, create a new user with 'vendor' role
+			$first_name = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f45af9a01611'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f45af9a01611'] : '';
+			$last_name  = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f45afd801612'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f45afd801612'] : '';
+			
+			$user_args   = array(
+				'user_login'           => $email_username,
+				'user_pass'            => $password,
+				'user_email'           => $email_username,
+				'first_name'           => $first_name,
+				'last_name'            => $last_name,
+				'display_name'         => $first_name . ' ' . $last_name,
+				'show_admin_bar_front' => 'false',
+				'role'                 => 'vendor'
+			);
+			$new_user_id = wp_insert_user( $user_args );
+			if ( ! is_wp_error( $new_user_id ) ) {
+				// user was successfully created - add this user's ID to the Vendor Profile as the 'Linked User Account'
+				$linked_user                         = array(
+					'user'            => $new_user_id,
+					'change_password' => false,
+					'new_password'    => ''
+				);
+				$_POST['acf']['field_5f42d0bcd749d'] = $linked_user;
+				
+				return $post_id;
+			} else {
+				$error_code          = $new_user_id->get_error_code();
+				$linked_user_message = array(
+					'field_5f42cfe7c54e9' => true,
+					'field_5f29b82f05254' => '',
+					'field_5f29b6ee05253' => $email_username,
+					'field_5f42e54f6df3d' => 'Adding user failed with error: ' . $error_code
+				);
+				update_field( 'field_5f42cc7f1db03', $linked_user_message, $post_id );
+				$_POST['acf']['field_5f42cc7f1db03'] = $linked_user_message;
+				
+				return $post_id; // break here, so these fields don't get overwritten incorrectly
+			}
+		}
+	} elseif ( $reset_password ) {
+		$user         = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d0e3d749e'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d0e3d749e'] : null;
+		$new_password = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d13bd74a0'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d13bd74a0'] : null;
+		// make sure they are both not null before continuing
+		if ( $user !== null && $new_password !== null ) {
+			wp_set_password( $new_password, $user ); // this will reset the user's password
+		}
+	}
 	// regardless of what happens, ALWAYS clear out any plaintext password values from the database
-    $_POST['acf']['field_5f42cc7f1db03'] = array(
-        'field_5f42cfe7c54e9' => false,
-        'field_5f29b6ee05253' => '',
-        'field_5f29b82f05254' => '',
-        'field_5f42e54f6df3d' => ''
-    );
-    
-    $_POST['acf']['field_5f42d0bcd749d'] = array(
-        'field_5f42d117d749f' => false, // change_password set to false
-        'field_5f42d13bd74a0' => '' // update the new password field to ''
-    );
-    
+	$_POST['acf']['field_5f42cc7f1db03'] = array(
+		'field_5f42cfe7c54e9' => false,
+		'field_5f29b6ee05253' => '',
+		'field_5f29b82f05254' => '',
+		'field_5f42e54f6df3d' => ''
+	);
+	
+	$_POST['acf']['field_5f42d0bcd749d'] = array(
+		'field_5f42d117d749f' => false, // change_password set to false
+		'field_5f42d13bd74a0' => '' // update the new password field to ''
+	);
+	
 	return $post_id;
 	
 }
 
 /* [company_name] */
-add_shortcode('client_add_name', 'render_company_name' );
+add_shortcode( 'client_add_name', 'render_company_name' );
 function render_company_name() {
-    if (is_page('client-admin')) {
-        // return the title from the Vendor PProfile
-	    if ( isset( $_GET['ven_id'] ) ) {
-		    $vendor_id = $_GET['ven_id'];
-		    return get_the_title($vendor_id);
-	    }
-    }
-    return 'company_name';
+	if ( is_page( 'client-admin' ) ) {
+		// return the title from the Vendor PProfile
+		if ( isset( $_GET['ven_id'] ) ) {
+			$vendor_id = $_GET['ven_id'];
+			
+			return get_the_title( $vendor_id );
+		}
+	}
+	
+	return 'company_name';
 }
 
-add_shortcode('client_last_login', 'render_last_login');
+add_shortcode( 'client_last_login', 'render_last_login' );
 function render_last_login() {
-    if (is_page('client-admin')) {
-        // return the current user's last log in
-        if (! empty( get_user_meta(get_current_user_id(), 'last_login'))) {
-            $last_login = new DateTime(get_user_meta(get_current_user_id(), 'last_login', true));
-            return $last_login->format("M d, Y");
-        }
-    }
-    return 'n.a.';
+	if ( is_page( 'client-admin' ) ) {
+		// return the current user's last log in
+		if ( ! empty( get_user_meta( get_current_user_id(), 'last_login' ) ) ) {
+			$last_login = new DateTime( get_user_meta( get_current_user_id(), 'last_login', true ) );
+			
+			return $last_login->format( "M d, Y" );
+		}
+	}
+	
+	return 'n.a.';
 }
 
-add_action('wp_login', 'set_last_login');
+add_action( 'wp_login', 'set_last_login' );
 //function for setting the last login
-function set_last_login($login) {
-	$user = get_userdatabylogin($login);
-	$curent_login_time = get_user_meta( $user->ID , 'current_login', true);
+function set_last_login( $login ) {
+	$user              = get_userdatabylogin( $login );
+	$curent_login_time = get_user_meta( $user->ID, 'current_login', true );
 	//add or update the last login value for logged in user
-	if(!empty($curent_login_time)){
+	if ( ! empty( $curent_login_time ) ) {
 		update_usermeta( $user->ID, 'last_login', $curent_login_time );
-		update_usermeta( $user->ID, 'current_login', current_time('mysql') );
-	}else {
-		update_usermeta( $user->ID, 'current_login', current_time('mysql') );
-		update_usermeta( $user->ID, 'last_login', current_time('mysql') );
+		update_usermeta( $user->ID, 'current_login', current_time( 'mysql' ) );
+	} else {
+		update_usermeta( $user->ID, 'current_login', current_time( 'mysql' ) );
+		update_usermeta( $user->ID, 'last_login', current_time( 'mysql' ) );
+	}
+}
+
+add_shortcode( 'grouped_businesses', 'render_grouped_businesses' );
+function render_grouped_businesses() {
+	if ( isset( $_GET['ven_id'] ) ) {
+		$vendor_id = $_GET['ven_id'];
+		$group     = get_field( 'field_5ef38ad886d53', $vendor_id ) ? get_field( 'field_5ef38ad886d53', $vendor_id ) : false;
+		if ( $group !== false ) {
+			$meta_query_args = array(
+				'relation' => 'AND',
+				array(
+					'relation' => 'AND',
+					array(
+						'key'     => 'group',
+						'value'   => $group->term_id,
+						'compare' => '='
+					),
+					array(
+						'key'     => 'group',
+						'compare' => 'EXISTS'
+					)
+				),
+				array(
+					'key'   => 'is_active',
+					'value' => true
+				)
+			);
+			$args            = array(
+				'post_type'      => 'vendor_profile',
+				'meta_query'     => $meta_query_args,
+				'posts_per_page' => - 1
+			);
+			$managed_bizs    = get_posts( $args );
+			$html            = '';
+			$html            .= '<div class="managed-group-bizs">';
+			foreach ( $managed_bizs as $managed_biz ) {
+				if ( $managed_biz->ID !== (int) $vendor_id ) {
+					$html .= '<div class="saw-button"><a href="/client-admin?ven_id=' . $managed_biz->ID . '">' . get_the_title( $managed_biz->ID ) . '</a></div>';
+				}
+			}
+			$html .= '</div>';
+		}
+		
+		return $html;
+	}
+	
+	return 'n.a.';
+}
+
+// oembed shortcode return
+add_shortcode( "client_admin_oembed_container", "render_oembed_container" );
+function render_oembed_container() {
+	$html = '<div id="tutorial-video-modal" class="modal micromodal-slide" aria-hidden="true">
+        <div class="modal__overlay" tabindex="-1" data-custom-close="tutorial-video-modal">
+            <div role="dialog" class="modal__container" aria-modal="true"
+                 aria-labelledby="tutorial-video-modal">
+                <header class="modal__header">
+                    <div id="tutorial-video-modal-title" class="modal__title">
+                        <div id="client-oembed-container"></div>
+                    </div>
+                    <button aria-label="Close modal" class="modal__close"
+                            data-custom-close="tutorial-video-modal" onclick="MicroModal.close(\'tutorial-video-modal\', {awaitCloseAnimation:true})"></button>
+                </header>
+                <div id="tutorial-video-modal-content" class="modal__content">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        jQuery(document).on(\'load\', function() {
+            MicroModal.init({
+                awaitCloseAnimation: true
+            });
+        })
+    </script>';
+	return $html;
+}
+
+add_action( 'wp_ajax_get_oembed', 'my_ajax_getoembed' );
+add_action( 'wp_ajax_nopriv_article_datatables', 'my_ajax_getoembed ' );
+function my_ajax_getoembed() {
+	// grab embed and send it back
+	if ( isset( $_GET['videoUrl'] ) ) {
+		$url         = $_GET['videoUrl'];
+		$json_return = array(
+			'oembedhtml' => wp_oembed_get( $url )
+	    );
+		echo json_encode( $json_data );
 	}
 }
