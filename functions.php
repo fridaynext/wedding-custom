@@ -4175,7 +4175,7 @@ function create_update_user( $post_id ) {
 /* [company_name] */
 add_shortcode( 'client_add_name', 'render_company_name' );
 function render_company_name() {
-	if ( is_page( array('client-admin', 'client-admin/edit-my-profile') ) ) {
+	if ( is_page( array('client-admin', 'client-admin/edit-my-profile', 'client-admin/reviews', 'client-admin/post-special-offers', 'client-admin/manage-my-photos', 'client-admin/manage-my-videos', 'client-admin/manage-my-audio') ) ) {
 		// return the title from the Vendor PProfile
 		if ( isset( $_GET['ven_id'] ) ) {
 			$vendor_id = $_GET['ven_id'];
@@ -4189,7 +4189,7 @@ function render_company_name() {
 
 add_shortcode( 'client_last_login', 'render_last_login' );
 function render_last_login() {
-	if ( is_page( 'client-admin' ) ) {
+	if ( is_page( array('client-admin', 'client-admin/edit-my-profile', 'client-admin/reviews', 'client-admin/post-special-offers', 'client-admin/manage-my-photos', 'client-admin/manage-my-videos', 'client-admin/manage-my-audio') ) ) {
 		// return the current user's last log in
 		if ( ! empty( get_user_meta( get_current_user_id(), 'last_login' ) ) ) {
 			$last_login = new DateTime( get_user_meta( get_current_user_id(), 'last_login', true ) );
@@ -4329,7 +4329,6 @@ function render_client_profile() {
                 'field_5ededd58345cf', // Google Map
                 'field_5f178dea0a9ca', // Extra Addresses
                 'field_5ea5e38b4209b', // About Us
-                'field_5ea5e3b74209c', // Wedding Wire Reviews Code
                 'field_5ea5edb7abab3', // Facebook
                 'field_5ea5edd3abab4', // Pinterest
                 'field_5ea5ede7abab5', // Instagram
@@ -4476,6 +4475,112 @@ function render_special_offer_one() {
 	
 	        return $html;
         }
+	} else {
+		//Handle the case where there is no parameter
+		return 'Something went wrong...';
+	}
+}
+
+add_shortcode('client_reviews', 'render_wedding_wire');
+function render_wedding_wire() {
+	if ( isset( $_GET['ven_id'] ) ) {
+		$vendor_id = $_GET['ven_id'];
+		$args      = array(
+			'post_id'               => $vendor_id,
+			'updated_message'       => 'WeddingWire Review successfully updated!',
+			'instruction_placement' => 'field',
+			'kses'                  => false,
+			'field_groups'          => array('group_5ea5e1660e57b'),    // notate the field groups we want to show up on this page
+			'fields'                => array(  // specify which fields we want showing up on this page
+				'field_5ea5e3b74209c', // WeddingWire Reviews
+			)
+		);
+		$html      = '<h2>' . get_the_title( $vendor_id ) . '</h1>';
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	} else {
+		//Handle the case where there is no parameter
+		return 'Something went wrong...';
+	}
+}
+
+/*** MANAGE PHOTOS ****/
+add_shortcode('client_featured_image', 'render_client_thumbnail');
+function render_client_thumbnail() {
+	if ( isset( $_GET['ven_id'] ) ) {
+		$vendor_id = $_GET['ven_id'];
+		$args      = array(
+			'post_id'               => $vendor_id,
+			'updated_message'       => 'Featured Image Updated!',
+			'instruction_placement' => 'field',
+			'kses'                  => false,
+			'field_groups'          => array('group_5eebe4fe60795'),    // notate the field groups we want to show up on this page
+			'fields'                => array(  // specify which fields we want showing up on this page
+				'field_5eebe5163383a', // WeddingWire Reviews
+			)
+		);
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	} else {
+		//Handle the case where there is no parameter
+		return 'Something went wrong...';
+	}
+}
+
+add_shortcode('client_photo_gallery_images', 'render_client_gallery');
+function render_client_gallery() {
+	if ( isset( $_GET['ven_id'] ) ) {
+		$vendor_id = $_GET['ven_id'];
+		$args      = array(
+			'post_id'               => $vendor_id,
+			'updated_message'       => 'Photo Gallery Updated!',
+			'instruction_placement' => 'field',
+			'kses'                  => false,
+			'field_groups'          => array('group_5e9d079710a9c'),    // notate the field groups we want to show up on this page
+			'fields'                => array(  // specify which fields we want showing up on this page
+				'field_5e9d07b835e2e', // WeddingWire Reviews
+			)
+		);
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	} else {
+		//Handle the case where there is no parameter
+		return 'Something went wrong...';
+	}
+}
+
+add_shortcode('client_video_gallery', 'render_video_gallery');
+function render_video_gallery() {
+	if ( isset( $_GET['ven_id'] ) ) {
+		$vendor_id = $_GET['ven_id'];
+		$args      = array(
+			'post_id'               => $vendor_id,
+			'updated_message'       => 'Video Gallery Updated!',
+			'instruction_placement' => 'field',
+			'kses'                  => false,
+			'field_groups'          => array('group_5e9d079710a9c'),    // notate the field groups we want to show up on this page
+			'fields'                => array(  // specify which fields we want showing up on this page
+				'field_5e9d089c35e30', // WeddingWire Reviews
+			)
+		);
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
 	} else {
 		//Handle the case where there is no parameter
 		return 'Something went wrong...';
