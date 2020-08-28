@@ -4573,6 +4573,7 @@ function render_video_gallery() {
 			'field_groups'          => array('group_5e9d079710a9c'),    // notate the field groups we want to show up on this page
 			'fields'                => array(  // specify which fields we want showing up on this page
 				'field_5e9d089c35e30', // WeddingWire Reviews
+                'field_5f29b35c9df4d'  // videos or photos first?
 			)
 		);
 		ob_start();
