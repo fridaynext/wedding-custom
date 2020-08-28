@@ -4175,7 +4175,7 @@ function create_update_user( $post_id ) {
 /* [company_name] */
 add_shortcode( 'client_add_name', 'render_company_name' );
 function render_company_name() {
-	if ( is_page( 'client-admin' ) ) {
+	if ( is_page( array('client-admin', 'client-admin/edit-my-profile') ) ) {
 		// return the title from the Vendor PProfile
 		if ( isset( $_GET['ven_id'] ) ) {
 			$vendor_id = $_GET['ven_id'];
@@ -4302,5 +4302,182 @@ function my_ajax_getoembed() {
 			'oembedhtml' => wp_oembed_get( $url )
 	    );
 		echo json_encode( $json_data );
+	}
+}
+
+/***** Client Profile Edit Form ******/
+add_shortcode('client_edit_profile', 'render_client_profile');
+function render_client_profile() {
+	if ( isset( $_GET['ven_id'] ) ) {
+		$vendor_id = $_GET['ven_id'];
+		$args      = array(
+			'post_id'               => $vendor_id,
+			'post_title'            => true,
+			'updated_message'       => 'Profile successfully updated!',
+			'instruction_placement' => 'field',
+			'kses'                  => false,
+            'field_groups'          => array('group_5ea5e1660e57b'),    // notate the field groups we want to show up on this page
+            'fields'                => array(  // specify which fields we want showing up on this page
+                'field_5ef38a0f3e966', // subject line
+                'field_5ef2ead7c9a36', // email address
+                'field_5f178ce570d27', // Email Bcc
+                'field_5f178d0870d28', // Email Cc
+                'field_5ef2bfc8549e8', // Business Ph Number
+                'field_5ef2c14d549e9', // Text Ph Number
+                'field_5ea5e3634209a', // Website
+                'field_5ea5e1a242098', // Address
+                'field_5ededd58345cf', // Google Map
+                'field_5f178dea0a9ca', // Extra Addresses
+                'field_5ea5e38b4209b', // About Us
+                'field_5ea5e3b74209c', // Wedding Wire Reviews Code
+                'field_5ea5edb7abab3', // Facebook
+                'field_5ea5edd3abab4', // Pinterest
+                'field_5ea5ede7abab5', // Instagram
+                'field_5f48226f478c0', // Twitter,
+                'field_5f482286478c1' // YouTube
+            )
+		);
+		$html      = '<h2>' . get_the_title( $vendor_id ) . '</h1>';
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	} else {
+		//Handle the case where there is no parameter
+		return 'Something went wrong...';
+	}
+}
+
+/***** Client Special Offer Form ******/
+add_shortcode('client_special_offers', 'render_special_offer_one');
+function render_special_offer_one() {
+	if ( isset( $_GET['ven_id'] ) ) {
+		$vendor_id = $_GET['ven_id'];
+	    // check if this vendor has special offers already, and display them, if they do
+        $so_args = array(
+            'post_type' => 'special_offers',
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key' => 'is_active',
+                    'value' => true
+                ),
+                array(
+                    'key' => 'vendor',
+                    'value' => $vendor_id,
+                    'compare' => '='
+                )
+            ),
+            'post_status' => 'publish'
+        );
+        $num_offers = 0;
+        $client_offers = get_posts($so_args);
+        $num_offers = sizeof($client_offers);
+    
+		$html = '<h1 class="offer-one">Add Special Offer #1</h1>';
+		$html .= '<p>Add your offers here, only 2 Special Offers can be active at one time.</p>';
+		$html .= '<hr>';
+        if ($num_offers <= 1) {
+	        // check for existing special offer
+            if ($num_offers == 1) {
+	            $offer_one_args      = array(
+		            'post_id'               => $client_offers[0]->ID,
+		            'post_title'            => true,
+		            'submit_value'          => 'Submit Special Offer',
+		            'instruction_placement' => 'field',
+		            'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+                    'field_groups'           => array('group_5ea5df8402ad5'),
+                    'fields'                => array(
+                        'field_5f0c7b5a63866', // is_active
+                        'field_5f0c775c87ccb', // permanent_promotion
+                        'field_5f0c76de4e3b8', // offer start date
+                        'field_5ea5df9130037', // offer end date
+                        'field_5f0c75664e3b7', // description
+                        'field_5ea5dfd030038'  // reply email
+                    )
+	            );
+	            ob_start();
+	            acf_form( $offer_one_args );
+	            $html .= ob_get_contents();
+	            ob_end_clean();
+            }
+            $html .= '<h1 class="offer-two">Add Special Offer #2</h1>';
+            $html .= '<hr>';
+            $new_offer_args      = array(
+		        'post_id'               => 'new_post',
+		        'post_title'            => true,
+		        'new_post'              => array(
+			        'post_type'   => 'special_offers',
+			        'post_status' => 'publish'
+		        ),
+		        'submit_value'          => 'Submit Special Offer',
+		        'instruction_placement' => 'field',
+		        'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+                'field_groups'           => array('group_5ea5df8402ad5'),
+                    'fields'                => array(
+		        'field_5f0c7b5a63866', // is_active
+		        'field_5f0c775c87ccb', // permanent_promotion
+		        'field_5f0c76de4e3b8', // offer start date
+		        'field_5ea5df9130037', // offer end date
+		        'field_5f0c75664e3b7', // description
+		        'field_5ea5dfd030038'  // reply email
+	        )
+	        );
+	        ob_start();
+	        acf_form( $new_offer_args );
+	        $html .= ob_get_contents();
+	        ob_end_clean();
+	        
+	        return $html;
+        } elseif ($num_offers == 2) {
+	        $offer_one_args = array(
+		        'post_id'               => $client_offers[0]->ID,
+		        'post_title'            => true,
+		        'submit_value'          => 'Submit Special Offer',
+		        'updated_message'       => 'Special Offer Updated!',
+		        'instruction_placement' => 'field',
+		        'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+                'field_groups'          => array('group_5ea5df8402ad5'),
+                'fields'                => array(
+		            'field_5f0c7b5a63866', // is_active
+		            'field_5f0c775c87ccb', // permanent_promotion
+		            'field_5f0c76de4e3b8', // offer start date
+		            'field_5ea5df9130037', // offer end date
+		            'field_5f0c75664e3b7', // description
+		            'field_5ea5dfd030038'  // reply email
+	            )
+	        );
+	        $html .= '<h1 class="offer-two">Add Special Offer #2</h1>';
+	        $html .= '<hr>';
+	        $offer_two_args = array(
+		        'post_id'               => $client_offers[1]->ID,
+		        'post_title'            => true,
+		        'submit_value'          => 'Submit Special Offer',
+		        'updated_message'       => 'Special Offer Updated!',
+		        'instruction_placement' => 'field',
+		        'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+                'field_groups'          => array('group_5ea5df8402ad5'),
+                'fields'                => array(
+		            'field_5f0c7b5a63866', // is_active
+		            'field_5f0c775c87ccb', // permanent_promotion
+		            'field_5f0c76de4e3b8', // offer start date
+		            'field_5ea5df9130037', // offer end date
+		            'field_5f0c75664e3b7', // description
+		            'field_5ea5dfd030038'  // reply email
+	            )
+	        );
+	        ob_start();
+	        acf_form( $offer_one_args );
+	        acf_form( $offer_two_args );
+	        $html .= ob_get_contents();
+	        ob_end_clean();
+	
+	        return $html;
+        }
+	} else {
+		//Handle the case where there is no parameter
+		return 'Something went wrong...';
 	}
 }
