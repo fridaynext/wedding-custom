@@ -6,6 +6,9 @@
 
 define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.4' );
 
+/*** Ensuring AJAX Requests use SSL ****/
+add_filter( 'https_local_ssl_verify', '__return_true' );
+
 /********************* ACF JSON *********************/
 add_filter( 'acf/settings/save_json', 'my_acf_json_save_point' );
 function my_acf_json_save_point( $path ) {

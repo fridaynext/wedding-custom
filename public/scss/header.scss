@@ -226,6 +226,38 @@
 }
 
 #menu-header-top-menu {
+
+  .hamburger-top-menu {
+    display: none;
+    @media screen and (max-width: 1100px) {
+      display: flex;
+    }
+    &::before {
+      content: '';
+      background: url('/wp-content/plugins/fn-saw/public/img/hamburger-menu@2x.svg') 20px 15px;
+      width: 20px;
+      height: 15px;
+      display: block;
+      background-size: contain;
+      float: left;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    ul.sub-menu {
+      margin-left: -185px;
+      width: 200px !important;
+
+      li {
+        a {
+          width: unset !important;
+        }
+      }
+      &::before {
+        right: 0;
+      }
+    }
+  }
   .vendor-login {
     @media screen and (max-width: 1100px) {
       border-right: 1px solid var(--medium-gray-color);
