@@ -3797,6 +3797,7 @@ function prefix_start_session() {
 }
 
 add_action( 'init', 'prefix_start_session' );
+
 function get_random_post() {
 	if ( ! isset( $_SESSION['random'] ) ) {
 		$_SESSION['random'] = rand();
@@ -4188,11 +4189,16 @@ add_shortcode( 'client_add_name', 'render_company_name' );
 function render_company_name() {
 	if ( is_page( array('client-admin', 'client-admin/edit-my-profile', 'client-admin/reviews', 'client-admin/post-special-offers', 'client-admin/manage-my-photos', 'client-admin/manage-my-videos', 'client-admin/manage-my-audio') ) ) {
 		// return the title from the Vendor PProfile
-		if ( isset( $_GET['ven_id'] ) ) {
-			$vendor_id = $_GET['ven_id'];
+		if ( isset( $_SESSION['vendor'] ) ) {
+			$vendor_id = $_SESSION['vendor'];
 			
 			return get_the_title( $vendor_id );
-		}
+		} elseif ( isset( $_GET['ven_id'] ) ) {
+		    $vendor_id = $_GET['ven_id'];
+		    $_SESSION['vendor'] = $vendor_id;
+		    
+		    return get_the_title( $vendor_id );
+        }
 	}
 	
 	return 'company_name';
@@ -4231,6 +4237,8 @@ add_shortcode( 'grouped_businesses', 'render_grouped_businesses' );
 function render_grouped_businesses() {
 	if ( isset( $_GET['ven_id'] ) ) {
 		$vendor_id = $_GET['ven_id'];
+		// Get the URL variable, and set it as the SESSION variable to be used elsewhere in the client admin
+        $_SESSION['vendor'] = $vendor_id;
 		$group     = get_field( 'field_5ef38ad886d53', $vendor_id ) ? get_field( 'field_5ef38ad886d53', $vendor_id ) : false;
 		if ( $group !== false ) {
 			$meta_query_args = array(
@@ -4319,8 +4327,8 @@ function my_ajax_getoembed() {
 /***** Client Profile Edit Form ******/
 add_shortcode('client_edit_profile', 'render_client_profile');
 function render_client_profile() {
-	if ( isset( $_GET['ven_id'] ) ) {
-		$vendor_id = $_GET['ven_id'];
+	if ( isset( $_SESSION['vendor'] ) ) {
+		$vendor_id = $_SESSION['vendor'];
 		$args      = array(
 			'post_id'               => $vendor_id,
 			'post_title'            => true,
@@ -4363,8 +4371,8 @@ function render_client_profile() {
 /***** Client Special Offer Form ******/
 add_shortcode('client_special_offers', 'render_special_offer_one');
 function render_special_offer_one() {
-	if ( isset( $_GET['ven_id'] ) ) {
-		$vendor_id = $_GET['ven_id'];
+	if ( isset( $_SESSION['vendor'] ) ) {
+		$vendor_id = $_SESSION['vendor'];
 	    // check if this vendor has special offers already, and display them, if they do
         $so_args = array(
             'post_type' => 'special_offers',
@@ -4494,8 +4502,8 @@ function render_special_offer_one() {
 
 add_shortcode('client_reviews', 'render_wedding_wire');
 function render_wedding_wire() {
-	if ( isset( $_GET['ven_id'] ) ) {
-		$vendor_id = $_GET['ven_id'];
+	if ( isset( $_SESSION['vendor'] ) ) {
+		$vendor_id = $_SESSION['vendor'];
 		$args      = array(
 			'post_id'               => $vendor_id,
 			'updated_message'       => 'WeddingWire Review successfully updated!',
@@ -4522,8 +4530,8 @@ function render_wedding_wire() {
 /*** MANAGE PHOTOS ****/
 add_shortcode('client_featured_image', 'render_client_thumbnail');
 function render_client_thumbnail() {
-	if ( isset( $_GET['ven_id'] ) ) {
-		$vendor_id = $_GET['ven_id'];
+	if ( isset( $_SESSION['vendor'] ) ) {
+		$vendor_id = $_SESSION['vendor'];
 		$args      = array(
 			'post_id'               => $vendor_id,
 			'updated_message'       => 'Featured Image Updated!',
@@ -4548,8 +4556,8 @@ function render_client_thumbnail() {
 
 add_shortcode('client_photo_gallery_images', 'render_client_gallery');
 function render_client_gallery() {
-	if ( isset( $_GET['ven_id'] ) ) {
-		$vendor_id = $_GET['ven_id'];
+	if ( isset( $_SESSION['vendor'] ) ) {
+		$vendor_id = $_SESSION['vendor'];
 		$args      = array(
 			'post_id'               => $vendor_id,
 			'updated_message'       => 'Photo Gallery Updated!',
@@ -4574,8 +4582,8 @@ function render_client_gallery() {
 
 add_shortcode('client_video_gallery', 'render_video_gallery');
 function render_video_gallery() {
-	if ( isset( $_GET['ven_id'] ) ) {
-		$vendor_id = $_GET['ven_id'];
+	if ( isset( $_SESSION['vendor'] ) ) {
+		$vendor_id = $_SESSION['vendor'];
 		$args      = array(
 			'post_id'               => $vendor_id,
 			'updated_message'       => 'Video Gallery Updated!',
@@ -4597,4 +4605,35 @@ function render_video_gallery() {
 		//Handle the case where there is no parameter
 		return 'Something went wrong...';
 	}
+}
+
+/******** Client Admin Left Navigation Buttons *********/
+add_shortcode('client_admin_nav_buttons', 'render_client_nav');
+function render_client_nav() {
+    // Display each of the client admin buttons as a Nav item
+    $client_pages = array(
+        'My Dashboard' => 'client-admin',
+        'Edit My Profile' => 'client-admin/edit-my-profile',
+        'Post Your Special Offers' => 'client-admin/post-special-offers',
+        'Manage My Photos' => 'client-admin/manage-my-photos',
+        'Manage My Audio' => 'client-admin/manage-my-audio',
+        'WeddingWire Reviews' => 'client-admin/reviews',
+        'Submit an Event' => 'client-admin/submit-event',
+        //'My Comparison Guides' => 'client-admin/my-comparison-guides',
+        'Wedding Story Submission' => 'submissions',
+        'Marketing Icons' => 'marketing-badge-icons'
+    );
+    
+    $html = '<div id="client-admin-nav">';
+    // Loop through each of these Pages, and make a button for each
+    foreach ($client_pages as $title => $url) {
+        // add the 'ven_id' to the URL for each link so that it will work properly around the admin
+        $vendor_id = isset($_GET['ven_id']) ? '?ven_id=' . $_GET['ven_id'] : '';
+        $active = get_post_field('post_name') == $url ? 'active' : '';
+        $new_window = in_array($url, ['submissions', 'marketing-badge-icons']) ? ' target="_blank"' : '';
+	    $html .= '<div class="client-nav-button"><a class="' . $active . '" href="/' . $url . ($new_window == '' ? $vendor_id : '') . '" data-icon="9"' . $new_window . '>' . $title . '</a></div>';
+    }
+    $html .= '</div>';
+    
+    return $html;
 }
