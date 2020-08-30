@@ -32,7 +32,13 @@ function my_acf_json_load_point( $paths ) {
 }
 
 /* Remove admin bar for editors (Actually, EVERYONE - need to do a check later for only editors) */
-show_admin_bar( false );
+if ( isset( wp_get_current_user()->ID ) && is_array( wp_get_current_user()->roles ) ) {
+	//check for admins
+	if ( in_array( 'vendor', wp_get_current_user()->roles ) || in_array('editor', wp_get_current_user()->roles) ) {
+		// redirect them to the default place
+        show_admin_bar(false);
+	}
+}
 
 add_action( 'wp_print_styles', 'fn_enqueue_styles' );
 add_action( 'wp_enqueue_scripts', 'fn_enqueue_scripts' );
@@ -357,6 +363,8 @@ function my_login_redirect( $redirect_to, $request, $user ) {
 			);
 			$matching_profile = get_posts( $profile_args );
 			if ( sizeof( $matching_profile ) > 0 ) {
+			    // Set the session variable so we don't have to do ridiculous URL shenanigans
+                $_SESSION['vendor'] = $matching_profile[0]->ID;
 				// we found a match, so let's send them to their profile page
 				return home_url( '/client-admin?ven_id=' . $matching_profile[0]->ID );
 			}
