@@ -8,11 +8,14 @@ $show_default_title = get_post_meta( get_the_ID(), '_et_pb_show_title', true );
 
 $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 
+
 ?>
 
     <div id="main-content">
         <?php /************** BREADCRUMBS **************/ ?>
-        <?php echo do_shortcode('[breadcrumbs]'); ?>
+        <?php echo do_shortcode('[breadcrumbs]');
+        // TODO: add the share slide out on this vendor profile page
+//        echo do_shortcode('[share_slide_out]'); ?>
         <div class="container">
             <div id="content-area" class="clearfix">
                 <div class="et_post_meta_wrapper">
@@ -157,7 +160,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 		
 		                        <?php endif; ?>
                             <?php $modal_id++; ?>
-                            <? endwhile; ?>
+                            <?php endwhile; ?>
                         <?php } // end of if statement ?>
 						<?php // website ?>
 						
@@ -517,6 +520,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 									<?php echo get_field( 'wedding_wire_reviews_html', get_the_ID() );
 								endif;
 								
+								/**** TODO: For in the press, check if this vendor was listed in ANY spotlight/wedding story/styled shoot, and if so, list it here with an additional meta_query argument **/
 								/******************** In the Press ********************/
 								if ( sizeof( $vendor_posts ) > 0 ) : ?>
                                     <h2><span id="in-the-press" class="sticky-top"></span><span class="vendor-header-triangle"></span>In the Press</h2>

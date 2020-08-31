@@ -34,7 +34,7 @@
 
   li {
     &.vendor-dropdown {
-      @media screen and (max-width: 545px) {
+      @media screen and (max-width: 980px) {
         display: none !important;
       }
     }
@@ -118,6 +118,9 @@
   padding-left: 20px !important;
   margin-top: 10px !important;
   margin-bottom: 10px !important;
+  @media screen and (max-width: 980px) {
+    display: none;
+  }
 }
 
 #menu-header-top-menu .header-search a::before {
@@ -226,38 +229,41 @@
 }
 
 #menu-header-top-menu {
-
   .hamburger-top-menu {
     display: none;
-    @media screen and (max-width: 1100px) {
+    @media screen and (min-width: 981px) and (max-width: 1099px) {
       display: flex;
-    }
-    &::before {
-      content: '';
-      background: url('/wp-content/plugins/fn-saw/public/img/hamburger-menu@2x.svg') 20px 15px;
-      width: 20px;
-      height: 15px;
-      display: block;
-      background-size: contain;
-      float: left;
-      margin-top: auto;
-      margin-bottom: auto;
-    }
+      margin-right: 15px;
+      &::before {
+        content: '';
+        background: url('/wp-content/plugins/fn-saw/public/img/hamburger-menu@2x.svg') 20px 15px;
+        width: 20px;
+        height: 15px;
+        display: block;
+        background-size: contain;
+        float: left;
+        margin-top: auto;
+        margin-bottom: auto;
+      }
 
-    ul.sub-menu {
-      margin-left: -185px;
-      width: 200px !important;
+      ul.sub-menu {
+        margin-left: -185px;
+        width: 200px !important;
 
-      li {
-        a {
-          width: unset !important;
+        li {
+          a {
+            width: unset !important;
+          }
+        }
+
+        &::before {
+          right: 0;
         }
       }
-      &::before {
-        right: 0;
-      }
+
     }
   }
+
   .vendor-login {
     @media screen and (max-width: 1100px) {
       border-right: 1px solid var(--medium-gray-color);
@@ -368,13 +374,290 @@
   top: 9px;
   right: 526px;
   @media screen and (max-width: 1100px) {
-    right: 55px;
+    right: 130px;
+  }
+  @media screen and (max-width: 980px) {
+    right: 130px;
   }
   @media screen and (max-width: 767px) {
     right: 22px;
   }
   @media screen and (max-width: 545px) {
     display: none !important;
+  }
+  min-width: 230px;
+  text-transform: uppercase;
+  padding-top: 5px;
+  background: #FFF;
+  height: 350px;
+  max-height: 350px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+
+  &.visible {
+    display: block;
+  }
+
+  p {
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+    font-weight: 500;
+    color: var(--red-color);
+    font-size: smaller;
+
+  }
+
+  ul.vendor-mega-menu {
+    padding: 0;
+    list-style-type: none;
+    overflow: scroll;
+    height: 341px;
+    @media screen and (max-width: 980px){
+      display: none;
+    }
+    &::before {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-bottom: 13px solid #FFF;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      content: '';
+      position: absolute;
+      top: -13px;
+      @media screen and (max-width: 980px) {
+        right: 50px;
+      }
+      @media screen and (min-width: 536px) and (max-width: 767px) {
+        right: 124px;
+      }
+      @media screen and (max-width: 535px) {
+        right: 90px;
+      }
+    }
+
+    li {
+      padding: 0 10px;
+      //text-align: center;
+      background: #FFF;
+      margin-bottom: 0;
+
+      &:hover {
+        background: var(--lightest-gray-color);
+      }
+
+      a {
+        display: inline-block;
+        font-size: 14px;
+        color: var(--charcoal-color);
+        border-top: 1px var(--main-teal-color) solid;
+        padding: 2px 10px;
+        width: 100%;
+      }
+    }
+  }
+}
+
+/***** Menu / Search / Vendor Dropdown for Tablet & Phone ******/
+#mid-nav-menu-tablet {
+  ul#menu-home-mid-nav-tablet {
+    & > li {
+      & > a {
+        &::after {
+          display: none;
+        }
+
+        &::before {
+          content: '';
+          background: url('/wp-content/plugins/fn-saw/public/img/hamburger-menu@2x.svg') 20px 15px;
+          width: 20px;
+          height: 15px;
+          display: block;
+          background-size: contain;
+          float: left;
+          margin-left: -1.6em;
+        }
+      }
+    }
+  }
+}
+
+.midnav-vendor-list-tablet {
+  min-width: 230px;
+  top: 6px;
+}
+
+#tablet-midnav-menu {
+  z-index: 0 !important;
+  &.et_pb_with_border {
+    margin-bottom: 0 !important;
+
+  }
+  #vendor-tablet-link {
+    &:hover {
+      background: transparent !important;
+    }
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .vendor-link-container {
+    border: none !important;
+  }
+}
+
+#tablet-midnav-menu {
+  @media screen and (max-width: 479px) {
+    .menu-link-container {
+      margin-bottom: 0 !important;
+    }
+  }
+}
+
+#mid-nav-bar-section {
+  @media screen and (max-width: 767px) {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  #tablet-midnav-menu {
+    @media screen and (max-width: 767px) {
+      // target .et-pb here
+      .menu-link-container {
+        width: 50% !important;
+        margin-right: 0;
+        margin-bottom: 0;
+      }
+      .vendor-link-container {
+        width: 50% !important;
+        margin-right: 0;
+        margin-bottom: 0;
+      }
+      .search-container {
+        width: 100%;
+        margin-bottom: 0;
+      }
+    }
+    @media screen and (min-width: 768px) and (max-width: 979px) {
+      .menu-link-container {
+        width: 25%;
+        margin-right: 0;
+        margin-bottom: 0;
+      }
+      .vendor-link-container {
+        width: 25%;
+        margin-right: 0;
+        margin-bottom: 0;
+      }
+      .search-container {
+        width: 50%;
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.vendor-link-container {
+  margin-bottom: 0 !important;
+}
+
+#mid-nav-menu-tablet {
+  margin-left: auto;
+  margin-right: auto;
+
+
+  .et_pb_menu__wrap {
+    width: 100%;
+
+    .et_pb_menu__menu {
+      width: 100%;
+
+      .et-menu-nav {
+        width: 100%;
+
+        #menu-home-mid-nav-tablet {
+          width: 100%;
+          justify-content: space-evenly;
+
+          li a::after {
+            display: none;
+          }
+
+          ul.sub-menu {
+            width: 220px;
+            top: 100%;
+            left: 10px;
+            border: none;
+            padding-top: 10px;
+            padding-bottom: 0;
+            background: transparent !important;
+
+            li {
+              background: #FFF;
+              margin-left: 0;
+              margin-bottom: 0 !important;
+              padding-left: 0;
+              padding-right: 0;
+
+              &:hover {
+                background: var(--lightest-gray-color);
+              }
+
+              &:last-child {
+                a {
+                  border-bottom: none;
+                  padding-bottom: 10px;
+                }
+              }
+
+              &:first-child {
+                a {
+                  padding-top: 10px;
+                }
+              }
+
+              a {
+                font-size: 15px;
+                padding: 0 10px;
+                margin-left: 10px;
+                margin-right: 10px;
+                border-bottom: 1px solid var(--main-teal-color);
+
+                &:hover {
+                  background: transparent;
+                  opacity: 1;
+                }
+              }
+            }
+
+            &::before {
+              display: inline-block;
+              width: 0;
+              height: 0;
+              border-bottom: 13px solid #FFF;
+              border-left: 10px solid transparent;
+              border-right: 10px solid transparent;
+              content: '';
+              position: absolute;
+              top: -3px;
+
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/***************************** VENDOR DROPDOWN MENU **********************************/
+.midnav-vendor-list, .midnav-vendor-list-tablet {
+  display: none;
+  position: absolute;
+  top: 9px;
+
+  @media screen and (max-width: 767px) {
+    left: unset;
+    right: 22px;
   }
   min-width: 230px;
   text-transform: uppercase;
@@ -414,11 +697,18 @@
       content: '';
       position: absolute;
       top: -13px;
+      @media screen and (min-width: 768px) and (max-width: 980px) {
+        right: 0;
+      }
       @media screen and (min-width: 536px) and (max-width: 767px) {
         right: 124px;
       }
-      @media screen and (max-width: 535px) {
+      @media screen and (min-width: 480px) and (max-width: 535px) {
         right: 90px;
+      }
+      @media screen and (max-width: 479px) {
+        right: unset;
+        left: 0;
       }
     }
 

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package FN_Extras
- * @version 1.2.4
+ * @version 1.2.5
  */
 
-define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.4' );
+define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.5' );
 
 /*** Ensuring AJAX Requests use SSL ****/
 add_filter( 'https_local_ssl_verify', '__return_true' );
@@ -34,9 +34,9 @@ function my_acf_json_load_point( $paths ) {
 /* Remove admin bar for editors (Actually, EVERYONE - need to do a check later for only editors) */
 if ( isset( wp_get_current_user()->ID ) && is_array( wp_get_current_user()->roles ) ) {
 	//check for admins
-	if ( in_array( 'vendor', wp_get_current_user()->roles ) || in_array('editor', wp_get_current_user()->roles) ) {
+	if ( in_array( 'vendor', wp_get_current_user()->roles ) || in_array( 'editor', wp_get_current_user()->roles ) ) {
 		// redirect them to the default place
-        show_admin_bar(false);
+		show_admin_bar( false );
 	}
 }
 
@@ -289,7 +289,7 @@ function fn_enqueue_scripts() {
 	wp_register_script( 'jpopup_modal', plugins_url( 'public/js/jpopup.min.js', __FILE__ ) );
 	
 	// Just for the Vendor Profile Page (save bandwidth elsewhere)
-	if ( get_post_type() == 'vendor_profile' || is_page('client-admin')) {
+	if ( get_post_type() == 'vendor_profile' || is_page( 'client-admin' ) ) {
 		wp_register_script( 'swiper_slider', '//unpkg.com/swiper/swiper-bundle.min.js', array(), null, false );
 		wp_register_script( 'popper', '//unpkg.com/@popperjs/core@2', array(), null, true );
 		wp_register_script( 'micromodal', plugins_url( 'public/js/micromodal.min.js', __FILE__ ), array(), null, true );
@@ -363,8 +363,9 @@ function my_login_redirect( $redirect_to, $request, $user ) {
 			);
 			$matching_profile = get_posts( $profile_args );
 			if ( sizeof( $matching_profile ) > 0 ) {
-			    // Set the session variable so we don't have to do ridiculous URL shenanigans
-                $_SESSION['vendor'] = $matching_profile[0]->ID;
+				// Set the session variable so we don't have to do ridiculous URL shenanigans
+				$_SESSION['vendor'] = $matching_profile[0]->ID;
+				
 				// we found a match, so let's send them to their profile page
 				return home_url( '/client-admin?ven_id=' . $matching_profile[0]->ID );
 			}
@@ -1834,7 +1835,7 @@ function vendor_list_styled() {
 				'id'             => get_sub_field( 'vendor' )
 			);
 		}
-		$html .= '<ul>';
+		$html .= '<ul class="styled-shoot-vendors">';
 		sort( $vendor_arr );
 		foreach ( $vendor_arr as $vendor ) {
 			$html .= '<li><span style="text-transform: uppercase;">' . $vendor['category_title'] . '</span>';
@@ -2242,7 +2243,11 @@ function render_local_fave_grid() {
                         el: ".swiper-pagination-faves",
                         clickable: true
                     },
-                    navigation: {
+                    loop: true,
+                    loopedSlides: ';
+	$html .= sizeof( $local_faves );
+	$html .= ',
+                        navigation: {
                         nextEl: ".swiper-button-next",
                         prevEl: ".swiper-button-prev"
                     }
@@ -2263,10 +2268,11 @@ function render_blog_buzz() {
 		'order'          => 'DESC'
 	);
 	$blog_posts = get_posts( $args );
-	
-	$html = '<div class="local-faves-container home-buzz">';
+	$count      = 1;
+	$html       = '<div class="local-faves-container home-buzz">';
 	foreach ( $blog_posts as $post ) {
-		$html  .= '<div class="individual-fave blog-buzz">';
+		
+		$html  .= '<div class="individual-fave blog-buzz' . ( $count == 4 ? ' last' : '' ) . '">';
 		$html  .= '<div class="local-fave-image">';
 		$image = get_field( 'header_image', $post->ID );
 		$html  .= '<img src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
@@ -2277,6 +2283,7 @@ function render_blog_buzz() {
 		$html .= '<a href="' . get_permalink( $post ) . '"><h3>' . $post->post_title . '</h3></a>';
 		$html .= '</div>'; // END .fave-title-container
 		$html .= '</div>'; // END .individual-fave
+		$count ++;
 	}
 	$html .= '</div>'; // END .local-faves-container
 	
@@ -2293,13 +2300,14 @@ function render_homepage_spotlights() {
 		'orderby'        => 'rand'
 	);
 	$spotlights = get_posts( $args );
-	$count      = 0;
+	$count      = 1;
 	$html       = '<div class="local-faves-container spotlight">';
 	foreach ( $spotlights as $spotlight ) {
 		/*if ( $count % 4 == 0 ) {
 			$html .= '</div><div class="local-faves-container spotlight">';
 		}*/
-		$html .= '<div class="individual-fave spotlight">';
+		$last = ( $count == 4 || $count == 8 ) ? ' last' : '';
+		$html .= '<div class="individual-fave spotlight' . $last . '">';
 		$html .= '<div class="local-fave-image">';
 		$html .= get_the_post_thumbnail( $spotlight->ID, array( 500, 500 ) );
 		$html .= '<a href="' . get_permalink( $spotlight ) . '"><div class="fave-image-overlay"></div></a>';
@@ -3374,7 +3382,7 @@ function render_archive_ajax( $atts ) {
 			'meta_key'       => 'is_active',
 			'meta_value'     => true,
 			'offset'         => $offset,
-			'orderby'        => ( $post_type == 'styled_shoot' ? 'rand(' . get_random_post() . ')' : 'date' )
+			'orderby'        => 'date'
 		);
 		$archive_posts = get_posts( $args );
 		$html          .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
@@ -3573,11 +3581,11 @@ function render_archive_ajax( $atts ) {
 		// The Load More Ajax Button
 		if ( $append == false ) {
 			// Store the category, since it won't be the queried object once we click the 'more' button
-			$cat = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
+			$cat    = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
+			$offset = $offset == 0 ? sizeof( $archive_posts ) : $offset;
 			if ( isset( $args['cat'] ) ) {
 				$this_category = get_term( $args['cat'], 'category' );
 				$count         = $this_category->count;
-				$offset        = $offset == 0 ? sizeof( $archive_posts ) : $offset;
 				if ( $offset < $count ) {
 					$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
 				}
@@ -3757,9 +3765,15 @@ function change_search_types( $query ) {
 		}
 	}
 	if ( ! is_admin() && $query->is_search ) {
-		$query->set( 'post_type', array( 'spotlight', 'wedding_story', 'styled_shoot', 'post', 'vendor_profile' ) );
-	} elseif ( $query->i ) {
-		return $query;
+		$query->set( 'post_type', array(
+			'page',
+			'spotlight',
+			'wedding_story',
+			'styled_shoot',
+			'post',
+			'vendor_profile'
+		) );
+		// TODO: Make sure that this search is searching name, category name, About Us, etc
 	}
 }
 
@@ -3808,6 +3822,7 @@ function get_random_post() {
 
 // Store how many ads we have displayed, to ensure we don't get repeats
 function get_ad_offset( $ad_type ) {
+	prefix_start_session();
 	switch ( $ad_type ) {
 		case 'category':
 			if ( ! isset( $_SESSION['ad_cat_offset'] ) ) {
@@ -3833,13 +3848,13 @@ function get_ad_offset( $ad_type ) {
 }
 
 // Reset 'adoffset' every pageload
-add_action( 'wp_head', 'reset_ad_offset' );
+add_action( 'wp_loaded', 'reset_ad_offset' );
 function reset_ad_offset() {
 	if ( isset( $_SESSION['ad_cat_offset'] ) ) {
-		$_SESSION['ad_cat_offset'] = - 1;
+		$_SESSION['ad_cat_offset'] = 0;
 	}
 	if ( isset( $_SESSION['ad_square_offset'] ) ) {
-		$_SESSION['ad_square_offset'] = - 1;
+		$_SESSION['ad_square_offset'] = 0;
 	}
 }
 
@@ -3880,8 +3895,8 @@ function render_banner_ad( $atts ) {
 //		'category'
 //	);
 //	$vendor_categories = $wpdb->get_results( $query );
-	
-	$today = date( 'Ymd' );
+	$meta_query_args = array();
+	$today           = date( 'Ymd' );
 	if ( $ad_type !== 'block' ) {
 		$meta_query_args = array(
 			'relation' => 'AND',
@@ -3909,31 +3924,82 @@ function render_banner_ad( $atts ) {
 	}
 //	$meta_query = new WP_Meta_Query( $meta_query_args );
 	
-	
 	$banner_args = array(
 		'post_type'      => 'banner',
 		'meta_query'     => $meta_query_args,
-		'posts_per_page' => 1,
-		'offset'         => get_ad_offset( $ad_type ),
+		'posts_per_page' => 999,
+//		'offset'         => get_ad_offset( $ad_type ),
 //		'meta_key'       => 'exposure_level', // highest exposure ads first
 //		'orderby'        => 'meta_value_num',
 		'orderby'        => 'rand(' . get_random_post() . ')',
 		'order'          => 'DESC'
 	);
-	$banner_ads  = new WP_Query( $banner_args );
+	if ( is_category() && $ad_type == 'category' ) {
+		// Find all Vendors in this Category
+		$vendor_args = array(
+			'post_type'      => 'vendor_profile',
+			'category__in'   => get_queried_object_id(),
+			'meta_key'       => 'is_active',
+			'meta_value'     => true,
+			'posts_per_page' => - 1
+		);
+		$vendors     = get_posts( $vendor_args );
+		$vendor_ids  = array();
+		foreach ( $vendors as $vendor ) {
+			array_push( $vendor_ids, $vendor->ID );
+		}
+		
+		
+		$banner_w_category = $banner_args;
+		// for checking that this ad is in the vendor ids array that has vendors in this page's category
+		array_push($banner_w_category['meta_query'], array(
+			'key'     => 'advertiser',
+			'compare' => 'IN',
+			'value'   => $vendor_ids
+		));
+		// opposite of the above comment
+		$banner_args['meta_query'][] = array(
+			'key'     => 'advertiser',
+			'compare' => 'NOT IN',
+			'value'   => $vendor_ids
+		);
+		$category_specific                = get_posts( $banner_w_category );
+		$banner_ads = get_posts( $banner_args );
+//		$combined_ads                      = array_merge( $category_specific, $banner_ads );
+		$combined_ads = $category_specific + $banner_ads;
+		if ( ! empty( $combined_ads ) ) {
+			$offset = get_ad_offset( 'category' );
+			if ( $offset < sizeof( $combined_ads ) ) {
+				$this_ad_id = $combined_ads[ $offset ]->ID;
+				$view_count = get_field( 'view_count', $this_ad_id );
+				update_field( 'view_count', $view_count + 1, $this_ad_id );
+				update_field( 'last_viewed', date( "Y-m-d H:i:s" ), $this_ad_id );
+				$image   = get_field( 'ad_banner', $this_ad_id );
+				$post_id = '';
+				$html    .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url', $this_ad_id ) . '" title="' . get_field( 'banner_name', $this_ad_id ) . '" alt="' . get_field( 'banner_name', $this_ad_id ) . '" target="_blank" ><img data-target-id="' . ( is_single() ? $this_post_id : '' ) . '" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
+			}
+		}
+		wp_reset_query();
+		
+		return $html;
+	} else {
+		$banner_args['offset']         = get_ad_offset( $ad_type );
+		$banner_args['posts_per_page'] = 1;
+		$banner_ads                    = get_posts( $banner_args );
+	}
 //    print_r($banner_ads); die();
 	$this_post_id = get_the_ID();
-	if ( $banner_ads->have_posts() ) {
-		while ( $banner_ads->have_posts() ) {
-			$banner_ads->the_post();
-			$view_count = get_field( 'view_count' );
-			update_field( 'view_count', $view_count + 1, get_the_ID() );
-			update_field( 'last_viewed', date( "Y-m-d H:i:s" ), get_the_ID() );
-			$image   = get_field( 'ad_banner' );
-			$post_id = '';
-			$html    .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url' ) . '" title="' . get_field( 'banner_name' ) . '" alt="' . get_field( 'banner_name' ) . '" target="_blank" ><img data-target-id="' . ( is_single() ? $this_post_id : '' ) . '" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
-			
+	if ( sizeof( $banner_ads ) >= 1 ) {
+		$this_ad_id = $banner_ads[0]->ID;
+		if ( is_category() && $ad_type == 'category' ) {
+			$this_ad_id = $banner_ads[ get_ad_offset( $ad_type ) ]->ID;
 		}
+		$view_count = get_field( 'view_count', $this_ad_id );
+		update_field( 'view_count', $view_count + 1, $this_ad_id );
+		update_field( 'last_viewed', date( "Y-m-d H:i:s" ), $this_ad_id );
+		$image   = get_field( 'ad_banner', $this_ad_id );
+		$post_id = '';
+		$html    .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url', $this_ad_id ) . '" title="' . get_field( 'banner_name', $this_ad_id ) . '" alt="' . get_field( 'banner_name', $this_ad_id ) . '" target="_blank" ><img data-target-id="' . ( is_single() ? $this_post_id : '' ) . '" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
 	}
 	wp_reset_query();
 	
@@ -3954,19 +4020,26 @@ function render_breadcrumbs() {
 	// find current lcoation and display breadcrumbs
 	$html = '<div class="breadcrumbs">';
 	$html .= '<a href="' . home_url() . '" rel="nofollow">San Antonio Weddings</a>';
-	if ( is_category() || is_single() ) {
+	if ( is_category() || is_single() || is_archive() || is_home() ) {
 		if ( is_category() ) {
 			$html     .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
 			$category = get_queried_object();
 			$html     .= '<a href="' . $category->url . '">' . $category->name . '</a>';
-		}
-		if ( is_single() ) {
+		} elseif ( is_single() ) {
 			$post_type     = get_post_type();
 			$post_type_obj = get_post_type_object( $post_type );
 			$html          .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
 			$html          .= '<a href="' . get_post_type_archive_link( $post_type ) . '">' . $post_type_obj->label . '</a>';
 			$html          .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
 			$html          .= get_the_title();
+		} elseif ( is_archive() ) {
+			$html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
+			// get the archive slug to make a title
+			
+			$html .= substr( get_the_archive_title(), 10 );
+		} elseif ( is_home() ) {
+			$html .= " &nbsp;&nbsp;&#187;&nbsp;&nbsp; ";
+			$html .= 'Blog';
 		}
 	} elseif ( is_page() ) {
 		$html .= "&nbsp;&nbsp;&#187;&nbsp;&nbsp;";
@@ -4187,18 +4260,26 @@ function create_update_user( $post_id ) {
 /* [company_name] */
 add_shortcode( 'client_add_name', 'render_company_name' );
 function render_company_name() {
-	if ( is_page( array('client-admin', 'client-admin/edit-my-profile', 'client-admin/reviews', 'client-admin/post-special-offers', 'client-admin/manage-my-photos', 'client-admin/manage-my-videos', 'client-admin/manage-my-audio') ) ) {
+	if ( is_page( array(
+		'client-admin',
+		'client-admin/edit-my-profile',
+		'client-admin/reviews',
+		'client-admin/post-special-offers',
+		'client-admin/manage-my-photos',
+		'client-admin/manage-my-videos',
+		'client-admin/manage-my-audio'
+	) ) ) {
 		// return the title from the Vendor PProfile
 		if ( isset( $_SESSION['vendor'] ) ) {
 			$vendor_id = $_SESSION['vendor'];
 			
 			return get_the_title( $vendor_id );
 		} elseif ( isset( $_GET['ven_id'] ) ) {
-		    $vendor_id = $_GET['ven_id'];
-		    $_SESSION['vendor'] = $vendor_id;
-		    
-		    return get_the_title( $vendor_id );
-        }
+			$vendor_id          = $_GET['ven_id'];
+			$_SESSION['vendor'] = $vendor_id;
+			
+			return get_the_title( $vendor_id );
+		}
 	}
 	
 	return 'company_name';
@@ -4206,7 +4287,15 @@ function render_company_name() {
 
 add_shortcode( 'client_last_login', 'render_last_login' );
 function render_last_login() {
-	if ( is_page( array('client-admin', 'client-admin/edit-my-profile', 'client-admin/reviews', 'client-admin/post-special-offers', 'client-admin/manage-my-photos', 'client-admin/manage-my-videos', 'client-admin/manage-my-audio') ) ) {
+	if ( is_page( array(
+		'client-admin',
+		'client-admin/edit-my-profile',
+		'client-admin/reviews',
+		'client-admin/post-special-offers',
+		'client-admin/manage-my-photos',
+		'client-admin/manage-my-videos',
+		'client-admin/manage-my-audio'
+	) ) ) {
 		// return the current user's last log in
 		if ( ! empty( get_user_meta( get_current_user_id(), 'last_login' ) ) ) {
 			$last_login = new DateTime( get_user_meta( get_current_user_id(), 'last_login', true ) );
@@ -4238,8 +4327,8 @@ function render_grouped_businesses() {
 	if ( isset( $_GET['ven_id'] ) ) {
 		$vendor_id = $_GET['ven_id'];
 		// Get the URL variable, and set it as the SESSION variable to be used elsewhere in the client admin
-        $_SESSION['vendor'] = $vendor_id;
-		$group     = get_field( 'field_5ef38ad886d53', $vendor_id ) ? get_field( 'field_5ef38ad886d53', $vendor_id ) : false;
+		$_SESSION['vendor'] = $vendor_id;
+		$group              = get_field( 'field_5ef38ad886d53', $vendor_id ) ? get_field( 'field_5ef38ad886d53', $vendor_id ) : false;
 		if ( $group !== false ) {
 			$meta_query_args = array(
 				'relation' => 'AND',
@@ -4308,6 +4397,7 @@ function render_oembed_container() {
             });
         })
     </script>';
+	
 	return $html;
 }
 
@@ -4319,13 +4409,13 @@ function my_ajax_getoembed() {
 		$url         = $_GET['videoUrl'];
 		$json_return = array(
 			'oembedhtml' => wp_oembed_get( $url )
-	    );
+		);
 		echo json_encode( $json_data );
 	}
 }
 
 /***** Client Profile Edit Form ******/
-add_shortcode('client_edit_profile', 'render_client_profile');
+add_shortcode( 'client_edit_profile', 'render_client_profile' );
 function render_client_profile() {
 	if ( isset( $_SESSION['vendor'] ) ) {
 		$vendor_id = $_SESSION['vendor'];
@@ -4335,25 +4425,26 @@ function render_client_profile() {
 			'updated_message'       => 'Profile successfully updated!',
 			'instruction_placement' => 'field',
 			'kses'                  => false,
-            'field_groups'          => array('group_5ea5e1660e57b'),    // notate the field groups we want to show up on this page
-            'fields'                => array(  // specify which fields we want showing up on this page
-                'field_5ef38a0f3e966', // subject line
-                'field_5ef2ead7c9a36', // email address
-                'field_5f178ce570d27', // Email Bcc
-                'field_5f178d0870d28', // Email Cc
-                'field_5ef2bfc8549e8', // Business Ph Number
-                'field_5ef2c14d549e9', // Text Ph Number
-                'field_5ea5e3634209a', // Website
-                'field_5ea5e1a242098', // Address
-                'field_5ededd58345cf', // Google Map
-                'field_5f178dea0a9ca', // Extra Addresses
-                'field_5ea5e38b4209b', // About Us
-                'field_5ea5edb7abab3', // Facebook
-                'field_5ea5edd3abab4', // Pinterest
-                'field_5ea5ede7abab5', // Instagram
-                'field_5f48226f478c0', // Twitter,
-                'field_5f482286478c1' // YouTube
-            )
+			'field_groups'          => array( 'group_5ea5e1660e57b' ),
+			// notate the field groups we want to show up on this page
+			'fields'                => array(  // specify which fields we want showing up on this page
+				'field_5ef38a0f3e966', // subject line
+				'field_5ef2ead7c9a36', // email address
+				'field_5f178ce570d27', // Email Bcc
+				'field_5f178d0870d28', // Email Cc
+				'field_5ef2bfc8549e8', // Business Ph Number
+				'field_5ef2c14d549e9', // Text Ph Number
+				'field_5ea5e3634209a', // Website
+				'field_5ea5e1a242098', // Address
+				'field_5ededd58345cf', // Google Map
+				'field_5f178dea0a9ca', // Extra Addresses
+				'field_5ea5e38b4209b', // About Us
+				'field_5ea5edb7abab3', // Facebook
+				'field_5ea5edd3abab4', // Pinterest
+				'field_5ea5ede7abab5', // Instagram
+				'field_5f48226f478c0', // Twitter,
+				'field_5f482286478c1' // YouTube
+			)
 		);
 		$html      = '<h2>' . get_the_title( $vendor_id ) . '</h1>';
 		ob_start();
@@ -4369,138 +4460,144 @@ function render_client_profile() {
 }
 
 /***** Client Special Offer Form ******/
-add_shortcode('client_special_offers', 'render_special_offer_one');
+add_shortcode( 'client_special_offers', 'render_special_offer_one' );
 function render_special_offer_one() {
 	if ( isset( $_SESSION['vendor'] ) ) {
 		$vendor_id = $_SESSION['vendor'];
-	    // check if this vendor has special offers already, and display them, if they do
-        $so_args = array(
-            'post_type' => 'special_offers',
-            'meta_query' => array(
-                'relation' => 'AND',
-                array(
-                    'key' => 'is_active',
-                    'value' => true
-                ),
-                array(
-                    'key' => 'vendor',
-                    'value' => $vendor_id,
-                    'compare' => '='
-                )
-            ),
-            'post_status' => 'publish'
-        );
-        $num_offers = 0;
-        $client_offers = get_posts($so_args);
-        $num_offers = sizeof($client_offers);
-    
+		// check if this vendor has special offers already, and display them, if they do
+		$so_args       = array(
+			'post_type'   => 'special_offers',
+			'meta_query'  => array(
+				'relation' => 'AND',
+				array(
+					'key'   => 'is_active',
+					'value' => true
+				),
+				array(
+					'key'     => 'vendor',
+					'value'   => $vendor_id,
+					'compare' => '='
+				)
+			),
+			'post_status' => 'publish'
+		);
+		$num_offers    = 0;
+		$client_offers = get_posts( $so_args );
+		$num_offers    = sizeof( $client_offers );
+		
 		$html = '<h1 class="offer-one">Add Special Offer #1</h1>';
 		$html .= '<p>Add your offers here, only 2 Special Offers can be active at one time.</p>';
 		$html .= '<hr>';
-        if ($num_offers <= 1) {
-	        // check for existing special offer
-            if ($num_offers == 1) {
-	            $offer_one_args      = array(
-		            'post_id'               => $client_offers[0]->ID,
-		            'post_title'            => true,
-		            'submit_value'          => 'Submit Special Offer',
-		            'instruction_placement' => 'field',
-		            'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
-                    'field_groups'           => array('group_5ea5df8402ad5'),
-                    'fields'                => array(
-                        'field_5f0c7b5a63866', // is_active
-                        'field_5f0c775c87ccb', // permanent_promotion
-                        'field_5f0c76de4e3b8', // offer start date
-                        'field_5ea5df9130037', // offer end date
-                        'field_5f0c75664e3b7', // description
-                        'field_5ea5dfd030038'  // reply email
-                    )
-	            );
-	            ob_start();
-	            acf_form( $offer_one_args );
-	            $html .= ob_get_contents();
-	            ob_end_clean();
-            }
-            $html .= '<h1 class="offer-two">Add Special Offer #2</h1>';
-            $html .= '<hr>';
-            $new_offer_args      = array(
-		        'post_id'               => 'new_post',
-		        'post_title'            => true,
-		        'new_post'              => array(
-			        'post_type'   => 'special_offers',
-			        'post_status' => 'publish'
-		        ),
-		        'submit_value'          => 'Submit Special Offer',
-		        'instruction_placement' => 'field',
-		        'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
-                'field_groups'           => array('group_5ea5df8402ad5'),
-                    'fields'                => array(
-		        'field_5f0c7b5a63866', // is_active
-		        'field_5f0c775c87ccb', // permanent_promotion
-		        'field_5f0c76de4e3b8', // offer start date
-		        'field_5ea5df9130037', // offer end date
-		        'field_5f0c75664e3b7', // description
-		        'field_5ea5dfd030038'  // reply email
-	        )
-	        );
-	        ob_start();
-	        acf_form( $new_offer_args );
-	        $html .= ob_get_contents();
-	        ob_end_clean();
-	        
-	        return $html;
-        } elseif ($num_offers == 2) {
-	        $offer_one_args = array(
-		        'post_id'               => $client_offers[0]->ID,
-		        'post_title'            => true,
-		        'submit_value'          => 'Submit Special Offer',
-		        'updated_message'       => 'Special Offer Updated!',
-		        'instruction_placement' => 'field',
-		        'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
-                'field_groups'          => array('group_5ea5df8402ad5'),
-                'fields'                => array(
-		            'field_5f0c7b5a63866', // is_active
-		            'field_5f0c775c87ccb', // permanent_promotion
-		            'field_5f0c76de4e3b8', // offer start date
-		            'field_5ea5df9130037', // offer end date
-		            'field_5f0c75664e3b7', // description
-		            'field_5ea5dfd030038'  // reply email
-	            )
-	        );
-	        $html .= '<h1 class="offer-two">Add Special Offer #2</h1>';
-	        $html .= '<hr>';
-	        $offer_two_args = array(
-		        'post_id'               => $client_offers[1]->ID,
-		        'post_title'            => true,
-		        'submit_value'          => 'Submit Special Offer',
-		        'updated_message'       => 'Special Offer Updated!',
-		        'instruction_placement' => 'field',
-		        'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
-                'field_groups'          => array('group_5ea5df8402ad5'),
-                'fields'                => array(
-		            'field_5f0c7b5a63866', // is_active
-		            'field_5f0c775c87ccb', // permanent_promotion
-		            'field_5f0c76de4e3b8', // offer start date
-		            'field_5ea5df9130037', // offer end date
-		            'field_5f0c75664e3b7', // description
-		            'field_5ea5dfd030038'  // reply email
-	            )
-	        );
-	        ob_start();
-	        acf_form( $offer_one_args );
-	        acf_form( $offer_two_args );
-	        $html .= ob_get_contents();
-	        ob_end_clean();
-	
-	        return $html;
-        }
+		if ( $num_offers <= 1 ) {
+			// check for existing special offer
+			$new_offer_args = array(
+				'post_id'               => 'new_post',
+				'post_title'            => true,
+				'new_post'              => array(
+					'post_type'   => 'special_offers',
+					'post_status' => 'publish'
+				),
+				'submit_value'          => 'Submit Special Offer',
+				'instruction_placement' => 'field',
+				'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+				'field_groups'          => array( 'group_5ea5df8402ad5' ),
+				'fields'                => array(
+					'field_5f0c7b5a63866', // is_active
+					'field_5f0c775c87ccb', // permanent_promotion
+					'field_5f0c76de4e3b8', // offer start date
+					'field_5ea5df9130037', // offer end date
+					'field_5f0c75664e3b7', // description
+					'field_5ea5dfd030038'  // reply email
+				)
+			);
+			if ( $num_offers == 1 ) {
+				$offer_one_args = array(
+					'post_id'               => $client_offers[0]->ID,
+					'post_title'            => true,
+					'submit_value'          => 'Submit Special Offer',
+					'instruction_placement' => 'field',
+					'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+					'field_groups'          => array( 'group_5ea5df8402ad5' ),
+					'fields'                => array(
+						'field_5f0c7b5a63866', // is_active
+						'field_5f0c775c87ccb', // permanent_promotion
+						'field_5f0c76de4e3b8', // offer start date
+						'field_5ea5df9130037', // offer end date
+						'field_5f0c75664e3b7', // description
+						'field_5ea5dfd030038'  // reply email
+					)
+				);
+				
+			} else {
+				$offer_one_args = $new_offer_args;
+			}
+			
+			ob_start();
+			acf_form( $offer_one_args );
+			$html .= ob_get_contents();
+			ob_end_clean();
+			
+			$html .= '<h1 class="offer-two">Add Special Offer #2</h1>';
+			$html .= '<hr>';
+			
+			ob_start();
+			acf_form( $new_offer_args );
+			$html .= ob_get_contents();
+			ob_end_clean();
+			
+			return $html;
+		} elseif ( $num_offers == 2 ) {
+			$offer_one_args = array(
+				'post_id'               => $client_offers[0]->ID,
+				'post_title'            => true,
+				'submit_value'          => 'Submit Special Offer',
+				'updated_message'       => 'Special Offer Updated!',
+				'instruction_placement' => 'field',
+				'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+				'field_groups'          => array( 'group_5ea5df8402ad5' ),
+				'fields'                => array(
+					'field_5f0c7b5a63866', // is_active
+					'field_5f0c775c87ccb', // permanent_promotion
+					'field_5f0c76de4e3b8', // offer start date
+					'field_5ea5df9130037', // offer end date
+					'field_5f0c75664e3b7', // description
+					'field_5ea5dfd030038'  // reply email
+				)
+			);
+			$html           .= '<h1 class="offer-two">Add Special Offer #2</h1>';
+			$html           .= '<hr>';
+			$offer_two_args = array(
+				'post_id'               => $client_offers[1]->ID,
+				'post_title'            => true,
+				'submit_value'          => 'Submit Special Offer',
+				'updated_message'       => 'Special Offer Updated!',
+				'instruction_placement' => 'field',
+				'return'                => '/client-admin/post-special-offers?ven_id=' . $vendor_id,
+				'field_groups'          => array( 'group_5ea5df8402ad5' ),
+				'fields'                => array(
+					'field_5f0c7b5a63866', // is_active
+					'field_5f0c775c87ccb', // permanent_promotion
+					'field_5f0c76de4e3b8', // offer start date
+					'field_5ea5df9130037', // offer end date
+					'field_5f0c75664e3b7', // description
+					'field_5ea5dfd030038'  // reply email
+				)
+			);
+			ob_start();
+			acf_form( $offer_one_args );
+			acf_form( $offer_two_args );
+			$html .= ob_get_contents();
+			ob_end_clean();
+			
+			return $html;
+		}
 	} else {
 		//Handle the case where there is no parameter
 		return 'Something went wrong...';
 	}
 }
 
-add_shortcode('client_reviews', 'render_wedding_wire');
+add_shortcode( 'client_reviews', 'render_wedding_wire' );
 function render_wedding_wire() {
 	if ( isset( $_SESSION['vendor'] ) ) {
 		$vendor_id = $_SESSION['vendor'];
@@ -4509,7 +4606,8 @@ function render_wedding_wire() {
 			'updated_message'       => 'WeddingWire Review successfully updated!',
 			'instruction_placement' => 'field',
 			'kses'                  => false,
-			'field_groups'          => array('group_5ea5e1660e57b'),    // notate the field groups we want to show up on this page
+			'field_groups'          => array( 'group_5ea5e1660e57b' ),
+			// notate the field groups we want to show up on this page
 			'fields'                => array(  // specify which fields we want showing up on this page
 				'field_5ea5e3b74209c', // WeddingWire Reviews
 			)
@@ -4528,7 +4626,7 @@ function render_wedding_wire() {
 }
 
 /*** MANAGE PHOTOS ****/
-add_shortcode('client_featured_image', 'render_client_thumbnail');
+add_shortcode( 'client_featured_image', 'render_client_thumbnail' );
 function render_client_thumbnail() {
 	if ( isset( $_SESSION['vendor'] ) ) {
 		$vendor_id = $_SESSION['vendor'];
@@ -4537,7 +4635,8 @@ function render_client_thumbnail() {
 			'updated_message'       => 'Featured Image Updated!',
 			'instruction_placement' => 'field',
 			'kses'                  => false,
-			'field_groups'          => array('group_5eebe4fe60795'),    // notate the field groups we want to show up on this page
+			'field_groups'          => array( 'group_5eebe4fe60795' ),
+			// notate the field groups we want to show up on this page
 			'fields'                => array(  // specify which fields we want showing up on this page
 				'field_5eebe5163383a', // WeddingWire Reviews
 			)
@@ -4554,7 +4653,7 @@ function render_client_thumbnail() {
 	}
 }
 
-add_shortcode('client_photo_gallery_images', 'render_client_gallery');
+add_shortcode( 'client_photo_gallery_images', 'render_client_gallery' );
 function render_client_gallery() {
 	if ( isset( $_SESSION['vendor'] ) ) {
 		$vendor_id = $_SESSION['vendor'];
@@ -4563,7 +4662,8 @@ function render_client_gallery() {
 			'updated_message'       => 'Photo Gallery Updated!',
 			'instruction_placement' => 'field',
 			'kses'                  => false,
-			'field_groups'          => array('group_5e9d079710a9c'),    // notate the field groups we want to show up on this page
+			'field_groups'          => array( 'group_5e9d079710a9c' ),
+			// notate the field groups we want to show up on this page
 			'fields'                => array(  // specify which fields we want showing up on this page
 				'field_5e9d07b835e2e', // WeddingWire Reviews
 			)
@@ -4580,7 +4680,7 @@ function render_client_gallery() {
 	}
 }
 
-add_shortcode('client_video_gallery', 'render_video_gallery');
+add_shortcode( 'client_video_gallery', 'render_video_gallery' );
 function render_video_gallery() {
 	if ( isset( $_SESSION['vendor'] ) ) {
 		$vendor_id = $_SESSION['vendor'];
@@ -4589,10 +4689,11 @@ function render_video_gallery() {
 			'updated_message'       => 'Video Gallery Updated!',
 			'instruction_placement' => 'field',
 			'kses'                  => false,
-			'field_groups'          => array('group_5e9d079710a9c'),    // notate the field groups we want to show up on this page
+			'field_groups'          => array( 'group_5e9d079710a9c' ),
+			// notate the field groups we want to show up on this page
 			'fields'                => array(  // specify which fields we want showing up on this page
 				'field_5e9d089c35e30', // WeddingWire Reviews
-                'field_5f29b35c9df4d'  // videos or photos first?
+				'field_5f29b35c9df4d'  // videos or photos first?
 			)
 		);
 		ob_start();
@@ -4608,32 +4709,61 @@ function render_video_gallery() {
 }
 
 /******** Client Admin Left Navigation Buttons *********/
-add_shortcode('client_admin_nav_buttons', 'render_client_nav');
+add_shortcode( 'client_admin_nav_buttons', 'render_client_nav' );
 function render_client_nav() {
-    // Display each of the client admin buttons as a Nav item
-    $client_pages = array(
-        'My Dashboard' => 'client-admin',
-        'Edit My Profile' => 'client-admin/edit-my-profile',
-        'Post Your Special Offers' => 'client-admin/post-special-offers',
-        'Manage My Photos' => 'client-admin/manage-my-photos',
-        'Manage My Audio' => 'client-admin/manage-my-audio',
-        'WeddingWire Reviews' => 'client-admin/reviews',
-        'Submit an Event' => 'client-admin/submit-event',
-        //'My Comparison Guides' => 'client-admin/my-comparison-guides',
-        'Wedding Story Submission' => 'submissions',
-        'Marketing Icons' => 'marketing-badge-icons'
-    );
-    
-    $html = '<div id="client-admin-nav">';
-    // Loop through each of these Pages, and make a button for each
-    foreach ($client_pages as $title => $url) {
-        // add the 'ven_id' to the URL for each link so that it will work properly around the admin
-        $vendor_id = isset($_GET['ven_id']) ? '?ven_id=' . $_GET['ven_id'] : '';
-        $active = get_post_field('post_name') == $url ? 'active' : '';
-        $new_window = in_array($url, ['submissions', 'marketing-badge-icons']) ? ' target="_blank"' : '';
-	    $html .= '<div class="client-nav-button"><a class="' . $active . '" href="/' . $url . ($new_window == '' ? $vendor_id : '') . '" data-icon="9"' . $new_window . '>' . $title . '</a></div>';
-    }
-    $html .= '</div>';
-    
-    return $html;
+	// Display each of the client admin buttons as a Nav item
+	$client_pages = array(
+		'My Dashboard'             => 'client-admin',
+		'Edit My Profile'          => 'client-admin/edit-my-profile',
+		'Post Your Special Offers' => 'client-admin/post-special-offers',
+		'Manage My Photos'         => 'client-admin/manage-my-photos',
+		'Manage My Audio'          => 'client-admin/manage-my-audio',
+		'WeddingWire Reviews'      => 'client-admin/reviews',
+		'Submit an Event'          => 'client-admin/submit-event',
+		//'My Comparison Guides' => 'client-admin/my-comparison-guides',
+		'Wedding Story Submission' => 'submissions',
+		'Marketing Icons'          => 'marketing-badge-icons'
+	);
+	
+	$html = '<div id="client-admin-nav">';
+	// Loop through each of these Pages, and make a button for each
+	foreach ( $client_pages as $title => $url ) {
+		// add the 'ven_id' to the URL for each link so that it will work properly around the admin
+		$vendor_id  = isset( $_GET['ven_id'] ) ? '?ven_id=' . $_GET['ven_id'] : '';
+		$active     = get_post_field( 'post_name' ) == $url ? 'active' : '';
+		$new_window = in_array( $url, [ 'submissions', 'marketing-badge-icons' ] ) ? ' target="_blank"' : '';
+		$html       .= '<div class="client-nav-button"><a class="' . $active . '" href="/' . $url . ( $new_window == '' ? $vendor_id : '' ) . '" data-icon="9"' . $new_window . '>' . $title . '</a></div>';
+	}
+	$html .= '</div>';
+	
+	return $html;
+}
+
+/*********** Client Audio Files ***********/
+add_shortcode( 'client_audio_files', 'render_audio_form' );
+function render_audio_form() {
+	$html = '';
+	// display the form to upload audio files here
+	if ( isset( $_SESSION['vendor'] ) ) {
+		$vendor_id = $_SESSION['vendor'];
+		$args      = array(
+			'post_id'               => $vendor_id,
+			'updated_message'       => 'Audio Files Updated!',
+			'instruction_placement' => 'field',
+			'kses'                  => false,
+			'field_groups'          => array( 'group_5ea5e1660e57b' ), // Vendor Information Form
+			// notate the field groups we want to show up on this page
+			'fields'                => array(  // specify which fields we want showing up on this page
+				'field_5f0256ed4c967', // Audio Files
+			)
+		);
+		ob_start();
+		acf_form( $args );
+		$html .= ob_get_contents();
+		ob_end_clean();
+	} else {
+		$html .= 'Something went wrong...';
+	}
+	
+	return $html;
 }

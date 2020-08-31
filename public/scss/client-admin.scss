@@ -24,23 +24,23 @@
         &:hover {
           border-color: var(--main-teal-color);
         }
-        &::after {
-          display: unset !important;
-        }
+        //&::after {
+        //  display: unset !important;
+        //}
       }
       &:hover {
         color: var(--red-color);
         border-color: var(--red-color);
         background: #FFF;
-        &::after {
-          display: unset !important;
-        }
+        //&::after {
+        //  display: unset !important;
+        //}
       }
-      &::after {
-        display: none !important;
-        font-family: 'ETmodules' !important;
-        content: attr(data-icon);
-      }
+      //&::after {
+      //  display: none !important;
+      //  font-family: 'ETmodules' !important;
+      //  content: attr(data-icon);
+      //}
     }
   }
 }
@@ -119,4 +119,8 @@ h1.offer-one, h1.offer-two {
 }
 h1.offer-two {
   padding-top: 20px;
+}
+/*** Make Audio Files 100% on Client Page ****/
+.audio-files {
+  width: 100% !important;
 }

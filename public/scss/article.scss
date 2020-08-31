@@ -5,18 +5,32 @@
 
 }
 
+/*** Vendor List Side Container */
+ul.styled-shoot-vendors {
+  padding: 0px 0px 0px 20px;
+  list-style-position: outside;
+  line-height: 1.4em;
+
+  li {
+    margin-bottom: 10px;
+  }
+}
+
 .article-content h4 {
   font-family: "Encode Sans", sans-serif;
   font-size: 18px;
   letter-spacing: 1px;
   line-height: 1em;
 }
+
 .single-spotlight .article-content h4, .single-styled_shoot h4 {
   color: var(--red-color);
 }
+
 .single-post .article-content h4 {
 
 }
+
 /* Individual Row */
 .article-content-row {
   display: flex;
@@ -33,6 +47,7 @@
 .article-two-columns {
   width: 49%;
 }
+
 .article-two-columns.last {
   margin-left: 2%;
 }
@@ -41,6 +56,7 @@
 .article-three-columns {
   width: 32%;
 }
+
 .article-three-columns.last {
   margin-left: 2%;
 }
@@ -50,9 +66,11 @@
   border-bottom: var(--light-gray-color) solid 2px;
   margin-bottom: 5px;
 }
+
 .article-image-block img {
   width: 100%;
 }
+
 .article-video-block.embed-container div {
   margin-bottom: 5px;
 }
@@ -65,6 +83,7 @@
   justify-content: space-evenly;
   padding: 5px;
 }
+
 .spotlight-widget-container .individual-spotlight {
   display: flex;
   flex-direction: row;
@@ -73,12 +92,15 @@
   border-bottom: 1px solid var(--light-gray-color);
   cursor: pointer;
 }
+
 .spotlight-widget-container .individual-spotlight:hover {
   background-color: var(--lightest-gray-color);
 }
+
 .spotlight-widget-container .individual-spotlight.last {
   border-bottom: none;
 }
+
 .spotlight-widget-container .left-half {
   width: 37%;
   display: flex;
@@ -86,10 +108,12 @@
   justify-content: center;
   align-items: center;
 }
+
 .spotlight-widget-container .left-half img {
   max-width: 100px;
   width: 90%;
 }
+
 .spotlight-widget-container .right-half {
   width: 63%;
   display: flex;
@@ -98,6 +122,7 @@
   padding: 0 5px 0 10px;
   line-height: 1em;
 }
+
 .spotlight-widget-container .right-half .title {
   font-family: "Encode Sans", sans-serif;
   font-size: 17px;
@@ -109,19 +134,23 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 .spotlight-widget-container .right-half .read-more {
   font-family: "Encode Sans", sans-serif;
   text-align: right;
   font-size: 13px;
   font-weight: 100;
 }
+
 .spotlight-widget-container .right-half .read-more a {
   color: var(--charcoal-color);
 }
+
 .spotlight-profile-gallery-button > div {
   display: flex;
   justify-content: space-around;
 }
+
 @media screen and (max-width: 767px) {
   .spotlight-profile-gallery-button > div {
     height: 90px;
@@ -130,22 +159,27 @@
     align-items: center;
   }
 }
+
 .spotlight-vendor-info-container svg {
   margin-right: 10px;
   color: var(--medium-gray-color);
   font-size: 1.6em;
 }
+
 .spotlight-vendor-info-container .vendor-profile-link {
   text-transform: uppercase;
 }
+
 .spotlight-vendor-info-container > div {
   padding-bottom: 1em;
   display: flex;
   align-content: center;
 }
+
 .spotlight-vendor-info-container .vendor-address svg {
   margin-right: 16px;
 }
+
 /* ******** SHARE SLIDER ********* */
 .press-social-slider {
   position: relative;
@@ -156,10 +190,12 @@
   right: -52px;
   /*width: calc(2.2em + 90px);*/
 }
+
 .press-social-slider.visible {
   transition: 0.3s all ease-in-out;
   right: 22px;
 }
+
 .press-social-slider .share-tab {
   position: absolute;
   top: -20px;
@@ -178,6 +214,7 @@
   color: white;
   cursor: pointer;
 }
+
 .press-social-slider .icon-container {
   background: var(--light-gray-color);
 
@@ -186,9 +223,11 @@
   justify-content: space-evenly;
   padding: 10px;
 }
+
 .press-social-slider .icon-container img {
   max-width: 55px;
 }
+
 .more-like-this-container {
   display: grid;
   width: calc(100% - 60px);
@@ -199,6 +238,7 @@
   grid-gap: 15px;
   margin-left: auto;
   margin-right: auto;
+
   &.home-buzz, &.spotlight {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -211,6 +251,7 @@
     grid-gap: 15px;
     width: 100%;
   }
+
   padding-top: calc(1300px * .016); // TODO: Change this for smaller widths
 
   .individual-fave {
@@ -220,9 +261,11 @@
     overflow: hidden;
     transition: 0.2s;
     height: auto;
+
     &.blog-buzz {
       background: var(--main-teal-color);
     }
+
     &.spotlight {
       background: var(--red-color);
     }

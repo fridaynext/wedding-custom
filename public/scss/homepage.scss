@@ -7,6 +7,7 @@
     }
   }
 }
+
 .home-slider-container {
   height: 100%;
   margin-top: 5px;
@@ -14,11 +15,13 @@
   @media screen and (max-width: 767px) {
     height: auto;
   }
+
   .swiper-pagination {
     bottom: 30px;
     @media screen and (max-width: 767px) {
       bottom: -6px;
     }
+
     .swiper-pagination-bullet {
       background: #FFF;
       opacity: 0.6;
@@ -26,15 +29,18 @@
         background: var(--main-teal-color);
       }
     }
+
     .swiper-pagination-bullet-active {
       background: var(--red-color);
       opacity: 1;
     }
   }
+
   .et_pb_code_inner {
     height: 100%;
     padding-bottom: 5px;
   }
+
   .swiper-slide {
     height: auto;
 
@@ -270,22 +276,29 @@
       }
     }
   }
+
   #home-mid-nav-left {
     .et_pb_menu__wrap {
       width: 100%;
+
       .et_pb_menu__menu {
         width: 100%;
+
         .et-menu-nav {
           width: 100%;
+
           #menu-home-mid-nav-computer-left {
             width: 100%;
             justify-content: space-evenly;
+
             .styled-shoot-menu {
               font-weight: 500;
             }
+
             li a::after {
               display: none;
             }
+
             ul.sub-menu {
               width: 220px;
               top: 100%;
@@ -294,37 +307,44 @@
               padding-top: 10px;
               padding-bottom: 0;
               background: transparent !important;
+
               li {
                 background: #FFF;
                 margin-left: 0;
                 padding-left: 0;
                 padding-right: 0;
                 margin-bottom: 0 !important;
+
                 &:hover {
                   background: var(--lightest-gray-color);
                 }
+
                 &.last {
                   a {
                     border-bottom: none;
                     padding-bottom: 10px;
                   }
                 }
+
                 &:first-child {
                   a {
                     padding-top: 10px;
                   }
                 }
+
                 a {
                   padding: 0 10px;
                   margin-left: 10px;
                   margin-right: 10px;
                   border-bottom: 1px solid var(--main-teal-color);
+
                   &:hover {
                     background: transparent;
                     opacity: 1;
                   }
                 }
               }
+
               &::before {
                 display: inline-block;
                 width: 0;
@@ -342,19 +362,25 @@
       }
     }
   }
+
   #home-mid-nav-right {
     .et_pb_menu__wrap {
       width: 100%;
+
       .et_pb_menu__menu {
         width: 100%;
+
         .et-menu-nav {
           width: 100%;
+
           #menu-home-mid-nav-computer-right {
             width: 100%;
             justify-content: space-evenly;
+
             li a::after {
               display: none;
             }
+
             ul.sub-menu {
               width: 220px;
               top: 100%;
@@ -363,37 +389,44 @@
               padding-top: 10px;
               padding-bottom: 0;
               background: transparent !important;
+
               li {
                 background: #FFF;
                 margin-left: 0;
                 margin-bottom: 0 !important;
                 padding-left: 0;
                 padding-right: 0;
+
                 &:hover {
                   background: var(--lightest-gray-color);
                 }
+
                 &.last {
                   a {
                     border-bottom: none;
                     padding-bottom: 10px;
                   }
                 }
+
                 &:first-child {
                   a {
                     padding-top: 10px;
                   }
                 }
+
                 a {
                   padding: 0 10px;
                   margin-left: 10px;
                   margin-right: 10px;
                   border-bottom: 1px solid var(--main-teal-color);
+
                   &:hover {
                     background: transparent;
                     opacity: 1;
                   }
                 }
               }
+
               &::before {
                 display: inline-block;
                 width: 0;
@@ -411,10 +444,12 @@
       }
     }
   }
+
   .home-search-submit:hover {
     cursor: pointer;
   }
 }
+
 /***************************** VENDOR DROPDOWN MENU **********************************/
 .midnav-vendor-list, .midnav-vendor-list-tablet {
   display: none;
@@ -452,6 +487,7 @@
     list-style-type: none;
     overflow: scroll;
     height: 341px;
+
     &::before {
       display: inline-block;
       width: 0;
@@ -469,14 +505,17 @@
         right: 90px;
       }
     }
+
     li {
       padding: 0 10px;
       //text-align: center;
       background: #FFF;
       margin-bottom: 0;
+
       &:hover {
         background: var(--lightest-gray-color);
       }
+
       a {
         display: inline-block;
         font-size: 14px;
@@ -488,6 +527,7 @@
     }
   }
 }
+
 #mid-nav-menu-tablet {
   ul#menu-home-mid-nav-tablet {
     & > li {
@@ -495,6 +535,7 @@
         &::after {
           display: none;
         }
+
         &::before {
           content: '';
           background: url('/wp-content/plugins/fn-saw/public/img/hamburger-menu@2x.svg') 20px 15px;
@@ -509,15 +550,18 @@
     }
   }
 }
+
 .midnav-vendor-list-tablet {
   min-width: 230px;
   top: 6px;
 }
+
 #mid-nav-bar-section {
   @media screen and (max-width: 767px) {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
   }
+
   #tablet-midnav-menu {
     @media screen and (max-width: 767px) {
       .menu-link-container {
@@ -557,16 +601,21 @@
 #mid-nav-menu-tablet {
   .et_pb_menu__wrap {
     width: 100%;
+
     .et_pb_menu__menu {
       width: 100%;
+
       .et-menu-nav {
         width: 100%;
+
         #menu-home-mid-nav-tablet {
           width: 100%;
           justify-content: space-evenly;
+
           li a::after {
             display: none;
           }
+
           ul.sub-menu {
             width: 220px;
             top: 100%;
@@ -575,38 +624,45 @@
             padding-top: 10px;
             padding-bottom: 0;
             background: transparent !important;
+
             li {
               background: #FFF;
               margin-left: 0;
               margin-bottom: 0 !important;
               padding-left: 0;
               padding-right: 0;
+
               &:hover {
                 background: var(--lightest-gray-color);
               }
+
               &:last-child {
                 a {
                   border-bottom: none;
                   padding-bottom: 10px;
                 }
               }
+
               &:first-child {
                 a {
                   padding-top: 10px;
                 }
               }
+
               a {
                 font-size: 15px;
                 padding: 0 10px;
                 margin-left: 10px;
                 margin-right: 10px;
                 border-bottom: 1px solid var(--main-teal-color);
+
                 &:hover {
                   background: transparent;
                   opacity: 1;
                 }
               }
             }
+
             &::before {
               display: inline-block;
               width: 0;
@@ -630,9 +686,11 @@
   padding-left: 30px;
   padding-right: 30px;
   width: 100%;
+
   .swiper-pagination {
     bottom: 0;
     z-index: 1000;
+
     .swiper-pagination-bullet {
       background: var(--main-teal-color);
       opacity: 0.7;
@@ -640,26 +698,32 @@
         background: var(--main-teal-color);
       }
     }
+
     .swiper-pagination-bullet-active {
       background: var(--red-color);
       opacity: 1;
     }
   }
+
   .swiper-button-next, .swiper-button-prev {
     color: var(--medium-gray-color);
   }
+
   .swiper-button-next {
     right: 0;
   }
+
   .swiper-button-prev {
     left: 0;
   }
 }
+
 .local-faves-container {
   display: flex;
   justify-content: space-between;
   width: calc(100% - 60px);
   height: 100%;
+
   &.home-buzz, &.spotlight {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -672,6 +736,7 @@
     grid-gap: 15px;
     width: 100%;
   }
+
   padding-top: calc(1300px * .016); // TODO: Change this for smaller widths
 
   .individual-fave {
@@ -681,11 +746,26 @@
     overflow: hidden;
     transition: 0.2s;
     height: auto;
+
     &.blog-buzz {
       background: var(--main-teal-color);
+
+      &.last {
+        @media screen and (min-width: 768px) and (max-width: 979px) {
+          display: none;
+        }
+      }
     }
+
     &.spotlight {
       background: var(--red-color);
+
+      &.last {
+        @media screen and (min-width: 768px) and (max-width: 979px) {
+          display: none;
+
+        }
+      }
     }
 
     &:hover {

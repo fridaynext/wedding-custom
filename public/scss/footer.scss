@@ -29,7 +29,7 @@
       li.privacy-policy {
         flex-basis: 50%;
         height: 0;
-        justify-content: right;
+        justify-content: flex-end;
         padding-right: 40px !important;
       }
       li.terms-conditions {
@@ -339,7 +339,7 @@
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--charcoal-color);
+  color: var(--charcoal-color) !important;
   padding: 10px 10px 10px 30px !important;
   line-height: 1em;
   font-size: 13px;
@@ -348,7 +348,7 @@
     font-weight: 300;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--charcoal-color);
+    color: var(--charcoal-color) !important;
     font-size: 13px;
   }
 }
