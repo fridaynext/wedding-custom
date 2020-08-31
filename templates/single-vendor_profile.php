@@ -290,7 +290,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 				
 				<?php
 				/* TODO: Do a check to see if these sections need to exist, then print their links and related sections */
-				$vendor_gallery = get_field( 'photo_gallery' );
+				$which_first = get_field('photos_videos_first'); // which to display first
+                $vendor_gallery = get_field( 'photo_gallery' );
 				$video_gallery  = get_field( 'videos' );
 				$about_vendor   = get_field( 'about_this_vendor' );
 				$special_offers = get_posts( array(
@@ -303,7 +304,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 					'post_type'  => array(
 						'spotlight',
 						'styled_shoot',         // this query is "in the press"
-						'wedding_story'
+						'wedding_story',
+                        'post'
 					),
 					'meta_key'   => 'vendor',
 					'meta_value' => get_the_ID()
@@ -452,6 +454,11 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                     }
                                                 }
                                             });
+                                            <?php if ($which_first == 'videos') : ?>
+                                            $(window).on('load', function() {
+                                                $('.video-button').trigger('click');
+                                            })
+                                            <?php endif; ?>
                                         })(jQuery)
                                     </script>
                                 <?php }
@@ -530,7 +537,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 										
 										// $vendor_posts is created at the top of this page while checking for nav bar menu items to display
 										
-										$post_types = [ 'spotlight', 'styled_shoot', 'wedding_story' ];
+										$post_types = [ 'spotlight', 'styled_shoot', 'wedding_story', 'post' ];
 										foreach ( $post_types as $this_type ) {
 											foreach ( $vendor_posts as $vendor_post ) {
 												if ( $vendor_post->post_type == $this_type ) { ?>
