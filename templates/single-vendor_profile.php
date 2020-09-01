@@ -12,30 +12,30 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 ?>
 
     <div id="main-content">
-        <?php /************** BREADCRUMBS **************/ ?>
-        <?php echo do_shortcode('[breadcrumbs]');
-        // TODO: add the share slide out on this vendor profile page
-//        echo do_shortcode('[share_slide_out]'); ?>
+		<?php /************** BREADCRUMBS **************/ ?>
+		<?php echo do_shortcode( '[breadcrumbs]' );
+		// TODO: add the share slide out on this vendor profile page
+		//        echo do_shortcode('[share_slide_out]'); ?>
         <div class="container">
             <div id="content-area" class="clearfix">
                 <div class="et_post_meta_wrapper">
                     <h1 class="entry-title"><?php the_title(); ?></h1>
 					
 					<?php
-				    // Update the profile_page_view_count and last_viewed every time this page is loaded
-                    $view_count = get_field('profile_page_view_count');
-                    update_field('profile_page_view_count', ++$view_count);
-                    update_field('profile_page_last_viewed', date( "Y-m-d H:i:s" ))
+					// Update the profile_page_view_count and last_viewed every time this page is loaded
+					$view_count = get_field( 'profile_page_view_count' );
+					update_field( 'profile_page_view_count', ++ $view_count );
+					update_field( 'profile_page_last_viewed', date( "Y-m-d H:i:s" ) )
 					// Display the address, 'Visit our Website', Phone (call), Phone ('text us now')
 					
 					// address
 					?>
                     <!-- Generator: Adobe Illustrator 24.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
                     <div class="vendor-meta">
-						<?php if ( get_field('address') ) :
-                            $address = get_field('address');
-                            if (! empty( $address['address_line_1'] ) && ! empty( $address['city'] ) && ! empty( $address['state'] )) :
-                                ?>
+						<?php if ( get_field( 'address' ) ) :
+							$address = get_field( 'address' );
+							if ( ! empty( $address['address_line_1'] ) && ! empty( $address['city'] ) && ! empty( $address['state'] ) ) :
+								?>
                                 <div class="vendor-address">
                                     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
                                          xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -50,22 +50,23 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                     C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
                     C14.36,11.99,12.69,13.69,10.63,13.69z"/>
                                                         </svg>
-                                    
-                                    <?php
-                                    $address_string = '';
-                                    $address_string .= ! empty( $address['address_line_1'] ) ? $address['address_line_1'] : '';
-                                    $address_string .= ! empty( $address['address_line_2'] ) ? ', ' . $address['address_line_2'] : '';
-                                    $address_string .= ! empty( $address['city'] ) ? ', ' . $address['city'] : '';
-                                    $address_string .= ! empty( $address['state'] ) ? ', ' . $address['state'] : '';
-                                    $address_string .= ! empty( $address['zip'] ) ? ' ' . $address['zip'] : '';
-                                    
-                                    ?>
-                                    <div class="vendor-address-text" data-micromodal-trigger="map-modal-1" onclick="MicroModal.show('map-modal-1', {awaitCloseAnimation:true})">
-                                        <?php echo $address_string; ?>
+									
+									<?php
+									$address_string = '';
+									$address_string .= ! empty( $address['address_line_1'] ) ? $address['address_line_1'] : '';
+									$address_string .= ! empty( $address['address_line_2'] ) ? ', ' . $address['address_line_2'] : '';
+									$address_string .= ! empty( $address['city'] ) ? ', ' . $address['city'] : '';
+									$address_string .= ! empty( $address['state'] ) ? ', ' . $address['state'] : '';
+									$address_string .= ! empty( $address['zip'] ) ? ' ' . $address['zip'] : '';
+									
+									?>
+                                    <div class="vendor-address-text" data-micromodal-trigger="map-modal-1"
+                                         onclick="MicroModal.show('map-modal-1', {awaitCloseAnimation:true})">
+										<?php echo $address_string; ?>
                                     </div>
                                 </div>
-                            <?php if ( get_field( 'vendor_google_map' ) ) : ?>
-                            <? // set up the MicroModal for beautiful popup ?>
+								<?php if ( get_field( 'vendor_google_map' ) ) : ?>
+								<? // set up the MicroModal for beautiful popup ?>
                                 <div id="map-modal-1" class="modal micromodal-slide" aria-hidden="true">
                                     <div class="modal__overlay" tabindex="-1" data-custom-close="map-modal-1">
                                         <div role="dialog" class="modal__container" aria-modal="true"
@@ -76,94 +77,104 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                         <span style="font-size:.8em;font-weight:400;text-transform:none;font-family:'Encode Sans Condensed',sans-serif;"><?php echo $address_string; ?></span>
                                                     </p>
                                                 </div>
-                                                <?php $location = get_field( 'vendor_google_map' ); ?>
+												<?php $location = get_field( 'vendor_google_map' ); ?>
                                                 <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo $location['lat'] . ',' . $location['lng']; ?>"
                                                    class="directions" target="_blank">Get Directions</a>
                                                 <button aria-label="Close modal" class="modal__close"
-                                                        data-custom-close="map-modal-1" onclick="MicroModal.close('map-modal-1',{awaitCloseAnimation:true})"></button>
+                                                        data-custom-close="map-modal-1"
+                                                        onclick="MicroModal.close('map-modal-1',{awaitCloseAnimation:true})"></button>
                                             </header>
                                             <div id="map-modal-1-content" class="acf-map modal__content" data-zoom="16">
-                                                <div class="marker" data-lat="<?php echo esc_attr( $location['lat'] ); ?>"
+                                                <div class="marker"
+                                                     data-lat="<?php echo esc_attr( $location['lat'] ); ?>"
                                                      data-lng="<?php echo esc_attr( $location['lng'] ); ?>"></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <?php endif; ?>
-                            <?php endif; ?>
+							<?php endif; ?>
+							<?php endif; ?>
 						<?php endif; ?>
 						
-                        <?php /******************** IF ADDITIONAL ADDRESSES, LIST THEM HERE ********************/ ?>
-                        <?php if( have_rows('addresses') ) {
-                            // there is at least one additional address, so loop through all the results
-                            $modal_id = 2;
-	                        while( have_rows('addresses') ) : the_row(); ?>
-		                        <div class="vendor-address">
-                                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                     viewBox="0 0 21 28" style="enable-background:new 0 0 21 28;"
-                                     xml:space="preserve">
+						<?php /******************** IF ADDITIONAL ADDRESSES, LIST THEM HERE ********************/ ?>
+						<?php if ( have_rows( 'addresses' ) ) {
+							// there is at least one additional address, so loop through all the results
+							$modal_id = 2;
+							while ( have_rows( 'addresses' ) ) : the_row(); ?>
+                                <div class="vendor-address">
+                                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                         xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                         viewBox="0 0 21 28" style="enable-background:new 0 0 21 28;"
+                                         xml:space="preserve">
                                                         <style type="text/css">
                                                             .st0 {
                                                                 fill: #8CBCBF;
                                                             }
                                                         </style>
-                                    <path class="st0" d="M10.64,0.38c-5.5,0-9.96,4.55-9.96,10.17c0,5.61,9.96,16.92,9.96,16.92s9.96-11.31,9.96-16.92
+                                        <path class="st0" d="M10.64,0.38c-5.5,0-9.96,4.55-9.96,10.17c0,5.61,9.96,16.92,9.96,16.92s9.96-11.31,9.96-16.92
                 C20.6,4.93,16.14,0.38,10.64,0.38z M10.63,13.69c-2.06,0-3.73-1.7-3.73-3.8c0-2.1,1.67-3.8,3.73-3.8c2.06,0,3.73,1.7,3.73,3.8
                 C14.36,11.99,12.69,13.69,10.63,13.69z"/>
                                                     </svg>
-								
-								<?php
-								$address        = get_sub_field( 'address' );
-								$address_string = '';
-								$address_string .= ! empty( $address['address_line_1'] ) ? $address['address_line_1'] : '';
-								$address_string .= ! empty( $address['address_line_2'] ) ? ', ' . $address['address_line_2'] : '';
-								$address_string .= ! empty( $address['city'] ) ? ', ' . $address['city'] : '';
-								$address_string .= ! empty( $address['state'] ) ? ', ' . $address['state'] : '';
-								$address_string .= ! empty( $address['zip'] ) ? ' ' . $address['zip'] : '';
-								
-								$map_modal_id = 'map-modal-' . $modal_id;
-								
-								?>
-                                <div class="vendor-address-text" data-micromodal-trigger="<?php echo $map_modal_id; ?>" onclick="MicroModal.show('<?php echo $map_modal_id; ?>', {awaitCloseAnimation:true})">
-                                    <?php echo $address_string; ?>
+									
+									<?php
+									$address        = get_sub_field( 'address' );
+									$address_string = '';
+									$address_string .= ! empty( $address['address_line_1'] ) ? $address['address_line_1'] : '';
+									$address_string .= ! empty( $address['address_line_2'] ) ? ', ' . $address['address_line_2'] : '';
+									$address_string .= ! empty( $address['city'] ) ? ', ' . $address['city'] : '';
+									$address_string .= ! empty( $address['state'] ) ? ', ' . $address['state'] : '';
+									$address_string .= ! empty( $address['zip'] ) ? ' ' . $address['zip'] : '';
+									
+									$map_modal_id = 'map-modal-' . $modal_id;
+									
+									?>
+                                    <div class="vendor-address-text"
+                                         data-micromodal-trigger="<?php echo $map_modal_id; ?>"
+                                         onclick="MicroModal.show('<?php echo $map_modal_id; ?>', {awaitCloseAnimation:true})">
+										<?php echo $address_string; ?>
+                                    </div>
                                 </div>
-                            </div>
-                            <?php /******************** IF ADDITIONAL Google Map, LIST THEM HERE ********************/ ?>
-		                        <?php if ( get_sub_field( 'vendor_google_map' ) ) : ?>
-			                        <? // set up the MicroModal for beautiful popup ?>
-                                    <div id="<?php echo $map_modal_id; ?>" class="modal micromodal-slide" aria-hidden="true">
-                                        <div class="modal__overlay" tabindex="-1" data-custom-close="<?php echo $map_modal_id; ?>">
+								<?php /******************** IF ADDITIONAL Google Map, LIST THEM HERE ********************/ ?>
+								<?php if ( get_sub_field( 'vendor_google_map' ) ) : ?>
+									<? // set up the MicroModal for beautiful popup ?>
+                                    <div id="<?php echo $map_modal_id; ?>" class="modal micromodal-slide"
+                                         aria-hidden="true">
+                                        <div class="modal__overlay" tabindex="-1"
+                                             data-custom-close="<?php echo $map_modal_id; ?>">
                                             <div role="dialog" class="modal__container" aria-modal="true"
                                                  aria-labelledby="<?php echo $map_modal_id; ?>">
                                                 <header class="modal__header">
                                                     <div id="<?php echo $map_modal_id; ?>-title" class="modal__title">
                                                         <p><?php echo get_the_title(); ?><br/>
                                                             <span style="font-size:.8em;font-weight:400;text-transform:none;font-family:'Encode Sans Condensed',sans-serif;">
-                                                                <?php $address_string .= ! empty( $address['business_phone_number'] ) ? '<br />' . $address['business_phone_number'] : ''; echo $address_string; ?>
+                                                                <?php $address_string .= ! empty( $address['business_phone_number'] ) ? '<br />' . $address['business_phone_number'] : '';
+                                                                echo $address_string; ?>
                                                             </span>
                                                         </p>
                                                     </div>
-							                        <?php $location = get_field( 'vendor_google_map' ); ?>
+													<?php $location = get_field( 'vendor_google_map' ); ?>
                                                     <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo $location['lat'] . ',' . $location['lng']; ?>"
                                                        class="directions" target="_blank">Get Directions</a>
                                                     <button aria-label="Close modal" class="modal__close"
-                                                            data-custom-close="<?php echo $map_modal_id; ?>" onclick="MicroModal.close('<?php echo $map_modal_id; ?>',{awaitCloseAnimation:true})"></button>
+                                                            data-custom-close="<?php echo $map_modal_id; ?>"
+                                                            onclick="MicroModal.close('<?php echo $map_modal_id; ?>',{awaitCloseAnimation:true})"></button>
                                                 </header>
-                                                <div id="<?php echo $map_modal_id; ?>-content" class="acf-map modal__content" data-zoom="16">
-                                                    <div class="marker" data-lat="<?php echo esc_attr( $location['lat'] ); ?>"
+                                                <div id="<?php echo $map_modal_id; ?>-content"
+                                                     class="acf-map modal__content" data-zoom="16">
+                                                    <div class="marker"
+                                                         data-lat="<?php echo esc_attr( $location['lat'] ); ?>"
                                                          data-lng="<?php echo esc_attr( $location['lng'] ); ?>"></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-		
-		                        <?php endif; ?>
-                            <?php $modal_id++; ?>
-                            <?php endwhile; ?>
-                        <?php } // end of if statement ?>
+								
+								<?php endif; ?>
+								<?php $modal_id ++; ?>
+							<?php endwhile; ?>
+						<?php } // end of if statement ?>
 						<?php // website ?>
-						
+
                         <div class="vendor-meta-second-line">
 
                             <div class="vendor-website meta-item">
@@ -176,91 +187,96 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                             </div>
 							
 							<?php // phone (call)
-							if( $phone_call = get_field( "business_phone_number" ) ) : ?>
-                            <div class="vendor-phone-call meta-item" data-micromodal-trigger="phone-modal" onclick="MicroModal.show('phone-modal', {awaitCloseAnimation:true})">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                    <path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"/>
-                                </svg>
-								<?php
-								$phone_call = get_field( "business_phone_number", get_the_ID() );
-								if ( preg_match( '/(\d{3})(\d{3})(\d{4})/', $phone_call, $matches ) ) {
-									$phone_call = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
-								}
-								?>
-                                <div class="vendor-phone-call-text">
-                                    <?php echo $phone_call; ?>
+							if ( $phone_call = get_field( "business_phone_number" ) ) : ?>
+                                <div class="vendor-phone-call meta-item" data-micromodal-trigger="phone-modal"
+                                     onclick="MicroModal.show('phone-modal', {awaitCloseAnimation:true})">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"/>
+                                    </svg>
+									<?php
+									$phone_call = get_field( "business_phone_number", get_the_ID() );
+									if ( preg_match( '/(\d{3})(\d{3})(\d{4})/', $phone_call, $matches ) ) {
+										$phone_call = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+									}
+									?>
+                                    <div class="vendor-phone-call-text">
+										<?php echo $phone_call; ?>
+                                    </div>
                                 </div>
-                            </div>
-							<?php /********** PHONE CALL MODAL **********/ ?>
-                            <div id="phone-modal" class="modal micromodal-slide" aria-hidden="true">
-                                <div class="modal__overlay" tabindex="-1" data-custom-close="phone-modal">
-                                    <div role="dialog" class="modal__container" aria-modal="true"
-                                         aria-labelledby="phone-modal">
-                                        <header class="modal__header">
-                                            <div id="phone-modal-title" class="modal__title">
-                                                <p>Mention that you found them on<br />San Antonio Weddings!</p>
+								<?php /********** PHONE CALL MODAL **********/ ?>
+                                <div id="phone-modal" class="modal micromodal-slide" aria-hidden="true">
+                                    <div class="modal__overlay" tabindex="-1" data-custom-close="phone-modal">
+                                        <div role="dialog" class="modal__container" aria-modal="true"
+                                             aria-labelledby="phone-modal">
+                                            <header class="modal__header">
+                                                <div id="phone-modal-title" class="modal__title">
+                                                    <p>Mention that you found them on<br/>San Antonio Weddings!</p>
+                                                </div>
+                                                <button aria-label="Close modal" class="modal__close"
+                                                        data-custom-close="phone-modal"
+                                                        onclick="MicroModal.close('phone-modal', {awaitCloseAnimation:true})"></button>
+                                            </header>
+                                            <div id="phone-modal-content" class="modal__content">
+                                                <div class="phone-number">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                                        <path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"/>
+                                                    </svg>
+                                                    <a href="tel:<?php echo $phone_call; ?>"><?php echo $phone_call; ?></a>
+                                                </div>
+                                                <p class="right-text">Click to Call</p>
+                                                <p class="didnt-get-in-touch">Didn't get in touch with them?</p>
+                                                <p class="teal"><a href="#">Email a Message</a></p>
                                             </div>
-                                            <button aria-label="Close modal" class="modal__close"
-                                                    data-custom-close="phone-modal" onclick="MicroModal.close('phone-modal', {awaitCloseAnimation:true})"></button>
-                                        </header>
-                                        <div id="phone-modal-content" class="modal__content">
-                                            <div class="phone-number">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                                <path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"/>
-                                                </svg>
-                                                <a href="tel:<?php echo $phone_call; ?>"><?php echo $phone_call; ?></a>
-                                            </div>
-                                            <p class="right-text">Click to Call</p>
-                                            <p class="didnt-get-in-touch">Didn't get in touch with them?</p>
-                                            <p class="teal"><a href="#">Email a Message</a></p>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 							<?php endif; ?>
 							<?php // phone (text)
-//                            print_r(get_field("text_phone_number", get_the_ID()));die();
-							if( $phone_text = get_post_meta( get_the_ID(), "text_phone_number" ) ) : ?>
-                            <div class="vendor-phone-text meta-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                    <path d="M144 208c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zM256 32C114.6 32 0 125.1 0 240c0 47.6 19.9 91.2 52.9 126.3C38 405.7 7 439.1 6.5 439.5c-6.6 7-8.4 17.2-4.6 26S14.4 480 24 480c61.5 0 110-25.7 139.1-46.3C192 442.8 223.2 448 256 448c141.4 0 256-93.1 256-208S397.4 32 256 32zm0 368c-26.7 0-53.1-4.1-78.4-12.1l-22.7-7.2-19.5 13.8c-14.3 10.1-33.9 21.4-57.5 29 7.3-12.1 14.4-25.7 19.9-40.2l10.6-28.1-20.6-21.8C69.7 314.1 48 282.2 48 240c0-88.2 93.3-160 208-160s208 71.8 208 160-93.3 160-208 160z"/>
-                                </svg>
-								<?php
-								$phone_text = get_post_meta( get_the_ID(), "text_phone_number", true );
-								if ( preg_match( '/(\d{3})(\d{3})(\d{4})/', $phone_text, $matches ) ) {
-									$phone_text = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
-								}
-								?>
-								<?php /* TODO: Change this to be a Twilio link for SMS capability! */ ?>
-                                <div class="vendor-phone-text-text"><a href="#" onclick="event.preventDefault();MicroModal.show('phone-text-modal', {awaitCloseAnimation:true})">Text Us Now</a></div>
-                            </div>
-                            
-                            <?php /********** PHONE TEXT MODAL **********/ ?>
-                            <div id="phone-text-modal" class="modal micromodal-slide" aria-hidden="true">
-                                <div class="modal__overlay" tabindex="-1" data-custom-close="phone-text-modal">
-                                    <div role="dialog" class="modal__container" aria-modal="true"
-                                         aria-labelledby="phone-text-modal">
-                                        <header class="modal__header">
-                                            <div id="phone-text-modal-title" class="modal__title">
-                                                <p>Text this vendor, and tell them you found<br />them on San Antonio Weddings!</p>
+							//                            print_r(get_field("text_phone_number", get_the_ID()));die();
+							if ( $phone_text = get_post_meta( get_the_ID(), "text_phone_number" ) ) : ?>
+                                <div class="vendor-phone-text meta-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path d="M144 208c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zm112 0c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32zM256 32C114.6 32 0 125.1 0 240c0 47.6 19.9 91.2 52.9 126.3C38 405.7 7 439.1 6.5 439.5c-6.6 7-8.4 17.2-4.6 26S14.4 480 24 480c61.5 0 110-25.7 139.1-46.3C192 442.8 223.2 448 256 448c141.4 0 256-93.1 256-208S397.4 32 256 32zm0 368c-26.7 0-53.1-4.1-78.4-12.1l-22.7-7.2-19.5 13.8c-14.3 10.1-33.9 21.4-57.5 29 7.3-12.1 14.4-25.7 19.9-40.2l10.6-28.1-20.6-21.8C69.7 314.1 48 282.2 48 240c0-88.2 93.3-160 208-160s208 71.8 208 160-93.3 160-208 160z"/>
+                                    </svg>
+									<?php
+									$phone_text = get_post_meta( get_the_ID(), "text_phone_number", true );
+									if ( preg_match( '/(\d{3})(\d{3})(\d{4})/', $phone_text, $matches ) ) {
+										$phone_text = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+									}
+									?>
+                                    <div class="vendor-phone-text-text"><a href="#"
+                                                                           onclick="event.preventDefault();MicroModal.show('phone-text-modal', {awaitCloseAnimation:true})">Text
+                                            Us Now</a></div>
+                                </div>
+							
+							<?php /********** PHONE TEXT MODAL **********/ ?>
+                                <div id="phone-text-modal" class="modal micromodal-slide" aria-hidden="true">
+                                    <div class="modal__overlay" tabindex="-1" data-custom-close="phone-text-modal">
+                                        <div role="dialog" class="modal__container" aria-modal="true"
+                                             aria-labelledby="phone-text-modal">
+                                            <header class="modal__header">
+                                                <div id="phone-text-modal-title" class="modal__title">
+                                                    <p>Text this vendor, and tell them you found<br/>them on San Antonio
+                                                        Weddings!</p>
+                                                </div>
+                                                <button aria-label="Close modal" class="modal__close"
+                                                        data-custom-close="phone-text-modal"
+                                                        onclick="MicroModal.close('phone-text-modal', {awaitCloseAnimation:true})"></button>
+                                            </header>
+                                            <div id="phone-text-modal-content" class="modal__content">
+												<?php gravity_form( 4, false, false, false, array( 'twilio_cell_number' => get_post_meta( get_the_ID(), 'text_phone_number', true ) ), true ); ?>
                                             </div>
-                                            <button aria-label="Close modal" class="modal__close"
-                                                    data-custom-close="phone-text-modal" onclick="MicroModal.close('phone-text-modal', {awaitCloseAnimation:true})"></button>
-                                        </header>
-                                        <div id="phone-text-modal-content" class="modal__content">
-                                            <?php gravity_form(4, false, false, false, array('twilio_cell_number' => get_post_meta(get_the_ID(), 'text_phone_number', true)), true); ?>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <script type="text/javascript">
-                                jQuery(document).on('load', function() {
-                                    MicroModal.init({
-                                        awaitCloseAnimation: true
-                                    });
-                                })
-                            </script>
-				            <?php endif; ?>
+                                <script type="text/javascript">
+                                    jQuery(document).on('load', function () {
+                                        MicroModal.init({
+                                            awaitCloseAnimation: true
+                                        });
+                                    })
+                                </script>
+							<?php endif; ?>
                         </div>
                     </div>
 					
@@ -290,8 +306,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 				
 				<?php
 				/* TODO: Do a check to see if these sections need to exist, then print their links and related sections */
-				$which_first = get_field('photos_videos_first'); // which to display first
-                $vendor_gallery = get_field( 'photo_gallery' );
+				$which_first    = get_field( 'photos_videos_first' ); // which to display first
+				$vendor_gallery = get_field( 'photo_gallery' );
 				$video_gallery  = get_field( 'videos' );
 				$about_vendor   = get_field( 'about_this_vendor' );
 				$special_offers = get_posts( array(
@@ -300,18 +316,41 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 					'meta_value' => get_the_ID() // ensures we're only getting special offers for this vendor
 				) );
 				$reviews        = get_field( 'wedding_wire_reviews_html' );
-				$vendor_posts   = get_posts( array(
+				// Meta Query for getting through the Vendors section of Wedding Stories & Styled Shoots
+				$wedding_styled_meta_query = array(
+					'relation' => 'AND',
+					array(
+						'key'   => 'vendors_%_vendor', // "vendors" repeater field
+						'value' => get_the_ID(), // the vendor ID in the database
+					),
+					array(
+						'key'     => 'is_active',
+						'value'   => true,  // Make sure the post we're looking at is actually active
+						'compare' => '='
+					)
+				);
+				$vendor_ws_ss_posts        = get_posts( array(
+					'post_type'  => array(
+						'wedding_story',
+						'styled_shoot'
+					),
+					'meta_query' => $wedding_styled_meta_query
+				) );
+				$vendor_posts              = get_posts( array(
 					'post_type'  => array(
 						'spotlight',
 						'styled_shoot',         // this query is "in the press"
 						'wedding_story',
-                        'post'
+						'post'
 					),
 					'meta_key'   => 'vendor',
 					'meta_value' => get_the_ID()
 				) );
+				$vendor_posts              = array_merge( $vendor_posts, $vendor_ws_ss_posts );
+				//				print_r($vendor_ws_ss_posts);
 				// TODO: Create a check for Comparison Guides! (Just hide it altogether for now)
-				$url_360 = get_field( '360-virtual-tour' );
+				$url_360  = get_field( '360-virtual-tour' );
+				$musician = get_field( 'music_vendor' );
 				
 				?>
 
@@ -319,19 +358,29 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                 <div class="vendor-sticky-nav">
                     <ul class="vendor-page-nav">
 						<?php if ( $vendor_gallery ) : ?>
-                            <li class="nav-item"><a class="sticky-nav" href="#vendor-gallery">Gallery</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#vendor-gallery">Gallery</a>
+                            </li><?php endif; ?>
 						<?php if ( $about_vendor ) : ?>
-                            <li class="nav-item"><a class="sticky-nav" href="#about-vendor">About</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#about-vendor">About</a>
+                            </li><?php endif; ?>
 						<?php if ( $special_offers ) : ?>
-                            <li class="nav-item"><a class="sticky-nav" href="#special-offers">Offers/Events</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#special-offers">Offers/Events</a>
+                            </li><?php endif; ?>
 						<?php if ( $reviews ) : ?>
-                            <li class="nav-item"><a class="sticky-nav" href="#vendor-reviews">Reviews</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#vendor-reviews">Reviews</a>
+                            </li><?php endif; ?>
 						<?php if ( $vendor_posts ) : ?>
-                            <li class="nav-item"><a class="sticky-nav" href="#in-the-press">In the Press</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#in-the-press">In the Press</a>
+                            </li><?php endif; ?>
+						<?php if ( $musician ) : ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#audio-files">Audio Files</a>
+                            </li><?php endif; ?>
 						<?php if ( false )  : //TODO: UPDATE ?>
-                            <li class="nav-item"><a class="sticky-nav" href="#comparison-guides">Comparison Guide</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#comparison-guides">Comparison Guide</a>
+                            </li><?php endif; ?>
 						<?php if ( $url_360 ) : ?>
-                            <li class="nav-item"><a class="sticky-nav" href="#360-tours">360° Tour</a></li><?php endif; ?>
+                            <li class="nav-item"><a class="sticky-nav" href="#360-tours">360° Tour</a>
+                            </li><?php endif; ?>
                     </ul>
                 </div>
 
@@ -355,8 +404,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								
 								/***************************** SWIPER JS PHOTO GALLERY ******************************/
 								// Insert the photo gallery, and video gallery
-                                $total = 0;
-                                $video_total = 0;
+								$total       = 0;
+								$video_total = 0;
 								if ( $vendor_gallery ) :
 									$size = "full";
 									
@@ -366,7 +415,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                         <div class="swiper-wrapper">
 											<?php foreach ( $vendor_gallery as $image_id ): ?>
                                                 <div class="swiper-slide">
-													<?php echo wp_get_attachment_image( $image_id, $size, false, array('loading' => false) ); ?>
+													<?php echo wp_get_attachment_image( $image_id, $size, false, array( 'loading' => false ) ); ?>
                                                 </div>
 											<?php endforeach; ?>
                                         </div>
@@ -375,107 +424,109 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                         <div class="swiper-button-prev"></div>
                                         <div class="swiper-button-next"></div>
                                     </div>
-                                
+								
 								<?php endif; ?>
-                                
-                                <?php if( $video_gallery && !empty($video_gallery[0]['video_url'])) {
-                                    $video_total = sizeof($video_gallery); ?>
+								
+								<?php if ( $video_gallery && ! empty( $video_gallery[0]['video_url'] ) ) {
+									$video_total = sizeof( $video_gallery ); ?>
                                     <div id="video-gallery" class="swiper-container s2">
                                         <div class="swiper-wrapper">
-			                                <?php foreach ( $video_gallery as $video ): ?>
+											<?php foreach ( $video_gallery as $video ): ?>
                                                 <div class="swiper-slide">
-					                                <?php echo $video['video_url']; ?>
+													<?php echo $video['video_url']; ?>
                                                 </div>
-			                                <?php endforeach; ?>
+											<?php endforeach; ?>
                                         </div>
                                         <div class="swiper-pagination"></div>
 
                                         <div class="swiper-button-prev s2"></div>
                                         <div class="swiper-button-next s2"></div>
                                     </div>
-                                
-                                <?php } ?>
-                                
-                                <?php /*********************** JS Buttons Swap between photos/videos ***************************/
-                                if( sizeof($vendor_gallery) > 0 ) { ?>
-                                   <div id="gallery-buttons">
-                                       <div class="photo-button is-active">
-                                           <div class="left-half">
-                                               <?php the_post_thumbnail( 'post-thumbnail', array('loading' => false) ); ?>
-                                               <div class="icon"></div>
-                                           </div>
-                                           <div class="right-half">
-                                               <h5>Photos</h5>
-                                               <span class="total-media"><?php echo $total; ?> Photos</span>
-                                           </div>
-                                       </div>
-                                       <?php if( $video_gallery && !empty($video_gallery[0]['video_url']) ) { ?>
-                                           <div class="video-button">
-                                               <div class="left-half">
-	                                               <?php the_post_thumbnail( 'post-thumbnail', array('loading' => false) ); ?>
-                                                   <div class="icon"><i class="far fa-play-circle"></i></div>
-                                               </div>
-                                               <div class="right-half">
-                                                   <h5>Videos</h5>
-                                                   <span class="total-media"><?php echo sizeof($video_gallery); echo sizeof($video_gallery) > 1 ? ' Videos' : ' Video'; ?></span>
-                                               </div>
-                                           </div>
-                                       <?php } ?>
-                                   </div>
+								
+								<?php } ?>
+								
+								<?php /*********************** JS Buttons Swap between photos/videos ***************************/
+								if ( sizeof( $vendor_gallery ) > 0 ) { ?>
+                                    <div id="gallery-buttons">
+                                        <div class="photo-button is-active">
+                                            <div class="left-half">
+												<?php the_post_thumbnail( 'post-thumbnail', array( 'loading' => false ) ); ?>
+                                                <div class="icon"></div>
+                                            </div>
+                                            <div class="right-half">
+                                                <h5>Photos</h5>
+                                                <span class="total-media"><?php echo $total; ?> Photos</span>
+                                            </div>
+                                        </div>
+										<?php if ( $video_gallery && ! empty( $video_gallery[0]['video_url'] ) ) { ?>
+                                            <div class="video-button">
+                                                <div class="left-half">
+													<?php the_post_thumbnail( 'post-thumbnail', array( 'loading' => false ) ); ?>
+                                                    <div class="icon"><i class="far fa-play-circle"></i></div>
+                                                </div>
+                                                <div class="right-half">
+                                                    <h5>Videos</h5>
+                                                    <span class="total-media"><?php echo sizeof( $video_gallery );
+														echo sizeof( $video_gallery ) > 1 ? ' Videos' : ' Video'; ?></span>
+                                                </div>
+                                            </div>
+										<?php } ?>
+                                    </div>
                                     <script type="text/javascript">
-                                        (function($) {
-                                            $('.photo-button').on('click', function(e) {
+                                        (function ($) {
+                                            $('.photo-button').on('click', function (e) {
                                                 e.preventDefault();
                                                 let photoGal = $('#photo-gallery');
                                                 let videoGal = $('#video-gallery');
-                                                
-                                                if(!photoGal.hasClass('visible')) {
+
+                                                if (!photoGal.hasClass('visible')) {
                                                     photoGal.addClass('visible');
                                                     $('.photo-button').addClass('is-active');
-                                                    if(videoGal.hasClass('visible')) {
+                                                    if (videoGal.hasClass('visible')) {
                                                         videoGal.removeClass('visible');
                                                         $('.video-button').removeClass('is-active')
                                                         window.dispatchEvent(new Event('resize'));
                                                     }
                                                 }
                                             });
-                                            $('.video-button').on('click', function(e) {
+                                            $('.video-button').on('click', function (e) {
                                                 e.preventDefault();
                                                 let photoGal = $('#photo-gallery');
                                                 let videoGal = $('#video-gallery');
 
-                                                if(!videoGal.hasClass('visible')) {
+                                                if (!videoGal.hasClass('visible')) {
                                                     videoGal.addClass('visible');
                                                     $('.video-button').addClass('is-active');
-                                                    if(photoGal.hasClass('visible')) {
+                                                    if (photoGal.hasClass('visible')) {
                                                         photoGal.removeClass('visible');
                                                         $('.photo-button').removeClass('is-active');
                                                         window.dispatchEvent(new Event('resize'));
                                                     }
                                                 }
                                             });
-                                            <?php if ($which_first == 'videos') : ?>
-                                            $(window).on('load', function() {
+											<?php if ($which_first == 'videos') : ?>
+                                            $(window).on('load', function () {
                                                 $('.video-button').trigger('click');
                                             })
-                                            <?php endif; ?>
+											<?php endif; ?>
                                         })(jQuery)
                                     </script>
-                                <?php }
-                                
+								<?php }
+								
 								?>
 								<?php if ( $about_vendor ) : ?>
                                     <h2><span id="about-vendor" class="sticky-top"></span><span
                                                 class="vendor-header-triangle"></span>About <?php echo get_the_title(); ?>
                                     </h2>
                                     <div class="about-vendor-container">
-                                        <?php the_field( "about_this_vendor", get_the_ID() );?>
+										<?php the_field( "about_this_vendor", get_the_ID() ); ?>
                                     </div>
 								<?php endif;
 								
 								/******************** Special Offers & Events ********************/
 								if ( $special_offers ) : ?>
-                                    <h2><span id="special-offers" class="sticky-top"></span><span class="vendor-header-triangle"></span>Special Offers &
+                                    <h2><span id="special-offers" class="sticky-top"></span><span
+                                                class="vendor-header-triangle"></span>Special Offers &
                                         Events</h2>
 									<?php
 									// $special_offers is gotten at the top of this page, to determine whether or not its sticky menu item should show
@@ -483,36 +534,49 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                     <div class="special-offer-container">
 										<?php foreach ( $special_offers as $offer ) {
 											if ( $end_date = get_field( 'offer_end_date', $offer->ID ) ) {
-												$end_date = "Offer Ends: " . get_field( 'offer_end_date', $offer->ID );
+												$end_date = "Ends: " . get_field( 'offer_end_date', $offer->ID );
 											} else {
 												$end_date = "Permanent Promotion";
 											}
 											?>
                                             <div class="special-offer">
                                                 <h4><?php echo get_the_title( $offer->ID ); ?></h4>
+                                                <span class="offer-timeline">Starts: <?php echo get_field( 'offer_start_date', $offer->ID ); ?></span><br>
                                                 <span class="offer-timeline"><?php echo $end_date; ?></span>
-                                                <p><?php echo $offer->post_content; ?></p>
-                                                <div class="saw-button right" onclick="event.preventDefault();MicroModal.show('special-offer-modal',{awaitCloseAnimation:true})">
-                                                    <a href="#">Tell Me More <i class="fa fa-angle-double-right pl-lg-2 pl-1"
-                                                                                aria-hidden="true"></i></a>
+                                                <p><?php the_field( 'special_offer_description', $offer->ID ); ?></p>
+                                                <div class="saw-button right"
+                                                     onclick="event.preventDefault();MicroModal.show('special-offer-modal',{awaitCloseAnimation:true})">
+                                                    <a href="#">Tell Me More <i
+                                                                class="fa fa-angle-double-right pl-lg-2 pl-1"
+                                                                aria-hidden="true"></i></a>
                                                 </div>
                                             </div>
 											<? // Special Offer Contact Form Modal ?>
-                                            <div id="special-offer-modal" class="modal micromodal-slide" aria-hidden="true">
-                                                <div class="modal__overlay" tabindex="-1" data-custom-close="special-offer-modal">
+                                            <div id="special-offer-modal" class="modal micromodal-slide"
+                                                 aria-hidden="true">
+                                                <div class="modal__overlay" tabindex="-1"
+                                                     data-custom-close="special-offer-modal">
                                                     <div role="dialog" class="modal__container" aria-modal="true"
                                                          aria-labelledby="special-offer-modal">
                                                         <header class="modal__header">
                                                             <div id="special-offer-modal-title" class="modal__title">
-                                                                Special Offers & Events from <?php echo get_the_title(); ?>
+                                                                Special Offers & Events
+                                                                from <?php echo get_the_title(); ?>
                                                             </div>
                                                             <button aria-label="Close modal" class="modal__close"
-                                                                    data-custom-close="special-offer-modal" onclick="MicroModal.close('special-offer-modal',{awaitCloseAnimation:true})"></button>
+                                                                    data-custom-close="special-offer-modal"
+                                                                    onclick="MicroModal.close('special-offer-modal',{awaitCloseAnimation:true})"></button>
                                                         </header>
-                                                        <div id="special-offer-modal-content" class="modal__content" data-zoom="16">
-                                                            <p>I am interested in <span style="color:var(--main-teal-color);font-size:1.2em;"><?php echo get_the_title($offer->ID); ?></span></p>
-                                                            <p>Please fill out this form, and we will contact you with all the information you need.</p>
-	                                                        <?php gravity_form(5, false, false, false, array('vendor_email' => get_field('reply_email', $offer->ID), 'special_offer_title' => get_the_title($offer->ID) . ' - Contact from SA Weddings'), true); ?>
+                                                        <div id="special-offer-modal-content" class="modal__content"
+                                                             data-zoom="16">
+                                                            <p>I am interested in <span
+                                                                        style="color:var(--main-teal-color);font-size:1.2em;"><?php echo get_the_title( $offer->ID ); ?></span>
+                                                            </p>
+                                                            <p>Please fill out this form, and we will contact you with
+                                                                all the information you need.</p>
+															<?php gravity_form( 5, false, false, false, array( 'vendor_email'        => get_field( 'reply_email', $offer->ID ),
+															                                                   'special_offer_title' => get_the_title( $offer->ID ) . ' - Contact from SA Weddings'
+															), true ); ?>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -523,14 +587,16 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								
 								/******************** Reviews ********************/
 								if ( $reviews ) : ?>
-                                    <h2><span id="vendor-reviews" class="sticky-top"></span><span class="vendor-header-triangle"></span>Reviews</h2>
+                                    <h2><span id="vendor-reviews" class="sticky-top"></span><span
+                                                class="vendor-header-triangle"></span>Reviews</h2>
 									<?php echo get_field( 'wedding_wire_reviews_html', get_the_ID() );
 								endif;
 								
 								/**** TODO: For in the press, check if this vendor was listed in ANY spotlight/wedding story/styled shoot, and if so, list it here with an additional meta_query argument **/
 								/******************** In the Press ********************/
 								if ( sizeof( $vendor_posts ) > 0 ) : ?>
-                                    <h2><span id="in-the-press" class="sticky-top"></span><span class="vendor-header-triangle"></span>In the Press</h2>
+                                    <h2><span id="in-the-press" class="sticky-top"></span><span
+                                                class="vendor-header-triangle"></span>In the Press</h2>
                                     <div class="in-the-press">
 										<?php
 										// check each post type to see that the vendor meta_key is equal to this vendor's post ID
@@ -606,16 +672,41 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                     </div>
 								<?php endif; ?>
 								
+								<?php /******************** Musician Vendor *********************/
+								if ( $musician ) : ?>
+                                    <div id="audio-files-section">
+                                    <h2><span id="audio-files" class="sticky-top"></span><span
+                                                class="vendor-header-triangle"></span>Audio Files</h2>
+									<?php $audio_files = get_field( 'audio_files' );
+									foreach ( $audio_files as $audio_file ) { ?>
+                                        <div class="audio-file">
+                                            <h5 class="audio-title"><?php echo $audio_file['audio_title']; ?></h5>
+                                            <audio class="audio-player" controls>
+                                                <source src="<?php echo $audio_file['audio_file']['url']; ?>"
+                                                        type="audio/ogg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        </div>
+									<?php } ?>
+								    </div>
+								<?php endif; ?>
+								
+								
+								
+								
+								
 								<?php /******************** Comparison Guides ********************/
 								/************** TODO: If musician, this won't be here, but it will be musical samples ************/ ?>
 								<?php if ( false ) : // TODO: CHANGE THIS WHEN WE ACTUALLY HAVE COMPARISON GUIDES ?>
-                                    <h2><span id="comparison-guides" class="sticky-top"></span><span class="vendor-header-triangle"></span>Comparison
+                                    <h2><span id="comparison-guides" class="sticky-top"></span><span
+                                                class="vendor-header-triangle"></span>Comparison
                                         Guides</h2>
 								<?php endif; ?>
 								
 								<?php /******************** 360° Virtual Tours ********************/
 								if ( $url_360 ) : ?>
-                                    <h2><span id="360-tours" class="sticky-top"></span><span class="vendor-header-triangle"></span>360° Tours
+                                    <h2><span id="360-tours" class="sticky-top"></span><span
+                                                class="vendor-header-triangle"></span>360° Tours
                                         of <?php echo get_the_title(); ?></h2>
 									<?php $url_360 = get_field( '360-virtual-tour', get_the_ID() ); ?>
                                     <a target="_blank" href="<?php echo $url_360; ?>"><img
@@ -813,7 +904,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
             });
 
         })(jQuery);
-        
+
         /****** SWIPER JS FUNCTIONALITY *****/
 
         (function ($) {
@@ -829,17 +920,17 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                 },
                 on: {
                     imagesReady: function () {
-                        this.slideTo(<?php echo $total; ?>,1);
+                        this.slideTo(<?php echo $total; ?>, 1);
                     },
                     init: function () {
                         window.dispatchEvent(new Event('resize'));
                     },
-                    resize: function() {
+                    resize: function () {
                         this.update();
                     },
                 }
             });
-            
+
             let swiper2 = new Swiper('.swiper-container.s2', {
                 slidesPerView: 'auto',
                 centeredSlides: true,
@@ -852,7 +943,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                     resize: function () {
                         this.update();
                     },
-                    slideChange: function() {
+                    slideChange: function () {
                         window.dispatchEvent(new Event('resize'));
                     }
                 }
@@ -882,17 +973,17 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                     $(this).width(imgWidth * wrapperHeight / imgHeight);
                     console.log("Duplicate image " + index + " new width: " + (imgWidth * wrapperHeight / imgHeight));
                 });
-                
+
             }
-            
+
             // Resize refreshes sliders
-            $(window).on("load", function() {
+            $(window).on("load", function () {
                 window.dispatchEvent(new Event('resize'));
             })
         })(jQuery);
-        
-        
-        </script>
+
+
+    </script>
 
 <?php
 

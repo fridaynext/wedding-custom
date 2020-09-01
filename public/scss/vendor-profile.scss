@@ -1173,3 +1173,16 @@ div.saw-button a:hover svg {
 #special-offer-modal .modal__overlay {
   will-change: transform;
 }
+
+/****** Musician *******/
+#audio-files-section {
+  .audio-file {
+    padding-top: 25px;
+    h5.audio-title {
+
+    }
+    audio.audio-player {
+      width: 100%;
+    }
+  }
+}

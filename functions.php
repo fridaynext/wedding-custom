@@ -1719,6 +1719,8 @@ function social_media_tab_func( $atts ) {
 	$html .= get_field( 'facebook' ) ? '<a target="_blank" href="' . get_field( "facebook" ) . '"><img src="' . plugins_url( "/public/img/Social-Media-Icons-SAW-FB.png", __FILE__ ) . '" /></a>' : '';
 	$html .= get_field( 'instagram' ) ? '<a target="_blank" href="' . get_field( "instagram" ) . '"><img src="' . plugins_url( "/public/img/Social-Media-Icons-SAW-Instagram.png", __FILE__ ) . '" /></a>' : '';
 	$html .= get_field( 'pinterest' ) ? '<a target="_blank" href="' . get_field( "pinterest" ) . '"><img src="' . plugins_url( "/public/img/Social-Media-Icons-SAW-Pinterest.png", __FILE__ ) . '" /></a>' : '';
+	$html .= get_field( 'youtube' ) ? '<a target="_blank" href="' . get_field( "youtube" ) . '"><img src="' . plugins_url( "/public/img/YouTube-saw-Icon-Small-Teal.svg", __FILE__ ) . '" /></a>' : '';
+	$html .= get_field( 'twitter' ) ? '<a target="_blank" href="' . get_field( "twitter" ) . '"><img src="' . plugins_url( "/public/img/Twitter-saw-Icon-Small-Teal.svg", __FILE__ ) . '" /></a>' : '';
 	$html .= '</div>';
 	
 	return $html;
@@ -1838,7 +1840,7 @@ function vendor_list_styled() {
 		$html .= '<ul class="styled-shoot-vendors">';
 		sort( $vendor_arr );
 		foreach ( $vendor_arr as $vendor ) {
-			$html .= '<li><span style="text-transform: uppercase;">' . $vendor['category_title'] . '</span>';
+			$html .= '<li><span style="text-transform: uppercase;"><strong>' . $vendor['category_title'] . '</strong></span>';
 			if ( $vendor['non_existing'] ) {
 				$html .= '<br />' . $vendor['vendor_name'] . '</li>';
 			} else {
@@ -4267,7 +4269,8 @@ function render_company_name() {
 		'client-admin/post-special-offers',
 		'client-admin/manage-my-photos',
 		'client-admin/manage-my-videos',
-		'client-admin/manage-my-audio'
+		'client-admin/manage-my-audio',
+        'client-admin/submit-event'
 	) ) ) {
 		// return the title from the Vendor PProfile
 		if ( isset( $_SESSION['vendor'] ) ) {
@@ -4294,7 +4297,8 @@ function render_last_login() {
 		'client-admin/post-special-offers',
 		'client-admin/manage-my-photos',
 		'client-admin/manage-my-videos',
-		'client-admin/manage-my-audio'
+		'client-admin/manage-my-audio',
+        'client-admin/submit-event'
 	) ) ) {
 		// return the current user's last log in
 		if ( ! empty( get_user_meta( get_current_user_id(), 'last_login' ) ) ) {
@@ -4766,4 +4770,13 @@ function render_audio_form() {
 	}
 	
 	return $html;
+}
+
+add_filter('posts_where', 'my_posts_where');
+function my_posts_where( $where )
+{
+    if (get_post_type() == "vendor_profile") {
+	    $where = str_replace("meta_key = 'vendors_%_vendor'", "meta_key LIKE 'vendors_%_vendor'", $where);
+    }
+	return $where;
 }
