@@ -876,7 +876,7 @@ div.saw-button a:hover svg {
     .first-last-name, .email-address {
       float: left;
       clear: none;
-      width: 70%;
+      width: 100%;
       margin-top: 0;
 
       .ginput_container {
@@ -890,17 +890,19 @@ div.saw-button a:hover svg {
     }
 
     .email-address {
-      width: 30%;
+      width: 50%;
     }
 
     .phone-number {
       float: left;
-      width: 35%;
+      width: 50%;
       margin-top: 0;
+      clear: none;
 
       .ginput_container {
-        margin-top: 0;
+        margin-top: 7px;
         margin-bottom: 10px;
+        padding: 5px 4px;
 
         input {
           width: 100%;
