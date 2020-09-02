@@ -442,8 +442,9 @@ $(document).ready(function () {
         // go back to functions.php and get the current number of posts, but in alphabetical order
         let offsetButton = $('#archive-more-button a');
         offset = offsetButton.data('offset');
-        let post_type = offsetButton.data('post_type');
+        // let post_type = offsetButton.data('post_type');
         // let category = offsetButton.data('category-id');
+        let post_type = $(this).data('post_type');
         let category = $(this).data('category-id');
         alphaClick = true;
         alphabetize = true;

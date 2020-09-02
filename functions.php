@@ -3538,12 +3538,12 @@ function render_archive_ajax( $atts ) {
 //        $cat = get_term_by('slug', $post->post_name, 'category');
 		$category      = get_queried_object();
 		$archive_posts = get_posts( $args );
-		if ( $offset == 0 ) {
+		if ( !$alpha_click ) {
 			$cat  = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
 			$html .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
-			$html .= '<div class="alphabetize"><a class="sort-alphabetically" href="#" ' . $cat . '>Sort Alphabetically</a></div>';
+			$html .= $alpha_click ? '' : '<div class="alphabetize"><a class="sort-alphabetically" href="#" ' . $cat . ' data-post_type="' . $post_type . '">Sort Alphabetically</a></div>';
 		}
-		$html      .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
+		$html      .= $alpha_click ? '' : '<div id="post-archive-list" class="cols">';
 		$col_count = 0;
 		if ( sizeof( $archive_posts ) > 0 ) {
 //			$html .= '<div class="archive-row cols">';
