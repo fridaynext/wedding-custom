@@ -3,7 +3,7 @@
 Plugin Name: San Antonio Weddings - Custom Functionality
 Plugin URI:  https://friday-next.com
 Description: This plugin enhances the functionality of the San Antonio Weddings website, without altering the child theme's functions.php file, so it will survive theme updates / changes.
-Version:     1.1.6
+Version:     1.2.5
 Author:      Friday Next
 Author URI:  https://friday-next.com
 License:     GPL2

@@ -3624,52 +3624,69 @@ function render_archive_ajax( $atts ) {
 		
 		$html .= $append == false ? '<div id="post-archive-list" class="search-results cols">' : '';
 		
-		add_filter( 'posts_where', 'title_filter', 10, 2 );
+//		add_filter( 'posts_where', 'title_filter', 10, 2 );
 		$search_query = new WP_Query(
 			array(
-				'post_type'             => array(
-					'vendor_profile',
-					'spotlight',
-					'wedding_story',
-					'styled_shoot',
-					'post'
-				),
+                's'                     => $search_term,
+//                'ep_integrate'          => true,
+//                'post_type'             => 'any',
+//				'post_type'             => array(
+//					'vendor_profile',
+//					'spotlight',
+//					'wedding_story',
+//					'styled_shoot',
+//					'post'
+//				),
 				'posts_per_page'        => 10,
-				'title_filter'          => $search_term,
-				'title_filter_relation' => 'AND',
+//				'title_filter'          => $search_term,
+//				'title_filter_relation' => 'AND',
 				'offset'                => $offset,
-				'meta_query'            => array(
-					'relation' => 'AND',
-					array(
-						'key'     => 'is_active',
-						'value'   => true,
-						'compare' => '='
-					),
-					array(
-						'relation' => 'OR',
-						array(
-							'key'     => 'meta_title',
-							'value'   => $search_term,
-							'compare' => 'LIKE'
-						),
-						array(
-							'key'     => 'meta_description',
-							'value'   => $search_term,
-							'compare' => 'LIKE'
-						),
-						array(
-							'key'     => 'meta_title',
-							'compare' => 'NOT EXISTS'
-						),
-						array(
-							'key'     => 'meta_description',
-							'compare' => 'NOT EXISTS'
-						)
-					)
-				)
+                'search_fields'         => array(
+                    'post_title',
+                    'taxonomies'        => array(
+                        'photographer',
+                        'location',
+                        'category',
+                        'post_tag'
+                    ),
+                    'meta'              => array(
+                        'text',
+                        'image',
+                        'about_this_vendor',
+                    ),
+                ),
+//				'meta_query'            => array(
+//					'relation' => 'AND',
+//					array(
+//						'key'     => 'is_active',
+//						'value'   => true,
+//						'compare' => '='
+//					),
+//					array(
+//						'relation' => 'OR',
+//						array(
+//							'key'     => 'meta_title',
+//							'value'   => $search_term,
+//							'compare' => 'LIKE'
+//						),
+//						array(
+//							'key'     => 'meta_description',
+//							'value'   => $search_term,
+//							'compare' => 'LIKE'
+//						),
+//						array(
+//							'key'     => 'meta_title',
+//							'compare' => 'NOT EXISTS'
+//						),
+//						array(
+//							'key'     => 'meta_description',
+//							'compare' => 'NOT EXISTS'
+//						)
+//					)
+//				)
 			)
 		);
-		remove_filter( 'posts_where', 'title_filter', 10, 2 );
+//		remove_filter( 'posts_where', 'title_filter', 10, 2 );
 
 //        $search_results = get_posts($query_args);
 //        if (sizeof($search_results) > 0) {
@@ -3747,7 +3764,7 @@ function render_archive_ajax( $atts ) {
 	return $html;
 }
 
-add_action( 'pre_get_posts', 'change_search_types' );
+add_action( 'pre_get_posts', 'change_search_types', 1 );
 /**
  * This function modifies the main WordPress query to include an array of
  * post types instead of the default 'post' post type.
@@ -3766,7 +3783,7 @@ function change_search_types( $query ) {
 			$query->set( 'orderby', 'meta_value' );
 		}
 	}
-	if ( ! is_admin() && $query->is_search ) {
+	if ( ! is_admin() && $query->is_search() ) {
 		$query->set( 'post_type', array(
 			'page',
 			'spotlight',
@@ -3775,6 +3792,7 @@ function change_search_types( $query ) {
 			'post',
 			'vendor_profile'
 		) );
+		$query->set( 'ep_integrate', true );
 		// TODO: Make sure that this search is searching name, category name, About Us, etc
 	}
 }
