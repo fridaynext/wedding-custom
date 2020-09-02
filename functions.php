@@ -1329,7 +1329,7 @@ function save_category( $post_id ) {
 		if ( is_wp_error( $cat ) ) {
 			// saving went badly, and the category didn't update!
 			print_r( 'wp_insert_term resulted in this error: ' . $cat_id );
-			die();
+//			die();
 		} else {
 			$cat_id = $cat['term_id'];
 			if ( $active != 'empty1337' ) {
@@ -3437,7 +3437,7 @@ function render_archive_ajax( $atts ) {
 			wp_die();
 		}
 	} elseif ( in_array( $post_type, [ 'virtual-tour', 'category' ] ) ) {
-		$posts_per_page = 9;
+		$posts_per_page = - 1;
 		// here's where we get all our posts to display in beautiful grid boxes
 		$args = array();
 		
@@ -3468,7 +3468,8 @@ function render_archive_ajax( $atts ) {
 					'posts_per_page' => $posts_per_page,
 					'meta_query'     => $meta_query_args,
 					'offset'         => $offset,
-					'orderby'        => 'rand(' . get_random_post() . ')'
+//					'orderby'        => 'rand(' . get_random_post() . ')'
+					'orderby'        => 'rand'
 				);
 				break;
 			case "category":
@@ -3518,13 +3519,16 @@ function render_archive_ajax( $atts ) {
 //                );
 				
 				$args = array(
+//                    'ep_integrate'   => true,
 					'post_type'      => 'vendor_profile',
-					'posts_per_page' => $alpha_click ? $offset : $posts_per_page,
+//					'posts_per_page' => $alpha_click ? $offset : $posts_per_page,
+					'posts_per_page' => $posts_per_page,
 					'cat'            => $cat_id,
 					'meta_key'       => 'is_active',
 					'meta_value'     => true,
-					'offset'         => $alpha_click ? 0 : $offset,
-					'orderby'        => $alpha ? 'title' : 'rand(' . get_random_post() . ')',
+//					'offset'         => $alpha_click ? 0 : $offset,
+//					'orderby'        => $alpha ? 'title' : 'rand(' . get_random_post() . ')',
+					'orderby'        => $alpha ? 'title' : 'rand',
 					'order'          => 'ASC'
 				);
 				break;
@@ -3535,8 +3539,9 @@ function render_archive_ajax( $atts ) {
 		$category      = get_queried_object();
 		$archive_posts = get_posts( $args );
 		if ( $offset == 0 ) {
+			$cat  = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
 			$html .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
-			$html .= '<div class="alphabetize"><a class="sort-alphabetically" href="#">Sort Alphabetically</a></div>';
+			$html .= '<div class="alphabetize"><a class="sort-alphabetically" href="#" ' . $cat . '>Sort Alphabetically</a></div>';
 		}
 		$html      .= $append == false ? '<div id="post-archive-list" class="cols">' : '';
 		$col_count = 0;
@@ -3558,51 +3563,52 @@ function render_archive_ajax( $atts ) {
 				$col_count ++;
 				if ( $col_count >= sizeof( $archive_posts ) ) {
 //					$html .= '</div>'; // End of last .archive-row div
-				} elseif ( $col_count % 3 == 0 ) {
+				} elseif ( $col_count % 9 == 0 ) {
 //					$html .= '</div><div class="archive-row cols">'; // start a new .archive-row
+					$banner_ad = sizeof( $archive_posts ) > 8 ? do_shortcode( '[banner_ad type="category"]' ) : "";
+					$html      .= $banner_ad;
 				}
 			}
 			
-			$banner_ad = sizeof( $archive_posts ) > 8 ? do_shortcode( '[banner_ad type="category"]' ) : "";
-			
-			
-			$html .= $banner_ad;
 			
 			$html .= $append == false ? '</div>' : ''; // END #post-archive-list
+			if ( $alpha_click ) {
+				$resp = array(
+					'newhtml' => $html
+				);
+				wp_send_json( $resp );
+				wp_die();
+				
+			}
 		} else {
 			$html .= '<script type="text/javascript">
                 jQuery("#archive-more-button").hide();
             </script>';
-			$resp = array(
-				'newhtml' => $html
-			);
-			wp_send_json( $resp );
-			wp_die();
 		}
 		
 		// The Load More Ajax Button
-		if ( $append == false ) {
-			// Store the category, since it won't be the queried object once we click the 'more' button
-			$cat    = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
-			$offset = $offset == 0 ? sizeof( $archive_posts ) : $offset;
-			if ( isset( $args['cat'] ) ) {
-				$this_category = get_term( $args['cat'], 'category' );
-				$count         = $this_category->count;
-				if ( $offset < $count ) {
-					$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-				}
-			} else {
-				$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
-			}
-		} else {
-			// we're appending, so we don't need the button printed again
-			// send back the resulting HTML to the AJAX call, and add it in via JS
-			$resp = array(
-				'newhtml' => $html
-			);
-			wp_send_json( $resp );
-			wp_die();
-		}
+//		if ( $append == false ) {
+//			// Store the category, since it won't be the queried object once we click the 'more' button
+//			$cat    = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
+//			$offset = $offset == 0 ? sizeof( $archive_posts ) : $offset;
+//			if ( isset( $args['cat'] ) ) {
+//				$this_category = get_term( $args['cat'], 'category' );
+//				$count         = $this_category->count;
+//				if ( $offset < $count ) {
+//					$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '" ' . $cat . '>Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+//				}
+//			} else {
+//				$html .= '<div id="archive-more-button" class="saw-button"><a href="#" data-post_type="' . $post_type . '" data-offset="' . $offset . '">Load More <i class="fa fa-angle-double-right pl-lg-2 pl-1" aria-hidden="true"></i></a></div>';
+//			}
+//		} else {
+//			// we're appending, so we don't need the button printed again
+//			// send back the resulting HTML to the AJAX call, and add it in via JS
+//			$resp = array(
+//				'newhtml' => $html
+//			);
+//			wp_send_json( $resp );
+//			wp_die();
+//		}
 	} elseif ( in_array( $post_type, [ 'search_results' ] ) ) {
 		// get the queried object and display the search results
 		global $query_string;
@@ -3623,11 +3629,11 @@ function render_archive_ajax( $atts ) {
 		
 		
 		$html .= $append == false ? '<div id="post-archive-list" class="search-results cols">' : '';
-		
+
 //		add_filter( 'posts_where', 'title_filter', 10, 2 );
 		$search_query = new WP_Query(
 			array(
-                's'                     => $search_term,
+				's'              => $search_term,
 //                'ep_integrate'          => true,
 //                'post_type'             => 'any',
 //				'post_type'             => array(
@@ -3637,24 +3643,24 @@ function render_archive_ajax( $atts ) {
 //					'styled_shoot',
 //					'post'
 //				),
-				'posts_per_page'        => 10,
+				'posts_per_page' => 10,
 //				'title_filter'          => $search_term,
 //				'title_filter_relation' => 'AND',
-				'offset'                => $offset,
-                'search_fields'         => array(
-                    'post_title',
-                    'taxonomies'        => array(
-                        'photographer',
-                        'location',
-                        'category',
-                        'post_tag'
-                    ),
-                    'meta'              => array(
-                        'text',
-                        'image',
-                        'about_this_vendor',
-                    ),
-                ),
+				'offset'         => $offset,
+				'search_fields'  => array(
+					'post_title',
+					'taxonomies' => array(
+						'photographer',
+						'location',
+						'category',
+						'post_tag'
+					),
+					'meta'       => array(
+						'text',
+						'image',
+						'about_this_vendor',
+					),
+				),
 //				'meta_query'            => array(
 //					'relation' => 'AND',
 //					array(
@@ -3763,6 +3769,15 @@ function render_archive_ajax( $atts ) {
 	
 	return $html;
 }
+
+/********** Allowing orderby: rand  in ElasticPress Searches *******/
+//add_filter('ep_formatted_args', function ($ep_formatted_args, $args) {
+//	if ($args['orderby'] == 'rand') {
+//		$ep_formatted_args['query']['function_score']['random_score'] = (object) ['seed' => $args['seed']];
+//	}
+//
+//	return $ep_formatted_args;
+//}, 10, 2 );
 
 add_action( 'pre_get_posts', 'change_search_types', 1 );
 /**
@@ -3972,19 +3987,19 @@ function render_banner_ad( $atts ) {
 		
 		$banner_w_category = $banner_args;
 		// for checking that this ad is in the vendor ids array that has vendors in this page's category
-		array_push($banner_w_category['meta_query'], array(
+		array_push( $banner_w_category['meta_query'], array(
 			'key'     => 'advertiser',
 			'compare' => 'IN',
 			'value'   => $vendor_ids
-		));
+		) );
 		// opposite of the above comment
 		$banner_args['meta_query'][] = array(
 			'key'     => 'advertiser',
 			'compare' => 'NOT IN',
 			'value'   => $vendor_ids
 		);
-		$category_specific                = get_posts( $banner_w_category );
-		$banner_ads = get_posts( $banner_args );
+		$category_specific           = get_posts( $banner_w_category );
+		$banner_ads                  = get_posts( $banner_args );
 //		$combined_ads                      = array_merge( $category_specific, $banner_ads );
 		$combined_ads = $category_specific + $banner_ads;
 		if ( ! empty( $combined_ads ) ) {
@@ -4288,7 +4303,7 @@ function render_company_name() {
 		'client-admin/manage-my-photos',
 		'client-admin/manage-my-videos',
 		'client-admin/manage-my-audio',
-        'client-admin/submit-event'
+		'client-admin/submit-event'
 	) ) ) {
 		// return the title from the Vendor PProfile
 		if ( isset( $_SESSION['vendor'] ) ) {
@@ -4316,7 +4331,7 @@ function render_last_login() {
 		'client-admin/manage-my-photos',
 		'client-admin/manage-my-videos',
 		'client-admin/manage-my-audio',
-        'client-admin/submit-event'
+		'client-admin/submit-event'
 	) ) ) {
 		// return the current user's last log in
 		if ( ! empty( get_user_meta( get_current_user_id(), 'last_login' ) ) ) {
@@ -4790,11 +4805,11 @@ function render_audio_form() {
 	return $html;
 }
 
-add_filter('posts_where', 'my_posts_where');
-function my_posts_where( $where )
-{
-    if (get_post_type() == "vendor_profile") {
-	    $where = str_replace("meta_key = 'vendors_%_vendor'", "meta_key LIKE 'vendors_%_vendor'", $where);
-    }
+add_filter( 'posts_where', 'my_posts_where' );
+function my_posts_where( $where ) {
+	if ( get_post_type() == "vendor_profile" ) {
+		$where = str_replace( "meta_key = 'vendors_%_vendor'", "meta_key LIKE 'vendors_%_vendor'", $where );
+	}
+	
 	return $where;
 }

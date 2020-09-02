@@ -443,7 +443,8 @@ $(document).ready(function () {
         let offsetButton = $('#archive-more-button a');
         offset = offsetButton.data('offset');
         let post_type = offsetButton.data('post_type');
-        let category = offsetButton.data('category-id');
+        // let category = offsetButton.data('category-id');
+        let category = $(this).data('category-id');
         alphaClick = true;
         alphabetize = true;
         let data = {
