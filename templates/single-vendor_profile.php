@@ -318,26 +318,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 				) );
 				$reviews        = get_field( 'wedding_wire_reviews_html' );
 				// Meta Query for getting through the Vendors section of Wedding Stories & Styled Shoots
-				$wedding_styled_meta_query = array(
-					'relation' => 'AND',
-					array(
-						'key'   => 'vendors_$', // "vendors" repeater field
-						'value' => get_the_ID(), // the vendor ID in the database
-					),
-					array(
-						'key'     => 'is_active',
-						'value'   => true,  // Make sure the post we're looking at is actually active
-						'compare' => '='
-					)
-				);
-				$vendor_ws_ss_posts        = get_posts( array(
-					'ep_integrate' => true,
-                    'post_type'  => array(
-						'wedding_story',
-						'styled_shoot'
-					),
-					'meta_query' => $wedding_styled_meta_query
-				) );
+				
 				global $wpdb;
 				$sql = $wpdb->prepare(
                     "SELECT * FROM $wpdb->posts AS p
@@ -615,7 +596,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 										$post_types = [ 'spotlight', 'styled_shoot', 'wedding_story', 'post' ];
 										foreach ( $post_types as $this_type ) {
 											foreach ( $vendor_posts as $vendor_post ) {
-												if ( $vendor_post->post_type == $this_type ) { ?>
+												if ( $vendor_post->post_type == $this_type && get_field('is_active', $vendor_post->ID) == true) { ?>
                                                     <div class="individual-press-post <?php echo $this_type; ?>">
                                                         <div class="left-half">
                                                             <div class="press-type">

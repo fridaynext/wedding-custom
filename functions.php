@@ -3633,20 +3633,30 @@ function render_archive_ajax( $atts ) {
 //		add_filter( 'posts_where', 'title_filter', 10, 2 );
 		$search_query = new WP_Query(
 			array(
-				's'              => $search_term,
-//                'ep_integrate'          => true,
-//                'post_type'             => 'any',
-//				'post_type'             => array(
-//					'vendor_profile',
-//					'spotlight',
-//					'wedding_story',
-//					'styled_shoot',
-//					'post'
-//				),
+//				's'              => $search_term,
+                'ep_integrate'          => true,
+				'post_type'             => array(
+					'vendor_profile',
+					'spotlight',
+					'wedding_story',
+					'styled_shoot',
+					'post'
+				),
 				'posts_per_page' => 10,
-//				'title_filter'          => $search_term,
-//				'title_filter_relation' => 'AND',
 				'offset'         => $offset,
+                'meta_query'     => array(
+                    'relation'  => 'OR',
+                    array(
+                        'key' => 'about_this_vendor',
+                        'compare' => 'LIKE',
+                        'value' => $search_term
+                    ),
+                    array(
+                        'key' => 'article_content_%_text',
+                        'compare' => 'LIKE',
+                        'value' => $search_term
+                    )
+                ),
 				'search_fields'  => array(
 					'post_title',
 					'taxonomies' => array(
@@ -3659,40 +3669,18 @@ function render_archive_ajax( $atts ) {
 						'text',
 						'image',
 						'about_this_vendor',
+                        'article_content_%_text'
 					),
 				),
-//				'meta_query'            => array(
-//					'relation' => 'AND',
-//					array(
-//						'key'     => 'is_active',
-//						'value'   => true,
-//						'compare' => '='
-//					),
-//					array(
-//						'relation' => 'OR',
-//						array(
-//							'key'     => 'meta_title',
-//							'value'   => $search_term,
-//							'compare' => 'LIKE'
-//						),
-//						array(
-//							'key'     => 'meta_description',
-//							'value'   => $search_term,
-//							'compare' => 'LIKE'
-//						),
-//						array(
-//							'key'     => 'meta_title',
-//							'compare' => 'NOT EXISTS'
-//						),
-//						array(
-//							'key'     => 'meta_description',
-//							'compare' => 'NOT EXISTS'
-//						)
-//					)
-//				)
+//                'meta_key' => 'is_active',
+//                'meta_value' => true,
+                
 			)
 		);
-//		remove_filter( 'posts_where', 'title_filter', 10, 2 );
+		
+//		print_r($search_term);
+//		print_r($search_query->query);
+//		remove_filter( 'posts_where'jj, 'title_filter', 10, 2 );
 
 //        $search_results = get_posts($query_args);
 //        if (sizeof($search_results) > 0) {
@@ -3799,15 +3787,15 @@ function change_search_types( $query ) {
 		}
 	}
 	if ( ! is_admin() && $query->is_search() ) {
-		$query->set( 'post_type', array(
-			'page',
-			'spotlight',
-			'wedding_story',
-			'styled_shoot',
-			'post',
-			'vendor_profile'
-		) );
-		$query->set( 'ep_integrate', true );
+//		$query->set( 'post_type', array(
+//			'page',
+//			'spotlight',
+//			'wedding_story',
+//			'styled_shoot',
+//			'post',
+//			'vendor_profile'
+//		) );
+//		$query->set( 'ep_integrate', true );
 		// TODO: Make sure that this search is searching name, category name, About Us, etc
 	}
 }
@@ -4810,7 +4798,7 @@ function my_posts_where( $where, &$wp_query ) {
 	if ( get_post_type() == 'vendor_profile' ) {
 	    if ($vendor_acf = $wp_query->get('key')) {
 		$where = str_replace( "meta_key = 'vendors_$", "meta_key LIKE 'vendors_%_vendor", $where );
-	       
+	    $where = str_replace( "meta_key = 'article_content_%_text", "meta_key LIKE 'article_content_%_text", $where );
         }
 //		echo $where;
 	}
