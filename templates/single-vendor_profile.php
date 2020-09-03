@@ -311,6 +311,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 				$video_gallery  = get_field( 'videos' );
 				$about_vendor   = get_field( 'about_this_vendor' );
 				$special_offers = get_posts( array(
+                    'ep_integrate' => true,
 					'post_type'  => 'special_offers',
 					'meta_key'   => 'vendor',
 					'meta_value' => get_the_ID() // ensures we're only getting special offers for this vendor
@@ -320,7 +321,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 				$wedding_styled_meta_query = array(
 					'relation' => 'AND',
 					array(
-						'key'   => 'vendors_%_vendor', // "vendors" repeater field
+						'key'   => 'vendors_$', // "vendors" repeater field
 						'value' => get_the_ID(), // the vendor ID in the database
 					),
 					array(
@@ -330,14 +331,26 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 					)
 				);
 				$vendor_ws_ss_posts        = get_posts( array(
-					'post_type'  => array(
+					'ep_integrate' => true,
+                    'post_type'  => array(
 						'wedding_story',
 						'styled_shoot'
 					),
 					'meta_query' => $wedding_styled_meta_query
 				) );
+				global $wpdb;
+				$sql = $wpdb->prepare(
+                    "SELECT * FROM $wpdb->posts AS p
+                    INNER JOIN $wpdb->postmeta AS pm ON pm.post_id = p.ID
+                    WHERE p.post_type IN ('wedding_story', 'styled_shoot')
+                    AND pm.meta_key LIKE 'vendors_%_vendor'
+                    AND pm.meta_value = %d", get_the_ID()
+                );
+				$mentioned_anywhere = $wpdb->get_results($sql);
+//				print_r($mentioned_anywhere);
 				$vendor_posts              = get_posts( array(
-					'post_type'  => array(
+					'ep_integrate' => true,
+                    'post_type'  => array(
 						'spotlight',
 						'styled_shoot',         // this query is "in the press"
 						'wedding_story',
@@ -346,8 +359,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 					'meta_key'   => 'vendor',
 					'meta_value' => get_the_ID()
 				) );
-				$vendor_posts              = array_merge( $vendor_posts, $vendor_ws_ss_posts );
-				//				print_r($vendor_ws_ss_posts);
+				$vendor_posts              = array_merge( $vendor_posts, $mentioned_anywhere );
+//								print_r($vendor_ws_ss_posts);
 				// TODO: Create a check for Comparison Guides! (Just hide it altogether for now)
 				$url_360  = get_field( '360-virtual-tour' );
 				$musician = get_field( 'music_vendor' );

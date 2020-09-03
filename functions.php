@@ -3538,7 +3538,7 @@ function render_archive_ajax( $atts ) {
 //        $cat = get_term_by('slug', $post->post_name, 'category');
 		$category      = get_queried_object();
 		$archive_posts = get_posts( $args );
-		if ( !$alpha_click ) {
+		if ( ! $alpha_click ) {
 			$cat  = $post_type == 'category' ? 'data-category-id="' . $args['cat'] . '"' : '';
 			$html .= $post_type == 'category' ? '<div class="cat-title"><h2>' . $category->name . '</h2></div>' : '';
 			$html .= $alpha_click ? '' : '<div class="alphabetize"><a class="sort-alphabetically" href="#" ' . $cat . ' data-post_type="' . $post_type . '">Sort Alphabetically</a></div>';
@@ -4805,10 +4805,14 @@ function render_audio_form() {
 	return $html;
 }
 
-add_filter( 'posts_where', 'my_posts_where' );
-function my_posts_where( $where ) {
-	if ( get_post_type() == "vendor_profile" ) {
-		$where = str_replace( "meta_key = 'vendors_%_vendor'", "meta_key LIKE 'vendors_%_vendor'", $where );
+add_filter( 'posts_where', 'my_posts_where', 10, 2 );
+function my_posts_where( $where, &$wp_query ) {
+	if ( get_post_type() == 'vendor_profile' ) {
+	    if ($vendor_acf = $wp_query->get('key')) {
+		$where = str_replace( "meta_key = 'vendors_$", "meta_key LIKE 'vendors_%_vendor", $where );
+	       
+        }
+//		echo $where;
 	}
 	
 	return $where;
