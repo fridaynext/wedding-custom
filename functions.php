@@ -3631,6 +3631,7 @@ function render_archive_ajax( $atts ) {
 		$html .= $append == false ? '<div id="post-archive-list" class="search-results cols">' : '';
 
 //		add_filter( 'posts_where', 'title_filter', 10, 2 );
+        // The WP_Query to do a manual search for the $search term
 		$search_query = new WP_Query(
 			array(
 //				's'              => $search_term,
@@ -3642,7 +3643,7 @@ function render_archive_ajax( $atts ) {
 					'styled_shoot',
 					'post'
 				),
-				'posts_per_page' => 10,
+				'posts_per_page' => -1,
 				'offset'         => $offset,
                 'meta_query'     => array(
                     'relation'  => 'OR',
@@ -3674,10 +3675,34 @@ function render_archive_ajax( $atts ) {
 				),
 //                'meta_key' => 'is_active',
 //                'meta_value' => true,
-                
 			)
 		);
-		
+		// Now, another query where we attempt to match the category
+        global $wpdb;
+        $search_category_query = $wpdb->get_results($wpdb->prepare(
+        "SELECT * FROM $wpdb->posts AS p
+                JOIN $wpdb->term_relationships AS tr ON tr.object_id = p.ID
+                JOIN $wpdb->term_taxonomy AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+                JOIN $wpdb->terms AS t ON t.term_id = tt.term_id
+                JOIN $wpdb->termmeta AS tm ON tm.term_id = t.term_id
+                WHERE p.post_type IN ('vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post', 'page')
+                AND t.name LIKE %s
+                GROUP BY t.term_id
+                ", '%'.$search_term.'%'
+        ));
+        print_r($search_category_query);
+        $search_query_group = new WP_Query();
+        $search_query_group->posts = array_merge($search_query->posts, $search_category_query);
+        $search_query_group->post_count = $search_query->post_count + sizeof($search_category_query);
+        $search_query_group->set('orderby', 'relevance');
+        $search_query_group->set('meta_key', 'is_active');
+        $search_query_group->set('meta_value', true);
+        $search_query_group->set('order', 'DESC');
+//        $results = $search_category_query->posts;
+//        foreach ($results as $result) {
+//            print_r($result->ID);
+//        }
+//        wp_reset_postdata();
 //		print_r($search_term);
 //		print_r($search_query->query);
 //		remove_filter( 'posts_where'jj, 'title_filter', 10, 2 );
@@ -3698,8 +3723,9 @@ function render_archive_ajax( $atts ) {
 //                $html       .= '</div>'; // END .archive-col++
 //            }
 //        }
-		if ( $search_query->have_posts() ) :
-			while ( $search_query->have_posts() ) : $search_query->the_post();
+        $count = 1;
+		if ( $search_query_group->have_posts() ) :
+			while ( $search_query_group->have_posts() ) : $search_query_group->the_post();
 				// Featured Image
 //				$feat_img = get_field('header_image');
 				$feat_img = get_the_post_thumbnail();
@@ -3716,6 +3742,8 @@ function render_archive_ajax( $atts ) {
                         <h4><a href="' . get_the_permalink() . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
+                if ($count >= 30) { break; }
+                $count++;
 			endwhile;
 		else :
 			if ( $offset > 0 ) {
@@ -3726,8 +3754,8 @@ function render_archive_ajax( $atts ) {
 				$html .= '<div class="no-results">No Results Found...</div>';
 			}
 		endif;
-		$count  = $search_query->found_posts;
-		$offset = $offset == 0 ? $search_query->post_count : $offset;
+		$count  = $search_query_group->found_posts;
+		$offset = $offset == 0 ? $search_query_group->post_count : $offset;
 		wp_reset_postdata();
 		$html .= $append == false ? '</div>' : ''; // END #post-archive-list
 		
@@ -4793,15 +4821,15 @@ function render_audio_form() {
 	return $html;
 }
 
-add_filter( 'posts_where', 'my_posts_where', 10, 2 );
-function my_posts_where( $where, &$wp_query ) {
-	if ( get_post_type() == 'vendor_profile' ) {
-	    if ($vendor_acf = $wp_query->get('key')) {
-		$where = str_replace( "meta_key = 'vendors_$", "meta_key LIKE 'vendors_%_vendor", $where );
-	    $where = str_replace( "meta_key = 'article_content_%_text", "meta_key LIKE 'article_content_%_text", $where );
-        }
+//add_filter( 'posts_where', 'my_posts_where', 10, 2 );
+//function my_posts_where( $where, &$wp_query ) {
+//	if ( get_post_type() == 'vendor_profile' ) {
+//	    if ($vendor_acf = $wp_query->get('key')) {
+//		$where = str_replace( "meta_key = 'vendors_$", "meta_key LIKE 'vendors_%_vendor", $where );
+//	    $where = str_replace( "meta_key = 'article_content_%_text", "meta_key LIKE 'article_content_%_text", $where );
+//        }
 //		echo $where;
-	}
-	
-	return $where;
-}
+//	}
+//
+//	return $where;
+//}
