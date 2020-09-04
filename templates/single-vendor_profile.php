@@ -311,37 +311,51 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 				$video_gallery  = get_field( 'videos' );
 				$about_vendor   = get_field( 'about_this_vendor' );
 				$special_offers = get_posts( array(
-                    'ep_integrate' => true,
-					'post_type'  => 'special_offers',
-					'meta_key'   => 'vendor',
-					'meta_value' => get_the_ID() // ensures we're only getting special offers for this vendor
+					'ep_integrate' => true,
+					'post_type'    => 'special_offers',
+					'meta_key'     => 'vendor',
+					'meta_value'   => get_the_ID() // ensures we're only getting special offers for this vendor
 				) );
 				$reviews        = get_field( 'wedding_wire_reviews_html' );
 				// Meta Query for getting through the Vendors section of Wedding Stories & Styled Shoots
 				
 				global $wpdb;
-				$sql = $wpdb->prepare(
-                    "SELECT * FROM $wpdb->posts AS p
+				$sql                = $wpdb->prepare(
+					"SELECT * FROM $wpdb->posts AS p
                     INNER JOIN $wpdb->postmeta AS pm ON pm.post_id = p.ID
                     WHERE p.post_type IN ('wedding_story', 'styled_shoot')
                     AND pm.meta_key LIKE 'vendors_%_vendor'
                     AND pm.meta_value = %d", get_the_ID()
-                );
-				$mentioned_anywhere = $wpdb->get_results($sql);
-//				print_r($mentioned_anywhere);
-				$vendor_posts              = get_posts( array(
+				);
+				$mentioned_anywhere = $wpdb->get_results( $sql );
+				//				print_r($mentioned_anywhere);
+				$vendor_posts = get_posts( array(
 					'ep_integrate' => true,
-                    'post_type'  => array(
+					'post_type'    => array(
 						'spotlight',
 						'styled_shoot',         // this query is "in the press"
 						'wedding_story',
 						'post'
 					),
-					'meta_key'   => 'vendor',
-					'meta_value' => get_the_ID()
+					'meta_key'     => 'vendor',
+					'meta_value'   => get_the_ID()
 				) );
-				$vendor_posts              = array_merge( $vendor_posts, $mentioned_anywhere );
-//								print_r($vendor_ws_ss_posts);
+				$vendor_posts = array_merge( $vendor_posts, $mentioned_anywhere );
+				// non-duplicate it
+                $non_duplicated = array();
+				if ( sizeof( $vendor_posts ) > 0 ) {
+					$id_array = array();
+					foreach ($vendor_posts as $vendor_post) {
+					    if (!in_array($vendor_post->ID, $id_array)) {
+					        $non_duplicated[] = $vendor_post;
+					        $id_array[] = $vendor_post->ID;
+					    }
+					}
+				}
+//				print_r($non_duplicated);
+                $vendor_posts = $non_duplicated;
+				
+				//								print_r($vendor_ws_ss_posts);
 				// TODO: Create a check for Comparison Guides! (Just hide it altogether for now)
 				$url_360  = get_field( '360-virtual-tour' );
 				$musician = get_field( 'music_vendor' );
@@ -531,8 +545,10 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 											?>
                                             <div class="special-offer">
                                                 <h4><?php echo get_the_title( $offer->ID ); ?></h4>
-<!--                                                <span class="offer-timeline">Starts: --><?php //echo get_field( 'offer_start_date', $offer->ID ); ?><!--</span><br>-->
-<!--                                                <span class="offer-timeline">--><?php //echo $end_date; ?><!--</span>-->
+                                                <!--                                                <span class="offer-timeline">Starts: -->
+												<?php //echo get_field( 'offer_start_date', $offer->ID ); ?><!--</span><br>-->
+                                                <!--                                                <span class="offer-timeline">-->
+												<?php //echo $end_date; ?><!--</span>-->
                                                 <p><?php the_field( 'special_offer_description', $offer->ID ); ?></p>
                                                 <div class="saw-button right"
                                                      onclick="event.preventDefault();MicroModal.show('special-offer-modal',{awaitCloseAnimation:true})">
@@ -564,8 +580,9 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
                                                             </p>
                                                             <p>Please fill out this form, and we will contact you with
                                                                 all the information you need.</p>
-															<?php gravity_form( 5, false, false, false, array( 'vendor_email'        => get_field( 'reply_email', $offer->ID ),
-															                                                   'special_offer_title' => get_the_title( $offer->ID ) . ' - Contact from SA Weddings'
+															<?php gravity_form( 5, false, false, false, array(
+																'vendor_email'        => get_field( 'reply_email', $offer->ID ),
+																'special_offer_title' => get_the_title( $offer->ID ) . ' - Contact from SA Weddings'
 															), true ); ?>
                                                         </div>
                                                     </div>
@@ -592,11 +609,13 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 										// check each post type to see that the vendor meta_key is equal to this vendor's post ID
 										
 										// $vendor_posts is created at the top of this page while checking for nav bar menu items to display
-										
+										$used_ids = array();
 										$post_types = [ 'spotlight', 'styled_shoot', 'wedding_story', 'post' ];
 										foreach ( $post_types as $this_type ) {
 											foreach ( $vendor_posts as $vendor_post ) {
-												if ( $vendor_post->post_type == $this_type && get_field('is_active', $vendor_post->ID) == true) { ?>
+												if ( $vendor_post->post_type == $this_type && get_field( 'is_active', $vendor_post->ID ) == true ) {
+											        if (in_array($vendor_post->ID, $used_ids)) { continue; }
+											        $used_ids = $vendor_post->ID; ?>
                                                     <div class="individual-press-post <?php echo $this_type; ?>">
                                                         <div class="left-half">
                                                             <div class="press-type">
@@ -665,20 +684,20 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								<?php /******************** Musician Vendor *********************/
 								if ( $musician ) : ?>
                                     <div id="audio-files-section">
-                                    <h2><span id="audio-files" class="sticky-top"></span><span
-                                                class="vendor-header-triangle"></span>Audio Files</h2>
-									<?php $audio_files = get_field( 'audio_files' );
-									foreach ( $audio_files as $audio_file ) { ?>
-                                        <div class="audio-file">
-                                            <h5 class="audio-title"><?php echo $audio_file['audio_title']; ?></h5>
-                                            <audio class="audio-player" controls>
-                                                <source src="<?php echo $audio_file['audio_file']['url']; ?>"
-                                                        type="audio/ogg">
-                                                Your browser does not support the audio element.
-                                            </audio>
-                                        </div>
-									<?php } ?>
-								    </div>
+                                        <h2><span id="audio-files" class="sticky-top"></span><span
+                                                    class="vendor-header-triangle"></span>Audio Files</h2>
+										<?php $audio_files = get_field( 'audio_files' );
+										foreach ( $audio_files as $audio_file ) { ?>
+                                            <div class="audio-file">
+                                                <h5 class="audio-title"><?php echo $audio_file['audio_title']; ?></h5>
+                                                <audio class="audio-player" controls>
+                                                    <source src="<?php echo $audio_file['audio_file']['url']; ?>"
+                                                            type="audio/ogg">
+                                                    Your browser does not support the audio element.
+                                                </audio>
+                                            </div>
+										<?php } ?>
+                                    </div>
 								<?php endif; ?>
 								
 								

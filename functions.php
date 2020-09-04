@@ -3631,73 +3631,44 @@ function render_archive_ajax( $atts ) {
 		$html .= $append == false ? '<div id="post-archive-list" class="search-results cols">' : '';
 
 //		add_filter( 'posts_where', 'title_filter', 10, 2 );
-        // The WP_Query to do a manual search for the $search term
-		$search_query = new WP_Query(
-			array(
-//				's'              => $search_term,
-                'ep_integrate'          => true,
-				'post_type'             => array(
-					'vendor_profile',
-					'spotlight',
-					'wedding_story',
-					'styled_shoot',
-					'post'
-				),
-				'posts_per_page' => -1,
-				'offset'         => $offset,
-                'meta_query'     => array(
-                    'relation'  => 'OR',
-                    array(
-                        'key' => 'about_this_vendor',
-                        'compare' => 'LIKE',
-                        'value' => $search_term
-                    ),
-                    array(
-                        'key' => 'article_content_%_text',
-                        'compare' => 'LIKE',
-                        'value' => $search_term
-                    )
-                ),
-				'search_fields'  => array(
-					'post_title',
-					'taxonomies' => array(
-						'photographer',
-						'location',
-						'category',
-						'post_tag'
-					),
-					'meta'       => array(
-						'text',
-						'image',
-						'about_this_vendor',
-                        'article_content_%_text'
-					),
-				),
-//                'meta_key' => 'is_active',
-//                'meta_value' => true,
-			)
-		);
+		// The WP_Query to do a manual search for the $search term
 		// Now, another query where we attempt to match the category
-        global $wpdb;
-        $search_category_query = $wpdb->get_results($wpdb->prepare(
-        "SELECT * FROM $wpdb->posts AS p
+		global $wpdb;
+		$search_title_query = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM $wpdb->posts AS p
+                JOIN $wpdb->postmeta AS pm ON pm.post_id = p.ID
+                WHERE p.post_type IN ('vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post')
+                AND (p.post_title LIKE %s AND p.post_status = 'publish')
+                AND (pm.meta_key = 'is_active'
+                    AND pm.meta_value = true)
+                OR (pm.meta_key = 'head_1'
+                    AND pm.meta_value LIKE %s)
+                OR (pm.meta_key = 'head_2'
+                    AND pm.meta_value LIKE %s)
+                GROUP BY p.ID",
+			
+			'%' . $search_term . '%', '%' . $search_term . '%', '%' . $search_term . '%'
+		) );
+//        print_r($search_title_query);
+		
+		$search_category_query          = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM $wpdb->posts AS p
                 JOIN $wpdb->term_relationships AS tr ON tr.object_id = p.ID
                 JOIN $wpdb->term_taxonomy AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
                 JOIN $wpdb->terms AS t ON t.term_id = tt.term_id
                 JOIN $wpdb->termmeta AS tm ON tm.term_id = t.term_id
-                WHERE p.post_type IN ('vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post', 'page')
+                WHERE p.post_type IN ('vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post')
                 AND t.name LIKE %s
                 GROUP BY t.term_id
-                ", '%'.$search_term.'%'
-        ));
-        print_r($search_category_query);
-        $search_query_group = new WP_Query();
-        $search_query_group->posts = array_merge($search_query->posts, $search_category_query);
-        $search_query_group->post_count = $search_query->post_count + sizeof($search_category_query);
-        $search_query_group->set('orderby', 'relevance');
-        $search_query_group->set('meta_key', 'is_active');
-        $search_query_group->set('meta_value', true);
-        $search_query_group->set('order', 'DESC');
+                ", '%' . $search_term . '%'
+		) );
+		$search_query_group             = new WP_Query();
+		$search_query_group->posts      = array_merge( $search_category_query, $search_title_query );
+		$search_query_group->post_count = sizeof( $search_category_query ) + sizeof( $search_title_query );
+		$search_query_group->set( 'orderby', 'title' );
+		$search_query_group->set( 'meta_key', 'is_active' );
+		$search_query_group->set( 'meta_value', true );
+		$search_query_group->set( 'order', 'ASC' );
 //        $results = $search_category_query->posts;
 //        foreach ($results as $result) {
 //            print_r($result->ID);
@@ -3723,10 +3694,13 @@ function render_archive_ajax( $atts ) {
 //                $html       .= '</div>'; // END .archive-col++
 //            }
 //        }
-        $count = 1;
+		$count = 1;
 		if ( $search_query_group->have_posts() ) :
 			while ( $search_query_group->have_posts() ) : $search_query_group->the_post();
-				// Featured Image
+				if (!in_array(get_post_type(), ['vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post'])) {
+				    continue;
+                }
+		        // Featured Image
 //				$feat_img = get_field('header_image');
 				$feat_img = get_the_post_thumbnail();
 				$html     .= '<div class="archive-col" onclick="window.location=\'' . get_the_permalink() . '\'">';
@@ -3742,8 +3716,10 @@ function render_archive_ajax( $atts ) {
                         <h4><a href="' . get_the_permalink() . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
-                if ($count >= 30) { break; }
-                $count++;
+				if ( $count >= 30 ) {
+					break;
+				}
+				$count ++;
 			endwhile;
 		else :
 			if ( $offset > 0 ) {
