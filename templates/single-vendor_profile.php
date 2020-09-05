@@ -534,8 +534,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 								/******************** Special Offers & Events ********************/
 								if ( $special_offers ) : ?>
                                     <h2><span id="special-offers" class="sticky-top"></span><span
-                                                class="vendor-header-triangle"></span>Special Offers &
-                                        Events</h2>
+                                                class="vendor-header-triangle"></span>Special Offers & Upcoming Events</h2>
 									<?php
 									// $special_offers is gotten at the top of this page, to determine whether or not its sticky menu item should show
 									// we have some matches - let's grab them ?>
@@ -635,7 +634,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 																} ?>
                                                             </div>
                                                             <div class="featured-image">
-																<?php echo get_the_post_thumbnail( $vendor_post->ID ); ?>
+                                                                <a href="<?php echo get_the_permalink($vendor_post->ID); ?>"><?php echo get_the_post_thumbnail( $vendor_post->ID ); ?></a>
                                                             </div>
                                                         </div>
                                                         <div class="right-half">

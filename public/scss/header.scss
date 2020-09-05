@@ -431,8 +431,12 @@
       @media screen and (min-width: 536px) and (max-width: 767px) {
         right: 124px;
       }
-      @media screen and (max-width: 535px) {
-        right: 90px;
+      @media screen and (min-width: 405px) and (max-width: 479px) {
+        right: unset;
+        left: 0;
+      }
+      @media screen and (max-width: 404px) {
+        left: 40px;
       }
     }
 
@@ -706,9 +710,12 @@
       @media screen and (min-width: 480px) and (max-width: 535px) {
         right: 90px;
       }
-      @media screen and (max-width: 479px) {
+      @media screen and (min-width: 405px) and (max-width: 479px) {
         right: unset;
         left: 0;
+      }
+      @media screen and (max-width: 404px) {
+        left: 40px;
       }
     }
 

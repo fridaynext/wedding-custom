@@ -4,7 +4,7 @@
  * @version 1.2.5
  */
 
-define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.6' );
+define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.8' );
 
 /*** Ensuring AJAX Requests use SSL ****/
 add_filter( 'https_local_ssl_verify', '__return_true' );
@@ -274,7 +274,7 @@ function fn_enqueue_styles() {
 //*********************************  WP_ENQUEUE_SCRIPTS *******************************//
 function fn_enqueue_scripts() {
 	// Scripts
-	wp_register_script( 'facebook_share', 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0', array(), null, true );
+//	wp_register_script( 'facebook_share', 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v7.0', array(), null, true );
 //    wp_enqueue_script( 'facebook_share' );
 	wp_register_script( 'pinterest_share', '//assets.pinterest.com/js/pinit.js', array(), null, true );
 //    wp_enqueue_script( 'pinterest_share' );
@@ -311,7 +311,7 @@ function fn_enqueue_scripts() {
 	wp_register_script( 'fn_scripts', plugins_url( 'public/js/scripts.js', __FILE__ ), array(
 		'jquery',
 		'jpopup_modal',
-		'facebook_share',
+//		'facebook_share',
 		'pinterest_share',
 		'jquery-ui-core',
 		'jquery-ui-tabs',
@@ -2988,39 +2988,39 @@ function render_stay_connected_footer() {
                                 <a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="242" data-pin-scale-width="80" href="https://www.pinterest.com/sanantonioweddings/"></a>
                             </div>
                             <div id="instagram" class="social-share-div">';
-	$config = new includes\Config\SawConfig();
-	$regex  = '/(?:(?:http|https):\/\/)?(?:www\.)?(?:instagram\.com|instagr\.am)\/([A-Za-z0-9-_\.]+)/im';
-	// Verify valid Instagram URL
+	                        $config = new includes\Config\SawConfig();
+                            $ig_username = 'sanantonio.weddings';
+                            if( false !== ($ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username)) ) {
+	                            $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed( $config->getIgUsername(), $config->getIgPassword(), $ig_username );
+	
+	
+	                            $html       .= '<div id="instagram" class="social-share-div">
+                                <div class="ig-header">
+                                    <div class="ig-profile-photo">
+                                        <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
+                                    </div>
+                                    <div class="ig-title">' . $ig_feed->title . '</div>
+                                </div>
+                                <div class="ig-photos">';
+	                            $flex_count = 0;
+	                            $html       .= '<div class="ig-photo-row">';
+	                            foreach ( $ig_feed->images as $image ) {
+		                            $flex_count ++;
+		                            $html .= $image;
+		                            if ( $flex_count % 3 == 0 ) {
+			                            if ( $flex_count == sizeof( $ig_feed->images ) ) {
+				                            break;
+			                            } else {
+				                            $html .= '</div><div class="ig-photo-row">';
+			                            }
+		                            }
+	                            }
+	                            $html .= '</div>';
+	                            $html .= '</div>
+                                <a class="ig-follow" href="https://www.instagram.com/sanantonio.weddings/" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
+                              </div>';
+                            }
 
-//                            $ig_username = 'sanantonio.weddings';
-//                            $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username);
-//
-//                            $html .= '<div id="instagram" class="social-share-div">
-//                                <div class="ig-header">
-//                                    <div class="ig-profile-photo">
-//                                        <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
-//                                    </div>
-//                                    <div class="ig-title">' . $ig_feed->title . '</div>
-//                                </div>
-//                                <div class="ig-photos">';
-//                                    $flex_count = 0;
-//                                    $html .= '<div class="ig-photo-row">';
-//                                    foreach ($ig_feed->images as $image) {
-//                                        $flex_count++;
-//                                        $html .= $image;
-//                                        if ($flex_count % 3 == 0) {
-//                                            if ($flex_count == sizeof($ig_feed->images)) {
-//                                                break;
-//                                            } else {
-//                                                $html .= '</div><div class="ig-photo-row">';
-//                                            }
-//                                        }
-//                                    }
-//                                    $html .= '</div>';
-//                                $html .= '</div>
-//                                <a class="ig-follow" href="https://www.instagram.com/sanantonio.weddings/" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
-//                              </div>';
-//
 	$html .= '</div>';
 	$html .= '</div>
                         <script type="text/javascript">
@@ -3961,7 +3961,9 @@ function render_banner_ad( $atts ) {
 //		'meta_key'       => 'exposure_level', // highest exposure ads first
 //		'orderby'        => 'meta_value_num',
 		'orderby'        => 'rand(' . get_random_post() . ')',
-		'order'          => 'ASC'
+		'order'          => 'ASC',
+        'meta_key'       => 'is_active',
+        'meta_value'     => true
 	);
 	if ( is_category() && $ad_type == 'category' ) {
 		// Find all Vendors in this Category

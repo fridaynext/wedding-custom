@@ -9,10 +9,13 @@ div.breadcrumbs {
 body.single-vendor_profile h1.entry-title {
   color: var(--black-color);
   text-transform: uppercase;
+  @media screen and (max-width: 450px) {
+    font-size: 30px;
+  }
 }
 
 .single-vendor_profile .container {
-  width: 97% !important;
+  width: 90% !important;
 }
 
 div.vendor-meta {

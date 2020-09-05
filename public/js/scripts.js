@@ -1,6 +1,10 @@
 $ = jQuery;
 
-$(document).ready(function () {
+$(document).on("ready", function () {
+    $('body').hide();
+    $(window).on('load', function() {
+        $('body').show();
+    });
 
     $(".vendor-login a").on('click', function () {
         $("div.vendor-login-form").toggleClass("visible");
