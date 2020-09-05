@@ -4,7 +4,7 @@
  * @version 1.2.5
  */
 
-define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.5' );
+define( 'FRIDAY_NEXT_EXTRAS_VERSION', '1.2.6' );
 
 /*** Ensuring AJAX Requests use SSL ****/
 add_filter( 'https_local_ssl_verify', '__return_true' );
@@ -3638,13 +3638,15 @@ function render_archive_ajax( $atts ) {
 			"SELECT * FROM $wpdb->posts AS p
                 JOIN $wpdb->postmeta AS pm ON pm.post_id = p.ID
                 WHERE p.post_type IN ('vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post')
-                AND (p.post_title LIKE %s AND p.post_status = 'publish')
-                AND (pm.meta_key = 'is_active'
-                    AND pm.meta_value = true)
-                OR (pm.meta_key = 'head_1'
+                AND (
+                    p.post_status = 'publish'
+                    AND (pm.meta_key = 'is_active' AND pm.meta_value = true)
+                    )
+                AND ((pm.meta_key = 'head_1'
                     AND pm.meta_value LIKE %s)
                 OR (pm.meta_key = 'head_2'
                     AND pm.meta_value LIKE %s)
+                OR p.post_title LIKE %s)
                 GROUP BY p.ID",
 			
 			'%' . $search_term . '%', '%' . $search_term . '%', '%' . $search_term . '%'
@@ -3959,7 +3961,7 @@ function render_banner_ad( $atts ) {
 //		'meta_key'       => 'exposure_level', // highest exposure ads first
 //		'orderby'        => 'meta_value_num',
 		'orderby'        => 'rand(' . get_random_post() . ')',
-		'order'          => 'DESC'
+		'order'          => 'ASC'
 	);
 	if ( is_category() && $ad_type == 'category' ) {
 		// Find all Vendors in this Category
@@ -3993,7 +3995,7 @@ function render_banner_ad( $atts ) {
 		$category_specific           = get_posts( $banner_w_category );
 		$banner_ads                  = get_posts( $banner_args );
 //		$combined_ads                      = array_merge( $category_specific, $banner_ads );
-		$combined_ads = $category_specific + $banner_ads;
+		$combined_ads = array_merge($category_specific, $banner_ads);
 		if ( ! empty( $combined_ads ) ) {
 			$offset = get_ad_offset( 'category' );
 			if ( $offset < sizeof( $combined_ads ) ) {
