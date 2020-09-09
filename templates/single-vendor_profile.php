@@ -324,8 +324,8 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 					"SELECT * FROM $wpdb->posts AS p
                     INNER JOIN $wpdb->postmeta AS pm ON pm.post_id = p.ID
                     WHERE p.post_type IN ('wedding_story', 'styled_shoot')
-                    AND pm.meta_key LIKE 'vendors_%_vendor'
-                    AND pm.meta_value = %d", get_the_ID()
+                    AND ((pm.meta_key LIKE 'vendors_%_vendor' AND pm.meta_value = %d)
+                    AND (pm.meta_key = 'is_active' AND pm.meta_value = true))", get_the_ID()
 				);
 				$mentioned_anywhere = $wpdb->get_results( $sql );
 				//				print_r($mentioned_anywhere);
@@ -337,8 +337,19 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() );
 						'wedding_story',
 						'post'
 					),
-					'meta_key'     => 'vendor',
-					'meta_value'   => get_the_ID()
+					'meta_query'   => array(
+                        'relation' => 'AND',
+                        array(
+                            'key'  => 'vendor',
+                            'value' => get_the_ID(),
+                            'compare' => '='
+                        ),
+                        array(
+                            'key'  => 'is_active',
+                            'value' => true,
+                            'compare' => '='
+                        )
+					),
 				) );
 				$vendor_posts = array_merge( $vendor_posts, $mentioned_anywhere );
 				// non-duplicate it

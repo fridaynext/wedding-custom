@@ -1,4 +1,9 @@
 /******************************* VARIABLES FOR ALL STYLING **************************************/
+/******* Hide Body Until Page Loaded *******/
+body {
+  visibility: hidden;
+}
+
 /******* SITE COLORS *******/
 :root {
   --red-color: #d15154;
@@ -65,12 +70,18 @@
 .special-offers-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  @media screen and (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
   margin-bottom: 40px;
 
   .individual-offer {
     &:nth-child(2n) {
       border-right: none;
       margin-left: 25px;
+      @media screen and (max-width: 480px) {
+        margin-left: 0;
+      }
     }
     border-right: 1px solid var(--medium-gray-color);
     padding: 25px 35px 0 15px;

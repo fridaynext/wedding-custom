@@ -1,9 +1,10 @@
 $ = jQuery;
 
 $(document).on("ready", function () {
-    $('body').hide();
+    // $('body').hide();
     $(window).on('load', function() {
-        $('body').show();
+        $('body').css("visibility", "unset");
+        // $(window).trigger("resize");
     });
 
     $(".vendor-login a").on('click', function () {
@@ -423,6 +424,8 @@ $(document).on("ready", function () {
         alphaClick = false;
         console.log("Clicked Archive More");
         console.log(offset);
+        let scrollPosition = $(window).scrollTop();
+
         // Want to set the offset based on how many articles are currently showing
         let data = {
             'action': 'archive_moreposts',
@@ -436,6 +439,8 @@ $(document).on("ready", function () {
         $.post(fnajax.ajax_url, data, function (response) {
             // can pass messages back via 'response' if I want to check to see if everything worked
             $('#post-archive-list').append(response.newhtml);
+            // document.getElementById("post-archive-list").append(response.newhtml)
+            $(document).scrollTop(scrollPosition);
         });
         e.preventDefault();
     });

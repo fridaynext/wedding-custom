@@ -43,160 +43,6 @@ if ( isset( wp_get_current_user()->ID ) && is_array( wp_get_current_user()->role
 add_action( 'wp_print_styles', 'fn_enqueue_styles' );
 add_action( 'wp_enqueue_scripts', 'fn_enqueue_scripts' );
 
-//add_filter( 'posts_where', 'this_vendor_title_posts_where' );
-//function this_vendor_title_posts_where( $where ) {
-//	global $wpdb;
-//	if ( isset( $_GET['this_vendor_title'] ) && ! empty( $_GET['this_vendor_title'] ) ) {
-//		$this_vendor_title = $_GET['this_vendor_title'];
-//		$where             .= ' AND ' . $wpdb->posts . '.post_title LIKE \'' . esc_sql( $wpdb->esc_like( $this_vendor_title ) ) . '%\'';
-//	}
-//
-//	return $where;
-//}
-
-// read in csv, and import into WP database
-//function import_vendors_func() {
-//
-//
-//	$row = 1;
-//	if ( ! file_exists( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv" ) ) {
-//		die( 'File does not exist' );
-//	}
-//
-//
-////	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" ) !== false ) {
-////		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/company-category.csv", "r" );
-//	if ( $handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" ) !== false ) {
-//		$handle = fopen( "/home2/sawtsite/www/wp-content/plugins/fn-saw/public/vendor_data.csv", "r" );
-//
-//		$repeat_ven = 1;
-//		$last_ven   = '';
-//		$tag_count = 0;
-//		$all_tags = get_terms(array("taxonomy" => "post_tag", "hide-empty" => false));
-//		$tag_name_array = array();
-//
-//
-//		foreach ($all_tags as $single_tag) {
-//		    $tag_name_array[$single_tag->name] = $single_tag->term_id;
-//        }
-//		while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== false ) {
-//
-//			$num = count( $data );
-//			echo "<p> $num fields in line $row: <br /></p>\n";
-//			$row ++;
-//			echo "Row: $row<br />";
-////			$vendor_id   = $data[0];
-////			$vendor_name = $data[1];
-////			$cat_name    = $data[2];
-////
-////			if ( $vendor_name == $last_ven ) { // checking the previous row with this one
-////				$repeat_ven ++;
-////			} else {
-////				$repeat_ven = 1;
-////			}
-////			$last_ven = $data[1]; // after doing the check, set $last_ven to the current row
-////
-////			$this_cat = get_terms( array(
-////				'taxonomy' => 'category',
-////				'name'     => $cat_name
-////			) );
-////			foreach ( $this_cat as $cat ) {
-////				$premium_listings = get_field( 'field_5ef380bcbbd1b', $vendor_id );
-////				$field_row        = array(
-////					'field_5ef3814abbd1d' => 5,
-////					'field_5ef38122bbd1c' => $cat->term_id// taxonomy,
-////				);
-////				if ( sizeof( $premium_listings ) >= $repeat_ven ) {
-////					echo "Updating row " . $repeat_ven . " for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
-////					update_row( 'field_5ef380bcbbd1b', $repeat_ven, $field_row, $vendor_id );
-////				} else {
-////					add_row( 'field_5ef380bcbbd1b', $field_row, $vendor_id );
-////					echo "Adding row for " . $vendor_name . ', with category: ' . $cat_name . '<br />';
-////				}
-////				break; // break immediately, since there should only be one category per line
-////			}
-////            $row++;
-//
-//			for ( $c = 0; $c < $num; $c ++ ) {
-//				if ( $data[ $c ] != '' ) {
-//					$this_id = $data[0];
-//					switch ( $c ) {
-////						case 3: // About Us
-////							update_field( 'about_this_vendor', $data[ $c ], $this_id );
-////							break;
-////						case 5: // Subject Line
-////							update_field( 'subject_line', $data[ $c ], $this_id );
-////							break;
-////						case 7: // Facebook
-////							update_field( 'facebook', $data[ $c ], $this_id );
-////							break;
-////						case 9: // Instagram
-////							update_field( 'instagram', $data[ $c ], $this_id );
-////							break;
-////						case 10: // Pinterest
-////							update_field( 'pinterest', $data[ $c ], $this_id );
-////							break;
-//						case 11: // Meta Title
-//							update_field( 'meta_title', $data[ $c ], $this_id );
-//							break;
-//						case 12: // Meta Description
-//							update_field( 'meta_description', $data[ $c ], $this_id );
-//							break;
-//						case 13: // Meta Keywords
-//
-//                            $keywords = explode( ",", $data[ $c ] );
-//							$keyword_id_arr = array();
-//							foreach ($keywords as $keyword) {
-//								$tag_count += 1;
-//							    // get the tag id
-////                                $this_term = get_term_by('name', trim($keyword), 'tag');
-//                                if(key_exists(trim($keyword), $tag_name_array)) {
-//                                    $keyword_id_arr[] = $tag_name_array[trim($keyword)];
-//                                } else {
-//	                                echo "Tag " . $tag_count . " wasn't found, creating it now...<br />";
-//	                                $this_term = wp_insert_term( trim( $keyword ), 'post_tag' );
-//	                                if ( ! is_wp_error( $this_term ) && ( $this_term != false && ! is_null( $this_term ) ) ) {
-//		                                echo "Now adding tag " . $tag_count . " as id: " . $this_term['term_id'] . "<br />";
-//		                                $keyword_id_arr[] = $this_term['term_id'];
-//	                                } else {
-//		                                echo "<strong>Still couldn't create tag " . $tag_count . " for some reason</strong><br />";
-//		                                echo $this_term->get_error_message() . "<br />";
-//	                                }
-//                                }
-//                            }
-//							update_field( 'meta_keywords', $keyword_id_arr, $this_id );
-//							break;
-//						case 17: // 360 Virtual Tour
-//							update_field( '360-virtual-tour', $data[ $c ], $this_id );
-//							break;
-//					}
-//				}
-//			}
-//
-//
-//			/*update_field( 'address', $address, $new_vendor_id );
-//			for ( $c = 0; $c < $num; $c ++ ) {
-//
-//			}
-//			$html .= "Success adding: " . $data[0] . "<br>";
-//		}
-//	else {
-//			$html .= "Error adding: " . $data[0] . "<br>";
-//		}*/
-//		}
-//		fclose( $handle );
-//	}
-//
-////    return $html;
-////    $vendors = get_posts(array('post_type' =>'vendor_profile', 'posts_per_page' => -1));
-////    foreach ($vendors as $vendor) {
-////        $website = 'https://' . get_field('website', $vendor->ID);
-////        update_field('website', $website, $vendor->ID);
-////    }
-//}
-
-add_shortcode( 'import_vendors', 'import_vendors_func' );
-
 /**
  * Proper ob_end_flush() for all levels
  *
@@ -338,7 +184,6 @@ function acf_reqs() {
 function allow_editors_to_html( $allow_unfiltered_html ) {
 	return true;
 }
-
 add_filter( 'acf/allow_unfiltered_html', 'allow_editors_to_html' );
 
 // Login Redirect
@@ -2267,7 +2112,9 @@ function render_blog_buzz() {
 		'post_type'      => 'post',
 		'posts_per_page' => 4,
 		'orderby'        => 'date',
-		'order'          => 'DESC'
+		'order'          => 'DESC',
+        'meta_key'       => 'is_active',
+        'meta_value'     => true
 	);
 	$blog_posts = get_posts( $args );
 	$count      = 1;
@@ -2299,7 +2146,9 @@ function render_homepage_spotlights() {
 	$args       = array(
 		'post_type'      => 'spotlight',
 		'posts_per_page' => 8,
-		'orderby'        => 'rand'
+		'orderby'        => 'rand',
+        'meta_key'       => 'is_active',
+        'meta_value'     => true
 	);
 	$spotlights = get_posts( $args );
 	$count      = 1;
@@ -2978,11 +2827,7 @@ function render_stay_connected_footer() {
                             </ul>
         
                             <div id="facebook" class="social-share-div">
-                                <div class="fb-page" data-href="https://www.facebook.com/SanAntonioWeddings/" data-tabs="timeline" data-width="259" data-height="359" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
-                                    <blockquote cite="https://www.facebook.com/SanAntonioWeddings/" class="fb-xfbml-parse-ignore">
-                                        <a href="https://www.facebook.com/SanAntonioWeddings/"></a>
-                                    </blockquote>
-                                </div>
+                                <div class="fb-page" data-href="https://www.facebook.com/SanAntonioWeddings/" data-tabs="timeline,events" data-width="259" data-height="359" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/SanAntonioWeddings/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/SanAntonioWeddings/">San Antonio Weddings</a></blockquote></div>
                             </div>
                             <div id="pinterest" class="social-share-div">
                                 <a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="242" data-pin-scale-width="80" href="https://www.pinterest.com/sanantonioweddings/"></a>
