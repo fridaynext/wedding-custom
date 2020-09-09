@@ -184,6 +184,7 @@ function acf_reqs() {
 function allow_editors_to_html( $allow_unfiltered_html ) {
 	return true;
 }
+
 add_filter( 'acf/allow_unfiltered_html', 'allow_editors_to_html' );
 
 // Login Redirect
@@ -2113,8 +2114,8 @@ function render_blog_buzz() {
 		'posts_per_page' => 4,
 		'orderby'        => 'date',
 		'order'          => 'DESC',
-        'meta_key'       => 'is_active',
-        'meta_value'     => true
+		'meta_key'       => 'is_active',
+		'meta_value'     => true
 	);
 	$blog_posts = get_posts( $args );
 	$count      = 1;
@@ -2147,8 +2148,8 @@ function render_homepage_spotlights() {
 		'post_type'      => 'spotlight',
 		'posts_per_page' => 8,
 		'orderby'        => 'rand',
-        'meta_key'       => 'is_active',
-        'meta_value'     => true
+		'meta_key'       => 'is_active',
+		'meta_value'     => true
 	);
 	$spotlights = get_posts( $args );
 	$count      = 1;
@@ -2806,7 +2807,7 @@ function render_vendors_footer() {
 /******************** STAY CONNECTED FOOTER MENU SHORTCODE ********************/
 add_shortcode( 'stay_connected', 'render_stay_connected_footer' );
 function render_stay_connected_footer() {
-	$html   =
+	$html        =
 		'<div id="footer-stay-connected">
             <div class="red-container">
                 <img class="arrows-up" src="' . plugins_url( 'public/img/arrows-up.svg', __FILE__ ) . '" alt="Stay Connected" />
@@ -2833,13 +2834,13 @@ function render_stay_connected_footer() {
                                 <a data-pin-do="embedUser" data-pin-board-width="100%" data-pin-scale-height="242" data-pin-scale-width="80" href="https://www.pinterest.com/sanantonioweddings/"></a>
                             </div>
                             <div id="instagram" class="social-share-div">';
-	                        $config = new includes\Config\SawConfig();
-                            $ig_username = 'sanantonio.weddings';
-                            if( false !== ($ig_feed = new includes\InstagramUserFeed\InstagramUserFeed($config->getIgUsername(), $config->getIgPassword(), $ig_username)) ) {
-	                            $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed( $config->getIgUsername(), $config->getIgPassword(), $ig_username );
-	
-	
-	                            $html       .= '<div id="instagram" class="social-share-div">
+	$config      = new includes\Config\SawConfig();
+	$ig_username = 'sanantonio.weddings';
+	if ( false !== ( $ig_feed = new includes\InstagramUserFeed\InstagramUserFeed( $config->getIgUsername(), $config->getIgPassword(), $ig_username ) ) ) {
+		$ig_feed = new includes\InstagramUserFeed\InstagramUserFeed( $config->getIgUsername(), $config->getIgPassword(), $ig_username );
+		
+		
+		$html       .= '<div id="instagram" class="social-share-div">
                                 <div class="ig-header">
                                     <div class="ig-profile-photo">
                                         <img src="' . $ig_feed->profile_photo . '" alt="Profile Photo" />
@@ -2847,25 +2848,25 @@ function render_stay_connected_footer() {
                                     <div class="ig-title">' . $ig_feed->title . '</div>
                                 </div>
                                 <div class="ig-photos">';
-	                            $flex_count = 0;
-	                            $html       .= '<div class="ig-photo-row">';
-	                            foreach ( $ig_feed->images as $image ) {
-		                            $flex_count ++;
-		                            $html .= $image;
-		                            if ( $flex_count % 3 == 0 ) {
-			                            if ( $flex_count == sizeof( $ig_feed->images ) ) {
-				                            break;
-			                            } else {
-				                            $html .= '</div><div class="ig-photo-row">';
-			                            }
-		                            }
-	                            }
-	                            $html .= '</div>';
-	                            $html .= '</div>
+		$flex_count = 0;
+		$html       .= '<div class="ig-photo-row">';
+		foreach ( $ig_feed->images as $image ) {
+			$flex_count ++;
+			$html .= $image;
+			if ( $flex_count % 3 == 0 ) {
+				if ( $flex_count == sizeof( $ig_feed->images ) ) {
+					break;
+				} else {
+					$html .= '</div><div class="ig-photo-row">';
+				}
+			}
+		}
+		$html .= '</div>';
+		$html .= '</div>
                                 <a class="ig-follow" href="https://www.instagram.com/sanantonio.weddings/" target="_blank">Follow On <img class="instagram-share" src="' . esc_url( plugins_url( 'public/img/Social-Media-Icons-SAW-Instagram.png', __FILE__ ) ) . '" alt="instagram-share"></a>
                               </div>';
-                            }
-
+	}
+	
 	$html .= '</div>';
 	$html .= '</div>
                         <script type="text/javascript">
@@ -3487,18 +3488,17 @@ function render_archive_ajax( $atts ) {
                     p.post_status = 'publish'
                     AND (pm.meta_key = 'is_active' AND pm.meta_value = true)
                     )
-                AND ((pm.meta_key = 'head_1'
-                    AND pm.meta_value LIKE %s)
-                OR (pm.meta_key = 'head_2'
-                    AND pm.meta_value LIKE %s)
-                OR p.post_title LIKE %s)
+                AND ((pm.meta_key = 'head_1' AND pm.meta_value LIKE %s)
+                OR (pm.meta_key = 'head_2' AND pm.meta_value LIKE %s)
+                OR (p.post_title LIKE %s)
+                )
                 GROUP BY p.ID",
 			
 			'%' . $search_term . '%', '%' . $search_term . '%', '%' . $search_term . '%'
 		) );
 //        print_r($search_title_query);
 		
-		$search_category_query          = $wpdb->get_results( $wpdb->prepare(
+		$search_category_query     = $wpdb->get_results( $wpdb->prepare(
 			"SELECT * FROM $wpdb->posts AS p
                 JOIN $wpdb->term_relationships AS tr ON tr.object_id = p.ID
                 JOIN $wpdb->term_taxonomy AS tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
@@ -3509,9 +3509,37 @@ function render_archive_ajax( $atts ) {
                 GROUP BY t.term_id
                 ", '%' . $search_term . '%'
 		) );
-		$search_query_group             = new WP_Query();
-		$search_query_group->posts      = array_merge( $search_category_query, $search_title_query );
+		$search_query_group        = new WP_Query();
+		$search_query_group->posts = array_merge( $search_category_query, $search_title_query );
+		$saved_vendor_ids          = array();
+		$non_duplicated            = array();
+		foreach ( $search_query_group->posts as $this_post ) {
+			if ( get_post_type( $this_post->ID ) == "vendor_profile" ) {
+				$saved_vendor_ids[] = $this_post->ID;
+			} else {
+			    $non_duplicated[] = $this_post->ID;
+            }
+		}
+		$related_posts                  = get_posts( array(
+			'post_type'  => array( 'spotlight', 'wedding_story', 'styled_shoot', 'post' ),
+			'meta_query' => array(
+				array(
+					'key'     => 'vendor',
+					'value'   => $saved_vendor_ids,
+					'compare' => 'IN'
+				)
+			),
+            'posts_per_page'  => -1
+		) );
+		$related_posts_final = array();
+		foreach ($related_posts as $related_post) {
+		    if (!in_array($related_post->ID, $non_duplicated)) {
+		        $related_posts_final[] = $related_post;
+            }
+        }
 		$search_query_group->post_count = sizeof( $search_category_query ) + sizeof( $search_title_query );
+		$search_query_group->posts      = array_merge( $search_query_group->posts, $related_posts_final );
+		$search_query_group->post_count = sizeof( $search_query_group->posts ) + sizeof( $related_posts_final );
 		$search_query_group->set( 'orderby', 'title' );
 		$search_query_group->set( 'meta_key', 'is_active' );
 		$search_query_group->set( 'meta_value', true );
@@ -3544,10 +3572,16 @@ function render_archive_ajax( $atts ) {
 		$count = 1;
 		if ( $search_query_group->have_posts() ) :
 			while ( $search_query_group->have_posts() ) : $search_query_group->the_post();
-				if (!in_array(get_post_type(), ['vendor_profile', 'spotlight', 'wedding_story', 'styled_shoot', 'post'])) {
-				    continue;
-                }
-		        // Featured Image
+				if ( ! in_array( get_post_type(), [
+					'vendor_profile',
+					'spotlight',
+					'wedding_story',
+					'styled_shoot',
+					'post'
+				] ) || get_field("is_active") !== true ) {
+					continue;
+				}
+				// Featured Image
 //				$feat_img = get_field('header_image');
 				$feat_img = get_the_post_thumbnail();
 				$html     .= '<div class="archive-col" onclick="window.location=\'' . get_the_permalink() . '\'">';
@@ -3563,9 +3597,9 @@ function render_archive_ajax( $atts ) {
                         <h4><a href="' . get_the_permalink() . '" alt="' . $post_title . '" title="' . $post_title . '">' . $post_title . '</a></h4>
             </div>'; // END .vendor-name
 				$html       .= '</div>'; // END .archive-col++
-				if ( $count >= 30 ) {
-					break;
-				}
+//				if ( $count >= 30 ) {
+//					break;
+//				}
 				$count ++;
 			endwhile;
 		else :
@@ -3807,8 +3841,8 @@ function render_banner_ad( $atts ) {
 //		'orderby'        => 'meta_value_num',
 		'orderby'        => 'rand(' . get_random_post() . ')',
 		'order'          => 'ASC',
-        'meta_key'       => 'is_active',
-        'meta_value'     => true
+		'meta_key'       => 'is_active',
+		'meta_value'     => true
 	);
 	if ( is_category() && $ad_type == 'category' ) {
 		// Find all Vendors in this Category
@@ -3842,7 +3876,7 @@ function render_banner_ad( $atts ) {
 		$category_specific           = get_posts( $banner_w_category );
 		$banner_ads                  = get_posts( $banner_args );
 //		$combined_ads                      = array_merge( $category_specific, $banner_ads );
-		$combined_ads = array_merge($category_specific, $banner_ads);
+		$combined_ads = array_merge( $category_specific, $banner_ads );
 		if ( ! empty( $combined_ads ) ) {
 			$offset = get_ad_offset( 'category' );
 			if ( $offset < sizeof( $combined_ads ) ) {
