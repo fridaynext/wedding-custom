@@ -3717,6 +3717,8 @@ function prefix_start_session() {
 	if ( ! session_id() ) {
 		session_start();
 		unset($_SESSION['random']);
+		unset($_SESSION['ad_cat_offset']);
+		unset($_SESSION['ad_square_offset']);
 	}
 }
 
@@ -3806,7 +3808,7 @@ function render_banner_ad( $atts ) {
 //	$vendor_categories = $wpdb->get_results( $query );
 	$meta_query_args = array();
 	$today           = date( 'Ymd' );
-	if ( $ad_type !== 'block' ) {
+//	if ( $ad_type !== 'block' ) {
 		$meta_query_args = array(
 			'relation' => 'AND',
 			array(
@@ -3830,7 +3832,7 @@ function render_banner_ad( $atts ) {
 				'value'   => true
 			)
 		);
-	}
+//	}
 //	$meta_query = new WP_Meta_Query( $meta_query_args );
 	
 	$banner_args = array(
@@ -3842,10 +3844,8 @@ function render_banner_ad( $atts ) {
 //		'orderby'        => 'meta_value_num',
 		'orderby'        => 'rand(' . get_random_post() . ')',
 		'order'          => 'ASC',
-		'meta_key'       => 'is_active',
-		'meta_value'     => true
 	);
-	if ( is_category() && $ad_type == 'category' ) {
+	if ( is_category() /*&& $ad_type == 'category'*/ ) {
 		// Find all Vendors in this Category
 		$vendor_args = array(
 			'post_type'      => 'vendor_profile',
@@ -3858,8 +3858,8 @@ function render_banner_ad( $atts ) {
 		$vendor_ids  = array();
 		foreach ( $vendors as $vendor ) {
 			array_push( $vendor_ids, $vendor->ID );
+//			print_r($vendor->ID . '<br>');
 		}
-		
 		
 		$banner_w_category = $banner_args;
 		// for checking that this ad is in the vendor ids array that has vendors in this page's category
@@ -3878,11 +3878,15 @@ function render_banner_ad( $atts ) {
 		// Now let's order the category specific ads based on their vendor's premium listing category level
 		$ads_w_premium = array();
 		$ad_hash_map = array();
-		foreach ( $category_specific as $this_ad ) {
-			// order by premium level
+		foreach ( $category_specific as $this_ad ) { // category specific ADs
+//			print_r($this_ad->ID);
+		    // order by premium level
 			// get the vendor ID from this ad, and then get the premium category ACF field from that
-			$this_ven_id        = get_field( 'advertiser', $this_ad->ID );
+			$this_ven        = get_field( 'advertiser', $this_ad->ID );
+			$this_ven_id     = $this_ven->ID;
+            //print_r($this_ven_id);
 			$this_ven_prem_cats = get_field( 'premium_listings', $this_ven_id );
+//			print_r($this_ven_prem_cats);
 			foreach ( $this_ven_prem_cats as $single_cat ) {
 				if ( $single_cat['category'] == get_queried_object_id() ) {
 					if ( $single_cat['level'] !== '' ) {
@@ -3895,28 +3899,18 @@ function render_banner_ad( $atts ) {
 				}
 			}
 		}
-//		print_r($ads_w_premium);
-//			print_r('<br><br><br>');
-		if ( sizeof( $ads_w_premium ) > 1 ) {
-//		    print_r($category_specific);
+		if ( sizeof( $ads_w_premium ) >= 1 ) {
 			asort( $ads_w_premium );
 			$category_specific_new = array();
 			foreach ( $ads_w_premium as $ad_id => $prem_level ) {
-//			    print_r($ad_id . ' => ' . $prem_level . '<br>');
                 // loop through each category specific, and order them in 'ads_w_premium' order
                 foreach ($category_specific as $this_ad) {
                     if ($this_ad->ID == $ad_id) {
                         $category_specific_new[] = $this_ad;
-//                        print_r($this_ad);
                     }
                 }
 			}
 			$category_specific = $category_specific_new;
-//			print_r('<br><br>' . $category_specific);
-		    foreach ( $category_specific_new as $this_ad ) {
-//		        print_r($this_ad . '<br>');
-            }
-//		    print_r('<br><br><br>');
 		}
 		// now we've allegedly captured all ads that have a premium listing and sorted them
 	}
@@ -3925,7 +3919,7 @@ function render_banner_ad( $atts ) {
 	shuffle($banner_ads);
 	$combined_ads = array_merge( $category_specific, $banner_ads );
 	if ( ! empty( $combined_ads ) ) {
-		$offset = get_ad_offset( 'category' );
+		$offset = $ad_type == 'category' ? get_ad_offset( 'category' ) : get_ad_offset('square');
 		if ( $offset < sizeof( $combined_ads ) ) {
 			$this_ad_id = $combined_ads[ $offset ]->ID;
 			$view_count = get_field( 'view_count', $this_ad_id );
@@ -4144,6 +4138,7 @@ function create_update_user( $post_id ) {
 	$acf_request     = $_POST['acf'];
 	$create_new_user = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f42cfe7c54e9'] : false;
 	$reset_password  = ! empty( $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] ) ? $acf_request['field_5f42d0bcd749d']['field_5f42d117d749f'] : false;
+	$special_offer = ! empty( $acf_request['field_5f0c75664e3b7'] ) ? $acf_request['field_5f0c75664e3b7'] : false;
 	if ( $create_new_user ) {
 		// Link new vendor was clicked. Make sure a username AND password were passed in, and then create the user
 		$email_username = ! empty( $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] ) ? $acf_request['field_5f42cc7f1db03']['field_5f29b6ee05253'] : false;
@@ -4196,7 +4191,11 @@ function create_update_user( $post_id ) {
 		if ( $user !== null && $new_password !== null ) {
 			wp_set_password( $new_password, $user ); // this will reset the user's password
 		}
-	}
+	} elseif ( $special_offer ) {
+	    if (!isset($acf_request['field_5ea5e09b6d308'])) {
+	        $_POST['acf']['field_5ea5e09b6d308'] = $_GET['ven_id'];
+        }
+    }
 	// regardless of what happens, ALWAYS clear out any plaintext password values from the database
 	$_POST['acf']['field_5f42cc7f1db03'] = array(
 		'field_5f42cfe7c54e9' => false,
@@ -4213,6 +4212,14 @@ function create_update_user( $post_id ) {
 	return $post_id;
 	
 }
+
+//add_filter('acf/update_value/key=field_5ea5e09b6d308', 'my_acf_update_value', 10, 3);
+//function my_acf_update_value($value, $post_id, $field) {
+//    if (!isset($value)) {
+//        $value = $_GET['ven_id']; // the current vendor id being stored in the URL as a parameter
+//    }
+//    return $value;
+//}
 
 /* [company_name] */
 add_shortcode( 'client_add_name', 'render_company_name' );
