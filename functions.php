@@ -4624,7 +4624,9 @@ function render_client_gallery() {
 			'field_groups'          => array( 'group_5e9d079710a9c' ),
 			// notate the field groups we want to show up on this page
 			'fields'                => array(  // specify which fields we want showing up on this page
-				'field_5e9d07b835e2e', // WeddingWire Reviews
+				'field_5e9d07b835e2e',  // Photo Gallery
+                'field_5e9d089c35e30',  // Videos
+                'field_5f29b35c9df4d'   // Which first? Photos or videos
 			)
 		);
 		ob_start();
