@@ -2925,10 +2925,11 @@ function mid_nav_vendors() {
 	
 	$query             = $wpdb->prepare(
 		"SELECT t.*, COUNT(*) from $wpdb->terms AS t
-        INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
+        INNER JOIN $wpdb->termmeta AS tm ON tm.term_id = t.term_id
+        INNER JOIN $wpdb->term_taxonomy AS tt ON tm.term_id = tt.term_id
         INNER JOIN $wpdb->term_relationships AS r ON r.term_taxonomy_id = tt.term_taxonomy_id
         INNER JOIN $wpdb->posts AS p ON p.ID = r.object_id
-        WHERE p.post_type = %s AND tt.taxonomy = %s
+        WHERE p.post_type = %s AND tt.taxonomy = %s AND (tm.meta_key = 'is_active' AND tm.meta_value = true)
         GROUP BY t.term_id ORDER BY t.name",
 		'vendor_profile',
 		'category'
@@ -3517,26 +3518,26 @@ function render_archive_ajax( $atts ) {
 			if ( get_post_type( $this_post->ID ) == "vendor_profile" ) {
 				$saved_vendor_ids[] = $this_post->ID;
 			} else {
-			    $non_duplicated[] = $this_post->ID;
-            }
+				$non_duplicated[] = $this_post->ID;
+			}
 		}
-		$related_posts                  = get_posts( array(
-			'post_type'  => array( 'spotlight', 'wedding_story', 'styled_shoot', 'post' ),
-			'meta_query' => array(
+		$related_posts       = get_posts( array(
+			'post_type'      => array( 'spotlight', 'wedding_story', 'styled_shoot', 'post' ),
+			'meta_query'     => array(
 				array(
 					'key'     => 'vendor',
 					'value'   => $saved_vendor_ids,
 					'compare' => 'IN'
 				)
 			),
-            'posts_per_page'  => -1
+			'posts_per_page' => - 1
 		) );
 		$related_posts_final = array();
-		foreach ($related_posts as $related_post) {
-		    if (!in_array($related_post->ID, $non_duplicated)) {
-		        $related_posts_final[] = $related_post;
-            }
-        }
+		foreach ( $related_posts as $related_post ) {
+			if ( ! in_array( $related_post->ID, $non_duplicated ) ) {
+				$related_posts_final[] = $related_post;
+			}
+		}
 		$search_query_group->post_count = sizeof( $search_category_query ) + sizeof( $search_title_query );
 		$search_query_group->posts      = array_merge( $search_query_group->posts, $related_posts_final );
 		$search_query_group->post_count = sizeof( $search_query_group->posts ) + sizeof( $related_posts_final );
@@ -3573,12 +3574,12 @@ function render_archive_ajax( $atts ) {
 		if ( $search_query_group->have_posts() ) :
 			while ( $search_query_group->have_posts() ) : $search_query_group->the_post();
 				if ( ! in_array( get_post_type(), [
-					'vendor_profile',
-					'spotlight',
-					'wedding_story',
-					'styled_shoot',
-					'post'
-				] ) || get_field("is_active") !== true ) {
+						'vendor_profile',
+						'spotlight',
+						'wedding_story',
+						'styled_shoot',
+						'post'
+					] ) || get_field( "is_active" ) !== true ) {
 					continue;
 				}
 				// Featured Image
@@ -3715,6 +3716,7 @@ function title_filter( $where, $wp_query ) {
 function prefix_start_session() {
 	if ( ! session_id() ) {
 		session_start();
+		unset($_SESSION['random']);
 	}
 }
 
@@ -3730,7 +3732,6 @@ function get_random_post() {
 
 // Store how many ads we have displayed, to ensure we don't get repeats
 function get_ad_offset( $ad_type ) {
-	prefix_start_session();
 	switch ( $ad_type ) {
 		case 'category':
 			if ( ! isset( $_SESSION['ad_cat_offset'] ) ) {
@@ -3874,21 +3875,67 @@ function render_banner_ad( $atts ) {
 			'value'   => $vendor_ids
 		);
 		$category_specific           = get_posts( $banner_w_category );
-		$banner_ads                  = get_posts( $banner_args );
-//		$combined_ads                      = array_merge( $category_specific, $banner_ads );
-		$combined_ads = array_merge( $category_specific, $banner_ads );
-		if ( ! empty( $combined_ads ) ) {
-			$offset = get_ad_offset( 'category' );
-			if ( $offset < sizeof( $combined_ads ) ) {
-				$this_ad_id = $combined_ads[ $offset ]->ID;
-				$view_count = get_field( 'view_count', $this_ad_id );
-				update_field( 'view_count', $view_count + 1, $this_ad_id );
-				update_field( 'last_viewed', date( "Y-m-d H:i:s" ), $this_ad_id );
-				$image   = get_field( 'ad_banner', $this_ad_id );
-				$post_id = '';
-				$html    .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url', $this_ad_id ) . '" title="' . get_field( 'banner_name', $this_ad_id ) . '" alt="' . get_field( 'banner_name', $this_ad_id ) . '" target="_blank" ><img data-target-id="' . ( is_single() ? $this_post_id : '' ) . '" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
+		// Now let's order the category specific ads based on their vendor's premium listing category level
+		$ads_w_premium = array();
+		$ad_hash_map = array();
+		foreach ( $category_specific as $this_ad ) {
+			// order by premium level
+			// get the vendor ID from this ad, and then get the premium category ACF field from that
+			$this_ven_id        = get_field( 'advertiser', $this_ad->ID );
+			$this_ven_prem_cats = get_field( 'premium_listings', $this_ven_id );
+			foreach ( $this_ven_prem_cats as $single_cat ) {
+				if ( $single_cat['category'] == get_queried_object_id() ) {
+					if ( $single_cat['level'] !== '' ) {
+						// The current category of this ad's vendor is the same as the page we're on
+						$ads_w_premium[$this_ad->ID] = $single_cat['level'];
+//						print_r("Level = " . $single_cat['level'] . '<br>');
+					} else {
+						$ads_w_premium[$this_ad->ID] = 5;
+					}
+				}
 			}
 		}
+//		print_r($ads_w_premium);
+//			print_r('<br><br><br>');
+		if ( sizeof( $ads_w_premium ) > 1 ) {
+//		    print_r($category_specific);
+			asort( $ads_w_premium );
+			$category_specific_new = array();
+			foreach ( $ads_w_premium as $ad_id => $prem_level ) {
+//			    print_r($ad_id . ' => ' . $prem_level . '<br>');
+                // loop through each category specific, and order them in 'ads_w_premium' order
+                foreach ($category_specific as $this_ad) {
+                    if ($this_ad->ID == $ad_id) {
+                        $category_specific_new[] = $this_ad;
+//                        print_r($this_ad);
+                    }
+                }
+			}
+			$category_specific = $category_specific_new;
+//			print_r('<br><br>' . $category_specific);
+		    foreach ( $category_specific_new as $this_ad ) {
+//		        print_r($this_ad . '<br>');
+            }
+//		    print_r('<br><br><br>');
+		}
+		// now we've allegedly captured all ads that have a premium listing and sorted them
+	}
+	
+	$banner_ads   = get_posts( $banner_args );
+	shuffle($banner_ads);
+	$combined_ads = array_merge( $category_specific, $banner_ads );
+	if ( ! empty( $combined_ads ) ) {
+		$offset = get_ad_offset( 'category' );
+		if ( $offset < sizeof( $combined_ads ) ) {
+			$this_ad_id = $combined_ads[ $offset ]->ID;
+			$view_count = get_field( 'view_count', $this_ad_id );
+			update_field( 'view_count', $view_count + 1, $this_ad_id );
+			update_field( 'last_viewed', date( "Y-m-d H:i:s" ), $this_ad_id );
+			$image   = get_field( 'ad_banner', $this_ad_id );
+			$post_id = '';
+			$html    .= '<div class="ad ' . $ad_type . '"><a href="' . get_field( 'banner_link_url', $this_ad_id ) . '" title="' . get_field( 'banner_name', $this_ad_id ) . '" alt="' . get_field( 'banner_name', $this_ad_id ) . '" target="_blank" ><img data-target-id="' . ( is_single() ? $this_post_id : '' ) . '" class="banner-ad-tracking" src="' . $image['url'] . '" alt="' . $image['alt'] . '" title="' . $image['title'] . '" width="' . $image['width'] . '" height="' . $image['height'] . '" /></a></div>';
+		}
+		
 		wp_reset_query();
 		
 		return $html;

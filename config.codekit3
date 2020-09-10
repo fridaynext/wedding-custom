@@ -47,14 +47,6 @@
 		"oAP": "/composer.phar",
 		"oF": 0
 		},
-	"/csv-import.php": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/csv-import.php",
-		"oF": 0
-		},
 	"/fn-saw.php": {
 		"cB": 0,
 		"ft": 8192,
